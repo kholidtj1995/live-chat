@@ -739,8 +739,7 @@
                     💬
                     <div class="pm-badge-counter" id="profile-pm-badge">0</div>
                 </button>
-                <button class="contacts-profile-btn" onclick="loadMyContactsUI()" title="Контактҳои ман">📕</button>
-                <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
+                               <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
             </div>
             <div class="profile-context-menu" id="profile-context-menu">
                 <button onclick="handleCreateRoomFromMenu()">➕ Сохтани комната</button>
@@ -1485,17 +1484,7 @@
         });
     }
 
-    function loadMyContactsUI() {
-        switchScreen('private-chats-screen');
-        document.getElementById('private-screen-title').innerText = "📕 Контактҳо";
-        
-        document.getElementById('private-screen-actions-zone').style.display = 'flex';
-        document.getElementById('contacts-tabs-bar').style.display = 'flex';
-        
-        switchContactTab('contacts');
-    }
-
-    function renderContactsListReal() {
+     function renderContactsListReal() {
         const container = document.getElementById('private-users-list-zone');
         container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Боркунии контактҳои шумо...</p>";
 
