@@ -610,10 +610,17 @@
             margin-top: 1px;
         }
 
-        /* МАВЗӮИ ТОРИК (DARK MODE STYLES) */
+/* МАВЗӮИ ТОРИК (DARK MODE STYLES) */
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
         body.dark-mode .phone-container { background: #1e293b; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
-        body.dark-mode .screen { background: #1e293b; }
+        
+        /* Ислоҳ: Ҳамаи экранҳо ва рӯйхатҳо заминаи торик мегиранд */
+        body.dark-mode .screen, 
+        body.dark-mode #home-screen, 
+        body.dark-mode #all-rooms-list, 
+        body.dark-mode #my-rooms-list,
+        body.dark-mode #private-chats-screen { background: #1e293b !important; }
+
         body.dark-mode .item-card, body.dark-mode .pm-user-row, body.dark-mode .profile-header-container, body.dark-mode .contacts-header-wrapper { background: #334155; border-color: rgba(255,255,255,0.08); color: #f8fafc; }
         body.dark-mode .pm-meta-text b, body.dark-mode .rooms-title-container h3, body.dark-mode h3 { color: #f8fafc !important; }
         body.dark-mode .pm-meta-text p, body.dark-mode .lock-icon, body.dark-mode .manage-btn { color: #cbd5e1; background: #475569; border-color: #475569; }
@@ -628,6 +635,11 @@
         body.dark-mode .contact-tab-btn { color: #cbd5e1; }
         body.dark-mode .contact-tab-btn.active { background: #334155; color: #a5b4fc; }
 
+        /* Ислоҳи ранг барои аудио плеер дар Dark Mode */
+        body.dark-mode .audio-player { background: rgba(255,255,255,0.05); }
+        body.dark-mode .audio-timeline { background: rgba(255,255,255,0.1); }
+        body.dark-mode .audio-progress { background: #818cf8; }
+
         /* ОВОЗӢ ВА АУДИО ПЛЕЕР СТИЛҲО */
         .audio-player { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 12px; min-width: 160px; margin-top: 4px; }
         .msg-wrapper.me .audio-player { background: rgba(255,255,255,0.15); }
@@ -636,6 +648,7 @@
         .msg-wrapper.me .audio-timeline { background: rgba(255,255,255,0.3); }
         .audio-progress { height: 100%; background: #667eea; border-radius: 2px; width: 0%; }
         .msg-wrapper.me .audio-progress { background: white; }
+		
     </style>
 </head>
 <body>
