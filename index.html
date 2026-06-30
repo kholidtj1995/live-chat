@@ -2,32 +2,32 @@
 <html lang="tg">
 <head>
     <meta charset="UTF-8">
-    <title>Бақайдгирии Firebase</title>
+    <title>Системаи воридшавӣ</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f4f9; }
-        .box { width: 350px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: white; }
-        input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; }
+        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
+        .box { width: 350px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="auth-box" class="box" style="display:none;">
     <h2>Бақайдгирӣ</h2>
-    <input type="text" id="fullname" placeholder="Ному насаб">
+    <input type="text" id="fullname" placeholder="Ном">
     <input type="text" id="phone" placeholder="Рақами телефон">
     <input type="password" id="password" placeholder="Парол">
-    <button onclick="registerUser()">Сабти ном</button>
+    <button onclick="handleUser()">Сабт шудан / Ворид шудан</button>
 </div>
 
-<div id="main-box" class="box" style="display:none; text-align: center;">
-    <h1>Хуш омадед!</h1>
+<div id="main-box" class="box" style="display:none; text-align:center;">
+    <h1>Хуш омадед ба барнома!</h1>
     <button onclick="logout()">Баромадан</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
@@ -44,7 +44,7 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // Санҷиши худкори корбар
+    // 1. Санҷиши худкор: Агар корбар пешина бошад, равзанаи асосиро нишон деҳ
     onAuthStateChanged(auth, (user) => {
         if (user) {
             document.getElementById('auth-box').style.display = 'none';
@@ -55,21 +55,26 @@
         }
     });
 
-    window.registerUser = async () => {
+    // 2. Логикаи сабт ё воридшавӣ
+    window.handleUser = async () => {
         const phone = document.getElementById('phone').value;
         const password = document.getElementById('password').value;
         const fullname = document.getElementById('fullname').value;
-        const email = phone + "@user.com"; // Сохтани почтаи маҷозӣ
+        const email = phone + "@user.app"; // Истифодаи рақам ҳамчун почта
 
         try {
+            // Кӯшиши сабти ном
             const cred = await createUserWithEmailAndPassword(auth, email, password);
-            await set(ref(db, 'users/' + cred.user.uid), {
-                fullname: fullname,
-                phone: phone
-            });
+            await set(ref(db, 'users/' + cred.user.uid), { fullname, phone });
             alert("Шумо бомуваффақият ба қайд гирифта шудед!");
-        } catch (err) {
-            alert("Хатогӣ: " + err.message);
+        } catch (e) {
+            // Агар корбар аллакай бошад, ворид шав
+            if (e.code === 'auth/email-already-in-use') {
+                await signInWithEmailAndPassword(auth, email, password);
+                alert("Хуш омадед!");
+            } else {
+                alert("Хатогӣ: " + e.message);
+            }
         }
     };
 
