@@ -2,13 +2,12 @@
 <html lang="tg">
 <head>
     <meta charset="UTF-8">
-    <title>Системаи Бақайдгирӣ</title>
+    <title>Бақайдгирии Firebase</title>
     <style>
         body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; background-color: #f4f4f9; }
-        .box { width: 350px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .box { width: 350px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: white; }
         input { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
-        .phone-group { display: flex; gap: 10px; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -16,18 +15,14 @@
 <div id="auth-box" class="box" style="display:none;">
     <h2>Бақайдгирӣ</h2>
     <input type="text" id="fullname" placeholder="Ному насаб">
-    <div class="phone-group">
-        <input type="text" id="cityCode" placeholder="+992" style="width: 30%;">
-        <input type="text" id="phone" placeholder="Рақами телефон" style="width: 70%;">
-    </div>
+    <input type="text" id="phone" placeholder="Рақами телефон">
     <input type="password" id="password" placeholder="Парол">
-    <button onclick="registerUser()">Сабти ном шудан</button>
+    <button onclick="registerUser()">Сабти ном</button>
 </div>
 
 <div id="main-box" class="box" style="display:none; text-align: center;">
     <h1>Хуш омадед!</h1>
-    <p>Шумо ба система ворид шудед.</p>
-    <button onclick="logout()" style="background-color: #dc3545;">Баромадан</button>
+    <button onclick="logout()">Баромадан</button>
 </div>
 
 <script type="module">
@@ -49,44 +44,36 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // МАНТИҚИ АСОСӢ:
+    // Санҷиши худкори корбар
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            // Агар корбар пешина бошад (аллакай сабт шуда бошад)
             document.getElementById('auth-box').style.display = 'none';
             document.getElementById('main-box').style.display = 'block';
         } else {
-            // Агар корбар нав бошад
             document.getElementById('auth-box').style.display = 'block';
             document.getElementById('main-box').style.display = 'none';
         }
     });
 
-    // Сабти номи корбари нав
     window.registerUser = async () => {
         const phone = document.getElementById('phone').value;
         const password = document.getElementById('password').value;
         const fullname = document.getElementById('fullname').value;
-        const cityCode = document.getElementById('cityCode').value;
-
-        const email = phone.replace(/\s+/g, '') + "@user.app";
+        const email = phone + "@user.com"; // Сохтани почтаи маҷозӣ
 
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, password);
             await set(ref(db, 'users/' + cred.user.uid), {
-                fullname, 
-                fullPhone: cityCode + phone
+                fullname: fullname,
+                phone: phone
             });
-            alert("Шумо ба қайд гирифта шудед!");
-            // Баъд аз сабти ном худкор ба равзанаи асосӣ мегузарад
+            alert("Шумо бомуваффақият ба қайд гирифта шудед!");
         } catch (err) {
             alert("Хатогӣ: " + err.message);
         }
     };
 
-    window.logout = () => {
-        signOut(auth).then(() => location.reload());
-    };
+    window.logout = () => signOut(auth).then(() => location.reload());
 </script>
 </body>
 </html>
