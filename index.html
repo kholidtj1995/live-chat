@@ -2,83 +2,19 @@
 <html lang="tg">
 <head>
     <meta charset="UTF-8">
-    <title>Системаи воридшавӣ</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding-top: 50px; }
-        .box { width: 350px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; cursor: pointer; }
-    </style>
+    <title>Системаи Вуруд</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div id="auth-box" class="box" style="display:none;">
-    <h2>Бақайдгирӣ</h2>
-    <input type="text" id="fullname" placeholder="Ном">
-    <input type="text" id="phone" placeholder="Рақами телефон">
-    <input type="password" id="password" placeholder="Парол">
-    <button onclick="handleUser()">Сабт шудан / Ворид шудан</button>
-</div>
-
-<div id="main-box" class="box" style="display:none; text-align:center;">
-    <h1>Хуш омадед ба барнома!</h1>
-    <button onclick="logout()">Баромадан</button>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
-        authDomain: "live-chat-ea070.firebaseapp.com",
-        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
-        projectId: "live-chat-ea070",
-        storageBucket: "live-chat-ea070.firebasestorage.app",
-        messagingSenderId: "321161064947",
-        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    // 1. Санҷиши худкор: Агар корбар пешина бошад, равзанаи асосиро нишон деҳ
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            document.getElementById('auth-box').style.display = 'none';
-            document.getElementById('main-box').style.display = 'block';
-        } else {
-            document.getElementById('auth-box').style.display = 'block';
-            document.getElementById('main-box').style.display = 'none';
-        }
-    });
-
-    // 2. Логикаи сабт ё воридшавӣ
-    window.handleUser = async () => {
-        const phone = document.getElementById('phone').value;
-        const password = document.getElementById('password').value;
-        const fullname = document.getElementById('fullname').value;
-        const email = phone + "@user.app"; // Истифодаи рақам ҳамчун почта
-
-        try {
-            // Кӯшиши сабти ном
-            const cred = await createUserWithEmailAndPassword(auth, email, password);
-            await set(ref(db, 'users/' + cred.user.uid), { fullname, phone });
-            alert("Шумо бомуваффақият ба қайд гирифта шудед!");
-        } catch (e) {
-            // Агар корбар аллакай бошад, ворид шав
-            if (e.code === 'auth/email-already-in-use') {
-                await signInWithEmailAndPassword(auth, email, password);
-                alert("Хуш омадед!");
-            } else {
-                alert("Хатогӣ: " + e.message);
-            }
-        }
-    };
-
-    window.logout = () => signOut(auth).then(() => location.reload());
-</script>
+    <div class="auth-box">
+        <h2 id="title">Сабти ном</h2>
+        <input type="text" id="name" placeholder="Ном">
+        <input type="text" id="phone" placeholder="Рақами телефон (992...)">
+        <input type="password" id="password" placeholder="Парол">
+        
+        <button id="mainBtn">Сабти ном</button>
+        <p onclick="toggleMode()" id="toggleText">Агар аллакай сабти ном шудаед, ин ҷо пахш кунед (Вуруд)</p>
+    </div>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
