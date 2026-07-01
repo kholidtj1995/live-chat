@@ -1265,16 +1265,22 @@ img {
         });
     }
 
-    function enterApp() {
-        updateProfileUI();
-        updateUserOnlineStatus();
-        document.getElementById('auth-screen').style.display = 'none';
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById('home-screen').classList.add('active-screen');
-        loadRoomsFromServer();
-        listenToUnreadMessages(); 
-        listenPrivateMessagesLive(); 
-    }
+function enterApp() {
+    updateProfileUI();
+    updateUserOnlineStatus();
+    
+    // Посбони амният фаъол карда шуд
+    monitorAccountSecurity(); 
+    
+    document.getElementById('auth-screen').style.display = 'none';
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+    document.getElementById('home-screen').classList.add('active-screen');
+    
+    loadRoomsFromServer();
+    listenToUnreadMessages(); 
+    // Хатогиро ислоҳ кардам (фосилаи зиёдатиро нест кардам)
+    listenPrivateMessagesLive(); 
+}
 
     function logout() {
         showSmartConfirm("Оё мехоҳед аз барнома бароед?", function(yes) {
@@ -2724,6 +2730,20 @@ function linkify(text) {
     return text.replace(urlRegex, function(url) {
         // Ранги кабуди равшан (#a8d5f7) дар ҳама заминаҳо (сафед ё торик) хуб менамояд
         return `<a href="${url}" target="_blank" style="color: #a8d5f7; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
+    });
+}
+// ... (ин қисм дигар функсияҳои шумо ҳастанд)
+
+function monitorAccountSecurity() {
+    if (!userData || !userData.phone) return;
+
+    // Назорат дар вақти воқеӣ
+    database.ref('users/' + userData.phone).on('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            localStorage.clear(); 
+            alert("Ҳисоби шумо аз система нест карда шуд. Лутфан аз нав ворид шавед.");
+            location.reload(); 
+        }
     });
 }
 </script>
