@@ -1942,29 +1942,42 @@ function listenToUnreadMessages() {
             Object.keys(allMessages).forEach(roomId => {
                 let room = roomsData.find(r => r.id === roomId);
                 
-                // ШАРТ: Танҳо комнатаҳое, ки АДМИНАШ шумо ҳастед (creatorPhone === userData.phone)
+                // ИНҶО ТАНҲО КОМНАТАҲОЕ ҚАБУЛ МЕШАВАНД, КИ СОҲИБАШ ШУМО ҲАСТЕД
                 if (room && room.creatorPhone === userData.phone) {
                     
-                    let messagesObj = allMessages[roomId];
-                    let messagesArray = Object.values(messagesObj);
+                    let messagesArray = Object.values(allMessages[roomId]);
+                    let unreadForThisRoom = 0;
 
-                    // 1. Ҳисоб кардани паёмҳои нави ин комната
-                    let unreadForThisRoom = messagesArray.filter(m => 
-                        m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])
-                    ).length;
+                    messagesArray.forEach(m => {
+                        if (m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])) {
+                            unreadForThisRoom++;
+                        }
+                    });
+
+                    if (currentChatRoomId === roomId && currentChatType === 'room') {
+                        unreadForThisRoom = 0;
+                    }
 
                     totalUnreadCount += unreadForThisRoom;
-
-                    // 2. Охирин паёмро меёбем (барои намоиш додан дар рӯйхат)
                     messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                     let lastMsg = messagesArray[messagesArray.length - 1];
 
-                    // 3. Илова кардан ба рӯйхати чатҳои фаъол
+                    if (lastMsg) {
+                        let isMyOwnMessage = (lastMsg.phone === userData.phone);
+                        let isUserInsideThisChat = (roomId === currentChatRoomId && currentChatType === 'room');
+                        let isRecentMessage = (Date.now() - (lastMsg.timestamp || 0) < 2500);
+
+                        if (!isMyOwnMessage && !isUserInsideThisChat && isRecentMessage) {
+                            msgSound.currentTime = 0;
+                            msgSound.play().catch(err => console.log("Садо манъ шуд:", err));
+                        }
+                    }
+
                     activeChats.push({
                         roomId: roomId,
                         roomName: room.name,
                         roomImg: room.img,
-                        lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.text) : "Паёме нест",
+                        lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.msgType === 'file' ? '📎 Файл/Расм' : lastMsg.text) : "Паёме нест",
                         lastMessageUser: lastMsg ? lastMsg.username : "",
                         timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
                         unreadCount: unreadForThisRoom
@@ -1973,32 +1986,20 @@ function listenToUnreadMessages() {
             });
         }
 
-        // 4. Намоиши бейджи сурх дар менюи поёнӣ
         let navBadge = document.getElementById('total-unread-badge');
         if (navBadge) {
-            navBadge.innerText = totalUnreadCount;
-            navBadge.style.display = totalUnreadCount > 0 ? "block" : "none";
+            if (totalUnreadCount > 0) {
+                navBadge.innerText = totalUnreadCount;
+                navBadge.style.display = "block";
+            } else {
+                navBadge.style.display = "none";
+            }
         }
 
         activeChats.sort((a, b) => b.timestamp - a.timestamp);
         renderActiveChats();
     });
 }
-
-            let navBadge = document.getElementById('total-unread-badge');
-            if (navBadge) {
-                if(totalUnreadCount > 0) {
-                    navBadge.innerText = totalUnreadCount;
-                    navBadge.style.display = "block";
-                } else {
-                    navBadge.style.display = "none";
-                }
-            }
-
-            activeChats.sort((a, b) => b.timestamp - a.timestamp);
-            renderActiveChats();
-        });
-    }
 
     function renderActiveChats() {
         let activeListHTML = "";
