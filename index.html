@@ -96,7 +96,9 @@
         .auth-form { width: 100%; max-width: 350px; background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 
         #chat-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 50; display: none; flex-direction: column; overflow: hidden; }
+		
         .chat-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+		
         .chat-header-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding-right: 5px; }
         .chat-header-actions { position: relative; }
@@ -659,6 +661,9 @@
         .msg-wrapper.me .audio-timeline { background: rgba(255,255,255,0.3); }
         .audio-progress { height: 100%; background: #667eea; border-radius: 2px; width: 0%; }
         .msg-wrapper.me .audio-progress { background: white; }
+		.hidden {
+    display: none !important;
+}
 		
     </style>
 </head>
@@ -2156,6 +2161,10 @@
     }
 
     function openChat(name, img, roomId, type = 'room') {
+	const contactsHeader = document.querySelector('.contacts-sticky-header');
+    if (contactsHeader) {
+        contactsHeader.style.display = 'none';
+    }
         currentChatRoomId = roomId;
         currentChatType = type;
         document.getElementById('chat-title').innerText = name;
@@ -2523,6 +2532,11 @@
     }
 
     function exitAndClearActiveChat() {
+    // 1. Дубора намоён кардани рамкаи болоӣ
+    const contactsHeader = document.querySelector('.contacts-sticky-header');
+    if (contactsHeader) {
+        contactsHeader.style.display = 'block'; 
+    }
         if (currentChatRoomId && currentChatType === 'room') {
             localStorage.setItem('last_view_' + currentChatRoomId, Date.now());
         }
