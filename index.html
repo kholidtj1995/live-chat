@@ -40,12 +40,11 @@
             user-select: text;
         }
 
-        img {
-            -webkit-user-drag: none;
-            -webkit-touch-callout: none;
-            user-select: none;
-            pointer-events: none; 
-        }
+img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
 
         .phone-container { 
             width: 100%; 
@@ -2388,12 +2387,11 @@ if (m.msgType === 'voice') {
         </div>`;
 } else if (m.msgType === 'file') {
     if (m.fileData && m.fileData.startsWith('data:image/')) {
-// Дар қисми намоиши расм (bubbleContentHTML)
-bubbleContentHTML = `
-    <img src="${m.fileData}" 
-         style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
-         onclick="openImageModal('${m.fileData}')">
-`;
+        bubbleContentHTML = `
+            <img src="${m.fileData}" 
+                 style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
+                 onclick="openImageModal('${m.fileData}')">
+        `;
     } else {
         // Намоиши файлҳои дигар (масалан PDF ё ғайра)
         bubbleContentHTML = `
@@ -2646,7 +2644,7 @@ function listenToPrivateMessagesLive() {
         messagesList.scrollTop = messagesList.scrollHeight;
     });
 }
-// Ин функсияро дар поёни скриптҳо, пеш аз </body> ҷойгир кунед
+// Ин функсияро дар поёни скриптҳо, пеш аз body ҷойгир кунед
 function openImageModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('modal-img');
