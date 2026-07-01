@@ -1348,13 +1348,13 @@ function enterApp() {
         } else { saveFinal(); }
     }
 
-    function switchScreen(screenId, element) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById(screenId).classList.add('active-screen');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        if (element) element.classList.add('active');
-        if(screenId === 'chat-screen') { renderActiveChats(); }
-    }
+function switchScreen(screenId, element) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+    document.getElementById(screenId).classList.add('active-screen');
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    if (element) element.classList.add('active');
+    if(screenId === 'chat-screen') { renderActiveChats(); }
+}
 
     function toggleProfileForm(show) {
         let box = document.getElementById('edit-profile-box');
@@ -2256,9 +2256,14 @@ function listenPrivateMessagesLive() {
     }
 
     function openChat(name, img, roomId, type = 'room') {
-	const contactsHeader = document.querySelector('.contacts-sticky-header');
+// Иловаи ин қисм ба дохили switchScreen
+    const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
-        contactsHeader.style.display = 'none';
+        if (screenId === 'private-chats-screen') {
+            contactsHeader.style.display = 'block';
+        } else {
+            contactsHeader.style.display = 'none';
+        }
     }
         currentChatRoomId = roomId;
         currentChatType = type;
@@ -2635,8 +2640,8 @@ if (m.msgType === 'voice') {
         });
     }
 
-    function exitAndClearActiveChat() {
-    // 1. Дубора намоён кардани рамкаи болоӣ
+function exitAndClearActiveChat() {
+    // Рамкаро маҷбуран намоён мекунем
     const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
         contactsHeader.style.display = 'block'; 
