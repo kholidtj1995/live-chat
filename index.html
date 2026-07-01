@@ -2418,7 +2418,7 @@ img {
                     let cityLabel = m.city ? ` (${m.city})` : "";
 
 // МУАЙЯНКУНИИ НАМУДИ ПАЁМ (ОДДӢ, ОВОЗӢ Ё РАСМ/ФАЙЛ)
-let bubbleContentHTML = `<div class="msg-text">${m.text}</div>`;
+let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; // Инҷо linkify илова шуд
 
 if (m.msgType === 'voice') {
     bubbleContentHTML = `
@@ -2713,6 +2713,14 @@ document.getElementById('image-modal').addEventListener('click', function(e) {
     // Дар дигар ҳолатҳо Modal баста шавад
     this.style.display = 'none';
 });
+// Ин функсияро дар поёни скриптҳо, дар назди дигар функсияҳо илова кунед
+function linkify(text) {
+    // Ин қоида (Regex) барои ёфтани ссылкаҳо
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">${url}</a>`;
+    });
+}
 </script>
 
 </body>
