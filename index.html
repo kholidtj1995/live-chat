@@ -667,37 +667,27 @@ img {
 .image-modal {
     display: none; 
     position: fixed; 
-    z-index: 99999; 
-    left: 0; 
-    top: 0;
-    width: 100%; 
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 99999; /* Ин бояд аз ҳама баланд бошад */
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Барои кор кардани зум дар мобилӣ муҳим аст */
 }
-
 .image-modal img {
-    /* Ин маҳдудиятҳоро гирифтем, то Panzoom озод кор кунад */
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
+    max-width: 90%;
+    max-height: 80%;
     border-radius: 10px;
-    touch-action: none; /* БАРОИ МОБИЛӢ: Барои он ки саҳифа ҳангоми зум наҷунбад */
+    pointer-events: auto; /* Барои он ки клик ба расм таъсир расонад */
 }
-
 .close-modal {
     position: absolute;
-    top: 20px; 
-    right: 20px;
-    color: white; 
-    font-size: 40px; /* Калонтар кардем, ки клик кардан осон бошад */
-    cursor: pointer;
-    z-index: 100000;
-}		
+    top: 20px; right: 20px;
+    color: white; font-size: 30px; cursor: pointer;
+}
+		
     </style>
-	</head>
+</head>
 <body>
 
 <div class="phone-container">
@@ -866,7 +856,7 @@ img {
     <span class="close-modal">&times;</span>
     <img id="modal-img" src="">
 </div>
-<script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
@@ -2397,14 +2387,13 @@ if (m.msgType === 'voice') {
         </div>`;
 } else if (m.msgType === 'file') {
     if (m.fileData && m.fileData.startsWith('data:image/')) {
-        // Истифодаи JSON.stringify барои бехатар кардани додаҳо
-        const safeData = JSON.stringify(m.fileData); 
         bubbleContentHTML = `
             <img src="${m.fileData}" 
                  style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
-                 onclick="openImageModal(${safeData})">
+                 onclick="openImageModal('${m.fileData}')">
         `;
     } else {
+        // Намоиши файлҳои дигар (масалан PDF ё ғайра)
         bubbleContentHTML = `
             <a href="${m.fileData}" download="${m.fileName}" style="color:inherit; font-weight:600; text-decoration:underline;">
                 📁 ${m.fileName || 'Файл'}
@@ -2656,45 +2645,24 @@ function listenToPrivateMessagesLive() {
     });
 }
 // Ин функсияро дар поёни скриптҳо, пеш аз body ҷойгир кунед
-// 1. Тағйирёбанда барои нигоҳ доштани ҳолати Panzoom
-    let elemPanzoom = null;
-
-    // 2. Функсияи кушодани модал
-    function openImageModal(imgSrc) {
-        const modal = document.getElementById('image-modal');
-        const modalImg = document.getElementById('modal-img');
-        
-        if (modal && modalImg) {
-            modal.style.display = 'flex';
-            modalImg.src = imgSrc;
-
-            // Агар пештар Panzoom фаъол шуда бошад, онро тоза мекунем
-            if (elemPanzoom) {
-                elemPanzoom.destroy();
-            }
-            
-            // Фаъол кардани Panzoom
-            elemPanzoom = Panzoom(modalImg, {
-                maxScale: 4,      // То 4 маротиба калон шавад
-                minScale: 1,      // Аз андозаи аслӣ хурдтар нашавад
-                contain: 'outside'
-            });
-            
-            // Илова кардани функсияи зум бо чархи муш
-            modalImg.parentElement.addEventListener('wheel', elemPanzoom.zoomWithWheel);
-        }
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    
+    if (modal && modalImg) {
+        modal.style.display = 'flex';
+        modalImg.src = imgSrc;
+    } else {
+        console.error("Modal элемент ёфт нашуд!");
     }
+}
 
-    // 3. Пӯшидани модал ҳангоми клик
-    document.getElementById('image-modal').addEventListener('click', function(e) {
-        // Пӯшидан танҳо агар дар холӣ ё тугмаи "X" клик карда шавад
-        if (e.target.id === 'image-modal' || e.target.className === 'close-modal') {
-            this.style.display = 'none';
-            if (elemPanzoom) {
-                elemPanzoom.reset(); // Расм ба ҳолати аввала бармегардад
-            }
-        }
-    });
+// Барои пӯшидан бо клик дар беруни расм
+document.getElementById('image-modal').addEventListener('click', function(e) {
+    if (e.target !== document.getElementById('modal-img')) {
+        this.style.display = 'none';
+    }
+});
 </script>
 
 </body>
