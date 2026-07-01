@@ -664,6 +664,28 @@
 		.hidden {
     display: none !important;
 }
+/* Modal барои расми калон */
+.image-modal {
+    display: none; 
+    position: fixed; 
+    z-index: 99999; 
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+}
+.image-modal img {
+    max-width: 90%;
+    max-height: 80%;
+    border-radius: 10px;
+    pointer-events: auto;
+}
+.close-modal {
+    position: absolute;
+    top: 20px; right: 20px;
+    color: white; font-size: 30px; cursor: pointer;
+}
 		
     </style>
 </head>
@@ -830,6 +852,10 @@
         <div id="toast-input-container"></div>
         <div class="toast-buttons" id="toast-buttons-container"></div>
     </div>
+</div>
+<div id="image-modal" class="image-modal" onclick="this.style.display='none'">
+    <span class="close-modal">&times;</span>
+    <img id="modal-img" src="">
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -2351,21 +2377,31 @@
                     let ticksHTML = isMe ? buildTicksHTML(m) : "";
                     let cityLabel = m.city ? ` (${m.city})` : "";
 
-                    // МУАЙЯНКУНИИ НАМУДИ ПАЁМ (ОДДӢ, ОВОЗӢ Ё РАСМ/ФАЙЛ)
-                    let bubbleContentHTML = `<div class="msg-text">${m.text}</div>`;
-                    if (m.msgType === 'voice') {
-                        bubbleContentHTML = `
-                            <div class="audio-player">
-                                <button class="audio-play-btn" onclick="playAudioMsg(this, '${m.fileData}')">▶️</button>
-                                <div class="audio-timeline"><div class="audio-progress"></div></div>
-                            </div>`;
-                    } else if (m.msgType === 'file') {
-                        if (m.fileData.startsWith('data:image/')) {
-                            bubbleContentHTML = `<img src="${m.fileData}" style="max-width:100%; border-radius:12px; margin-bottom:5px; pointer-events:auto; user-select:auto;"><br><a href="${m.fileData}" download="${m.fileName}" style="font-size:12px; color:#6366f1; text-decoration:underline;">Скачать расм</a>`;
-                        } else {
-                            bubbleContentHTML = `📁 <a href="${m.fileData}" download="${m.fileName}" style="color:inherit; font-weight:600; text-decoration:underline;">${m.fileName}</a>`;
-                        }
-                    }
+// МУАЙЯНКУНИИ НАМУДИ ПАЁМ (ОДДӢ, ОВОЗӢ Ё РАСМ/ФАЙЛ)
+let bubbleContentHTML = `<div class="msg-text">${m.text}</div>`;
+
+if (m.msgType === 'voice') {
+    bubbleContentHTML = `
+        <div class="audio-player">
+            <button class="audio-play-btn" onclick="playAudioMsg(this, '${m.fileData}')">▶️</button>
+            <div class="audio-timeline"><div class="audio-progress"></div></div>
+        </div>`;
+} else if (m.msgType === 'file') {
+    if (m.fileData && m.fileData.startsWith('data:image/')) {
+        // Намоиши расми хурд бо имкони клик кардан барои калон кардани он
+        bubbleContentHTML = `
+            <img src="${m.fileData}" 
+                 style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
+                 onclick="openImageModal('${m.fileData}')">
+        `;
+    } else {
+        // Намоиши файлҳои дигар (масалан PDF ё ғайра)
+        bubbleContentHTML = `
+            <a href="${m.fileData}" download="${m.fileName}" style="color:inherit; font-weight:600; text-decoration:underline;">
+                📁 ${m.fileName || 'Файл'}
+            </a>`;
+    }
+}
 
                     messagesHTML += `
                         <div class="msg-wrapper ${wrapperClass}">
@@ -2609,6 +2645,12 @@ function listenToPrivateMessagesLive() {
         messagesList.innerHTML = messagesHTML;
         messagesList.scrollTop = messagesList.scrollHeight;
     });
+}
+function openImageModal(imgSrc) {
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    modal.style.display = 'flex';
+    modalImg.src = imgSrc;
 }
 </script>
 
