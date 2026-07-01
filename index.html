@@ -1932,57 +1932,58 @@ function enterApp() {
         }
     }
 
-    function listenToUnreadMessages() {
-        database.ref('messages').on('value', (snapshot) => {
-            let allMessages = snapshot.val();
-            activeChats = [];
-            let totalUnreadCount = 0;
+function listenToUnreadMessages() {
+    database.ref('messages').on('value', (snapshot) => {
+        let allMessages = snapshot.val();
+        activeChats = [];
+        let totalUnreadCount = 0;
 
-            if(allMessages) {
-                Object.keys(allMessages).forEach(roomId => {
-                    let room = roomsData.find(r => r.id === roomId);
+        if (allMessages) {
+            Object.keys(allMessages).forEach(roomId => {
+                let room = roomsData.find(r => r.id === roomId);
+                
+                // ШАРТ: Танҳо комнатаҳое, ки АДМИНАШ шумо ҳастед (creatorPhone === userData.phone)
+                if (room && room.creatorPhone === userData.phone) {
                     
-                    if(room) {
-                        let messagesArray = Object.values(allMessages[roomId]);
-                        let unreadForThisRoom = 0;
+                    let messagesObj = allMessages[roomId];
+                    let messagesArray = Object.values(messagesObj);
 
-                        messagesArray.forEach(m => {
-                            if(m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])) {
-                                unreadForThisRoom++;
-                            }
-                        });
+                    // 1. Ҳисоб кардани паёмҳои нави ин комната
+                    let unreadForThisRoom = messagesArray.filter(m => 
+                        m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])
+                    ).length;
 
-                        if(currentChatRoomId === roomId && currentChatType === 'room') {
-                            unreadForThisRoom = 0;
-                        }
+                    totalUnreadCount += unreadForThisRoom;
 
-                        totalUnreadCount += unreadForThisRoom;
-                        messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                        let lastMsg = messagesArray[messagesArray.length - 1];
+                    // 2. Охирин паёмро меёбем (барои намоиш додан дар рӯйхат)
+                    messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    let lastMsg = messagesArray[messagesArray.length - 1];
 
-                        if (lastMsg) {
-                            let isMyOwnMessage = (lastMsg.phone === userData.phone);
-                            let isUserInsideThisChat = (roomId === currentChatRoomId && currentChatType === 'room');
-                            let isRecentMessage = (Date.now() - (lastMsg.timestamp || 0) < 2500);
+                    // 3. Илова кардан ба рӯйхати чатҳои фаъол
+                    activeChats.push({
+                        roomId: roomId,
+                        roomName: room.name,
+                        roomImg: room.img,
+                        lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.text) : "Паёме нест",
+                        lastMessageUser: lastMsg ? lastMsg.username : "",
+                        timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
+                        unreadCount: unreadForThisRoom
+                    });
+                }
+            });
+        }
 
-                            if (!isMyOwnMessage && !isUserInsideThisChat && isRecentMessage) {
-                                msgSound.currentTime = 0;
-                                msgSound.play().catch(err => console.log("Браузер автоматикӣ садоро манъ кард:", err));
-                            }
-                        }
+        // 4. Намоиши бейджи сурх дар менюи поёнӣ
+        let navBadge = document.getElementById('total-unread-badge');
+        if (navBadge) {
+            navBadge.innerText = totalUnreadCount;
+            navBadge.style.display = totalUnreadCount > 0 ? "block" : "none";
+        }
 
-                        activeChats.push({
-                            roomId: roomId,
-                            roomName: room.name,
-                            roomImg: room.img,
-                            lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.msgType === 'file' ? '📎 Файл/Расм' : lastMsg.text) : "Паёме нест",
-                            lastMessageUser: lastMsg ? lastMsg.username : "",
-                            timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
-                            unreadCount: unreadForThisRoom
-                        });
-                    }
-                });
-            }
+        activeChats.sort((a, b) => b.timestamp - a.timestamp);
+        renderActiveChats();
+    });
+}
 
             let navBadge = document.getElementById('total-unread-badge');
             if (navBadge) {
