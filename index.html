@@ -685,7 +685,40 @@ img {
     top: 20px; right: 20px;
     color: white; font-size: 30px; cursor: pointer;
 }
-		
+
+/* Илова барои Modal бо тугмаҳо */
+.modal-header {
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 480px;
+    display: flex;
+    justify-content: space-between; /* Зеркашӣ дар чап, Пӯшидан дар рост */
+    align-items: center;
+    z-index: 10000;
+}
+
+.modal-btn {
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.close-modal {
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 0 12px;
+    border-radius: 15px;
+    line-height: 40px;
+}	
     </style>
 </head>
 <body>
@@ -852,8 +885,12 @@ img {
         <div class="toast-buttons" id="toast-buttons-container"></div>
     </div>
 </div>
-<div id="image-modal" class="image-modal" onclick="this.style.display='none'">
-    <span class="close-modal">&times;</span>
+<div id="image-modal" class="image-modal">
+    <div class="modal-header">
+        <a id="download-btn" href="#" download="image.jpg" class="modal-btn">📥 Зеркашӣ</a>
+        <span class="close-modal" onclick="document.getElementById('image-modal').style.display='none'">&times;</span>
+    </div>
+    
     <img id="modal-img" src="">
 </div>
 
@@ -2644,24 +2681,33 @@ function listenToPrivateMessagesLive() {
         messagesList.scrollTop = messagesList.scrollHeight;
     });
 }
-// Ин функсияро дар поёни скриптҳо, пеш аз body ҷойгир кунед
+// Функсияи кушодани расм бо зеркашӣ
 function openImageModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('modal-img');
+    const downloadBtn = document.getElementById('download-btn');
     
     if (modal && modalImg) {
         modal.style.display = 'flex';
         modalImg.src = imgSrc;
+        
+        // Пайваст кардани расм ба тугмаи зеркашӣ
+        if (downloadBtn) {
+            downloadBtn.href = imgSrc;
+        }
     } else {
         console.error("Modal элемент ёфт нашуд!");
     }
 }
 
-// Барои пӯшидан бо клик дар беруни расм
+// Пӯшидани Modal (бо тафтиши элементҳо)
 document.getElementById('image-modal').addEventListener('click', function(e) {
-    if (e.target !== document.getElementById('modal-img')) {
-        this.style.display = 'none';
+    // Агар клик дар дохили расм ё тугмаи зеркашӣ бошад, Modal баста нашавад
+    if (e.target.id === 'modal-img' || e.target.id === 'download-btn' || e.target.classList.contains('modal-btn')) {
+        return;
     }
+    // Дар дигар ҳолатҳо Modal баста шавад
+    this.style.display = 'none';
 });
 </script>
 
