@@ -2635,34 +2635,41 @@ if (m.msgType === 'voice') {
         });
     }
 
-    function exitAndClearActiveChat() {
+function exitAndClearActiveChat() {
     // 1. Дубора намоён кардани рамкаи болоӣ
     const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
         contactsHeader.style.display = 'block'; 
     }
-        if (currentChatRoomId && currentChatType === 'room') {
-            localStorage.setItem('last_view_' + currentChatRoomId, Date.now());
-        }
-        if (currentChatRoomId) {
-            database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
-        }
-        if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
-        if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
-
-        document.getElementById('chat-window').style.display = 'none';
-        currentChatRoomId = "";
-        if(currentChatType === 'pm') {
-            if (document.getElementById('contacts-tabs-bar').style.display === 'flex') {
-                if(currentContactsTab === 'contacts') renderContactsListReal();
-                if(currentContactsTab === 'online') loadOnlineUsersUI();
-            } else {
-                buildPrivateChatsListUI();
-            }
-        } else {
-            renderActiveChats(); 
-        }
+    if (currentChatRoomId && currentChatType === 'room') {
+        localStorage.setItem('last_view_' + currentChatRoomId, Date.now());
     }
+    if (currentChatRoomId) {
+        database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
+    }
+    if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
+    if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
+
+    document.getElementById('chat-window').style.display = 'none';
+    currentChatRoomId = "";
+
+    // ИН ҶО ИЛОВА КАРДА ШУД:
+    // Аввал рӯйхатҳоро навсозӣ мекунем (мантиқи пешинаи шумо)
+    if (currentChatType === 'pm') {
+        if (document.getElementById('contacts-tabs-bar').style.display === 'flex') {
+            if (currentContactsTab === 'contacts') renderContactsListReal();
+            if (currentContactsTab === 'online') loadOnlineUsersUI();
+        } else {
+            buildPrivateChatsListUI();
+        }
+    } else {
+        renderActiveChats(); 
+    }
+
+    // Сипас ба экрани "Я" (Профил) мегузарем
+    const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
+    switchScreen('profile-screen', profileBtn);
+}
 	// Ин функсияро илова кунед, то паёмҳои шахсиро қабул кунад
 function listenToPrivateMessagesLive() {
     if (!currentChatRoomId || currentChatType !== 'pm') return;
