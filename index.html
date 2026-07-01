@@ -2545,6 +2545,57 @@
             renderActiveChats(); 
         }
     }
+	// Ин функсияро илова кунед, то паёмҳои шахсиро қабул кунад
+function listenToPrivateMessagesLive() {
+    if (!currentChatRoomId || currentChatType !== 'pm') return;
+
+    // Барои он ки вақти кушода будани чати шахсӣ паёмҳо зуд пайдо шаванд
+    database.ref('private_messages/' + currentChatRoomId).on('value', (snapshot) => {
+        if (currentChatRoomId === "") return;
+        
+        let messages = snapshot.val();
+        let messagesList = document.getElementById('chat-messages-list');
+        let messagesHTML = "";
+        let lastDateStr = "";
+
+        if (messages) {
+            let messagesArray = Object.values(messages);
+            messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+            messagesArray.forEach(m => {
+                let msgDateStr = formatDateDivider(m.timestamp);
+                if (msgDateStr !== lastDateStr) {
+                    messagesHTML += `<div class="date-divider"><span>${msgDateStr}</span></div>`;
+                    lastDateStr = msgDateStr;
+                }
+
+                let isMe = m.phone === userData.phone;
+                let wrapperClass = isMe ? "me" : "other";
+                
+                // Агар паём аз дигарон бошад ва ҳоло нахонда бошад, онро хондашуда қайд мекунем
+                if (!isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
+                   database.ref(`private_messages/${currentChatRoomId}/${m.id}/seenBy/${userData.phone}`).set(true);
+                }
+
+                messagesHTML += `
+                    <div class="msg-wrapper ${wrapperClass}">
+                        <img src="${m.userImg || defaultAvatar}" class="msg-avatar">
+                        <div class="msg-body">
+                            <span class="msg-username">${m.username}</span>
+                            <div class="msg-bubble">
+                                <div class="msg-text">${m.text}</div>
+                                <div class="msg-footer">
+                                    <span>${formatTime(m.timestamp)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+        messagesList.innerHTML = messagesHTML;
+        messagesList.scrollTop = messagesList.scrollHeight;
+    });
+}
 </script>
 
 </body>
