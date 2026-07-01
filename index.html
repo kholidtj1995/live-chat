@@ -920,9 +920,9 @@ img {
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
-    const msgSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/chat.mp3");
-    const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/Standard%20SMS%20sound.mp3");
+  const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
+const msgSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/chat.mp3");
+const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
     // МИКРОФОН ВА САБТИ ОВОЗ
     let mediaRecorder;
@@ -2035,37 +2035,53 @@ function enterApp() {
         }
     }
 
-    function listenPrivateMessagesLive() {
-        database.ref('private_status').on('value', snapshot => {
-            let totalUnreadPM = 0;
-            let statusData = snapshot.val();
-            if(statusData) {
-                Object.keys(statusData).forEach(chatId => {
-                    if(chatId.includes(userData.phone)) {
-                        let info = statusData[chatId];
-                        if(info.lastSender !== userData.phone && !info.read) {
-                            totalUnreadPM++;
-                            let isRecentPM = (Date.now() - (info.timestamp || 0) < 2500);
-                            let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
-                            if (isRecentPM && !isUserInsideThisPM) {
-                                privateMsgSound.currentTime = 0;
-                                privateMsgSound.play().catch(err => console.log("Браузер автоматикӣ садоро манъ кард:", err));
-                            }
+// Ин тағйирёбиро дар сатҳи боло (глобалӣ) илова кунед
+let lastPlayedSoundTimestamp = 0;
+
+function listenPrivateMessagesLive() {
+    database.ref('private_status').on('value', snapshot => {
+        let totalUnreadPM = 0;
+        let statusData = snapshot.val();
+        let currentTime = Date.now();
+
+        if(statusData) {
+            Object.keys(statusData).forEach(chatId => {
+                if(chatId.includes(userData.phone)) {
+                    let info = statusData[chatId];
+                    
+                    // Санҷиш: Агар паём аз дигар кас бошад ва хонда нашуда бошад
+                    if(info.lastSender !== userData.phone && !info.read) {
+                        totalUnreadPM++;
+                        
+                        let msgTime = info.timestamp || 0;
+                        let isRecentPM = (currentTime - msgTime < 5000); // Паёми то 5 сония пеш
+                        let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
+
+                        // Садо танҳо агар паём нав бошад, дар чат набошем ва садоро қаблан дар ин вақт назада бошем
+                        if (isRecentPM && !isUserInsideThisPM && msgTime > lastPlayedSoundTimestamp) {
+                            privateMsgSound.currentTime = 0;
+                            privateMsgSound.play().catch(err => console.log("Браузер садои PM-ро манъ кард:", err));
+                            
+                            // Вақти садои охиринро нав мекунем, то такрор нашавад
+                            lastPlayedSoundTimestamp = msgTime;
                         }
                     }
-                });
-            }
-            let pmBadge = document.getElementById('profile-pm-badge');
-            if(pmBadge) {
-                if(totalUnreadPM > 0) {
-                    pmBadge.innerText = totalUnreadPM;
-                    pmBadge.style.display = 'flex';
-                } else {
-                    pmBadge.style.display = 'none';
                 }
+            });
+        }
+
+        // Намоиши нишон (Badge)
+        let pmBadge = document.getElementById('profile-pm-badge');
+        if(pmBadge) {
+            if(totalUnreadPM > 0) {
+                pmBadge.innerText = totalUnreadPM;
+                pmBadge.style.display = 'flex';
+            } else {
+                pmBadge.style.display = 'none';
             }
-        });
-    }
+        }
+    });
+}
 
     function initiatePrivateChat(targetPhone, targetName) {
         if(targetPhone === userData.phone) {
