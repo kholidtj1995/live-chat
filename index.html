@@ -723,6 +723,11 @@ img {
     font-weight: 600;
     z-index: 10000;
 }
+/* Ҳамаи ссылкаҳо дар дохили паёмҳо */
+.msg-text a {
+    color: #60a5fa !important; /* Ранги кабуди дурахшон барои истинодҳо */
+    text-decoration: underline;
+}
     </style>
 </head>
 <body>
@@ -2715,10 +2720,10 @@ document.getElementById('image-modal').addEventListener('click', function(e) {
 });
 // Ин функсияро дар поёни скриптҳо, дар назди дигар функсияҳо илова кунед
 function linkify(text) {
-    // Ин қоида (Regex) барои ёфтани ссылкаҳо
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, function(url) {
-        return `<a href="${url}" target="_blank" style="color: #ffffff; text-decoration: underline; font-weight: bold;">${url}</a>`;
+        // Ранги кабуди равшан (#a8d5f7) дар ҳама заминаҳо (сафед ё торик) хуб менамояд
+        return `<a href="${url}" target="_blank" style="color: #a8d5f7; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
     });
 }
 </script>
