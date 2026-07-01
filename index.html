@@ -668,7 +668,7 @@
 .image-modal {
     display: none; 
     position: fixed; 
-    z-index: 99999; 
+    z-index: 99999; /* Ин бояд аз ҳама баланд бошад */
     left: 0; top: 0;
     width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.9);
@@ -679,7 +679,7 @@
     max-width: 90%;
     max-height: 80%;
     border-radius: 10px;
-    pointer-events: auto;
+    pointer-events: auto; /* Барои он ки клик ба расм таъсир расонад */
 }
 .close-modal {
     position: absolute;
@@ -2388,12 +2388,12 @@ if (m.msgType === 'voice') {
         </div>`;
 } else if (m.msgType === 'file') {
     if (m.fileData && m.fileData.startsWith('data:image/')) {
-        // Намоиши расми хурд бо имкони клик кардан барои калон кардани он
-        bubbleContentHTML = `
-            <img src="${m.fileData}" 
-                 style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
-                 onclick="openImageModal('${m.fileData}')">
-        `;
+// Дар қисми намоиши расм (bubbleContentHTML)
+bubbleContentHTML = `
+    <img src="${m.fileData}" 
+         style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
+         onclick="openImageModal('${m.fileData}')">
+`;
     } else {
         // Намоиши файлҳои дигар (масалан PDF ё ғайра)
         bubbleContentHTML = `
@@ -2646,12 +2646,25 @@ function listenToPrivateMessagesLive() {
         messagesList.scrollTop = messagesList.scrollHeight;
     });
 }
+// Ин функсияро дар поёни скриптҳо, пеш аз </body> ҷойгир кунед
 function openImageModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('modal-img');
-    modal.style.display = 'flex';
-    modalImg.src = imgSrc;
+    
+    if (modal && modalImg) {
+        modal.style.display = 'flex';
+        modalImg.src = imgSrc;
+    } else {
+        console.error("Modal элемент ёфт нашуд!");
+    }
 }
+
+// Барои пӯшидан бо клик дар беруни расм
+document.getElementById('image-modal').addEventListener('click', function(e) {
+    if (e.target !== document.getElementById('modal-img')) {
+        this.style.display = 'none';
+    }
+});
 </script>
 
 </body>
