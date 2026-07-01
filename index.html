@@ -728,13 +728,6 @@ img {
     color: #60a5fa !important; /* Ранги кабуди дурахшон барои истинодҳо */
     text-decoration: underline;
 }
-/* Барои дар мобайни корт истодани нишондиҳанда */
-.badge {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    margin-left: 10px !important;
-}
     </style>
 </head>
 <body>
@@ -2008,29 +2001,35 @@ function listenToUnreadMessages() {
     });
 }
 
-function renderActiveChats() {
-    let activeListHTML = "";
-    // ... (коди пешинаи шумо)
+    function renderActiveChats() {
+        let activeListHTML = "";
+        let visibleChatsCount = 0;
 
-    activeListHTML += `
-        <div class="item-card" onclick="tryEnterRoom('${chat.roomId}')" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px;">
-            <div class="card-main-info" style="display: flex; align-items: center; flex: 1; overflow: hidden;">
-                <img src="${chat.roomImg || defaultAvatar}" class="room-avatar" style="width: 40px; height: 40px;">
-                <div class="card-info" style="flex:1; margin-left:12px; display: flex; flex-direction: column; justify-content: center;">
-                    <!-- Ном ва паём дар як сатр -->
-                    <div style="font-size:15px; color:#1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        <b>🏢 ${chat.roomName}</b> 
-                        <span style="font-size:13px; color:#64748b; margin-left: 5px;">
-                            ${chat.lastMessageUser ? chat.lastMessageUser + ':' : ''} ${chat.lastMessageText}
-                        </span>
+        activeChats.forEach(chat => {
+            let lastView = localStorage.getItem('last_view_' + chat.roomId) || 0;
+            let lastMsgTime = chat.timestamp || 0; 
+
+            if (lastView >= lastMsgTime && chat.unreadCount <= 0) {
+                return;
+            }
+
+            visibleChatsCount++;
+            let badgeHTML = chat.unreadCount > 0 ? `<span class="badge" style="background:#ff3b30; color:white; padding:2px 7px; border-radius:10px; font-size:12px; font-weight:bold; margin-left:auto;">${chat.unreadCount}</span>` : "";
+
+            activeListHTML += `
+                <div class="item-card" onclick="tryEnterRoom('${chat.roomId}')" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div class="card-main-info" style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+                        <img src="${chat.roomImg || defaultAvatar}" class="room-avatar">
+                        <div class="card-info" style="flex:1; margin-left:10px; overflow:hidden;">
+                            <b>🏢 ${chat.roomName}</b>
+                            <span style="font-size:13px; color:#4a5568; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">
+                                <b>${chat.lastMessageUser ? chat.lastMessageUser + ':' : ''}</b> ${chat.lastMessageText}
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </div>
-            ${badgeHTML}
-        </div>`;
-    
-    // ...
-}
+                    ${badgeHTML}
+                </div>`;
+        });
 
         const activeChatsList = document.getElementById('active-chats-list');
         if (activeChatsList) {
