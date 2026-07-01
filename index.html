@@ -872,24 +872,23 @@ img {
         <div id="my-rooms-list"></div>
     </div>
 
-<div class="bottom-nav">
-    <button class="nav-item" onclick="switchScreen('home-screen', this)">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Главни
-    </button>
-
-    <button class="nav-item" onclick="switchScreen('private-chats-screen', this)">
-        <div class="nav-badge" id="total-unread-badge">0</div>
-        <svg viewBox="0 0 24 24">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-        </svg>
-        Контактҳо
-    </button>
-
-    <button class="nav-item active" onclick="switchScreen('profile-screen', this)">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-3-8-3z"/></svg>
-        Я
-    </button>
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="switchScreen('home-screen', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главни
+        </button>
+     <!-- Тугмаи Контактҳо -->
+<button class="nav-item" onclick="switchScreen('private-chats-screen', this)">
+    <div class="nav-badge" id="total-unread-badge">0</div>
+    <!-- Ин ҷо коди иконкаи контактҳо (одамон) аст -->
+    <svg viewBox="0 0 24 24">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+    </svg>
+    Контактҳо
+</button>
+        <button class="nav-item active" onclick="switchScreen('profile-screen', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-3-8-3z"/></svg>Я
+        </button>
+    </div>
 </div>
 
 <div id="smart-toast-overlay" class="toast-overlay">
@@ -1270,9 +1269,12 @@ const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj199
             }
         });
     }
+
 function enterApp() {
     updateProfileUI();
     updateUserOnlineStatus();
+    
+    // Посбони амният фаъол карда шуд
     monitorAccountSecurity(); 
     
     document.getElementById('auth-screen').style.display = 'none';
@@ -1281,8 +1283,8 @@ function enterApp() {
     
     loadRoomsFromServer();
     listenToUnreadMessages(); 
-    listenPrivateMessagesLive(); // Ин ҳаст
-    listenToPrivateMessagesLive(); // Инро ҳам илова кунед
+    // Хатогиро ислоҳ кардам (фосилаи зиёдатиро нест кардам)
+    listenPrivateMessagesLive(); 
 }
 
     function logout() {
@@ -1346,52 +1348,26 @@ function enterApp() {
         } else { saveFinal(); }
     }
 
-function switchScreen(screenId, element) {
-    // 1. Ҳама экранҳоро пинҳон мекунем
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-    
-    // 2. Экрани лозимаро намоён мекунем
-    const screen = document.getElementById(screenId);
-    if (screen) {
-        screen.classList.add('active-screen');
-    }
-    
-    // 3. Фаъолсозии тугмаҳо дар менюи поёнӣ
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    if (element) {
-        element.classList.add('active');
-    }
-    
-    // 4. Мантиқи махсус барои header-и контактҳо
-    const contactsHeader = document.querySelector('.contacts-sticky-header');
-    if (contactsHeader) {
-        // Агар экран экрани "Контактҳо" бошад, header-ро нишон медиҳем, дар акси ҳол пинҳон мекунем
-        contactsHeader.style.display = (screenId === 'private-chats-screen') ? 'block' : 'none';
+    function switchScreen(screenId, element) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        document.getElementById(screenId).classList.add('active-screen');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        if (element) element.classList.add('active');
+        if(screenId === 'chat-screen') { renderActiveChats(); }
     }
 
-    // 5. Функсияҳои иловагии экранҳо
-    if(screenId === 'chat-screen') { renderActiveChats(); }
-}
-
-function toggleProfileForm(show) {
-    let box = document.getElementById('edit-profile-box');
-    if(!box) return; // Пешгирии хатогӣ агар элемент набошад
-
-    if(show) {
-        document.getElementById('edit-name').value = userData.name;
-        document.getElementById('edit-phone').value = userData.phone;
-        document.getElementById('edit-city').value = userData.city || "";
-        document.getElementById('edit-pass').value = userData.password || "";
-        document.getElementById('edit-pass').type = "password";
-        
-        let toggleBtn = box.querySelector('.toggle-password');
-        if(toggleBtn) toggleBtn.innerText = "👁️";
-        
-        box.style.display = 'block';
-    } else { 
-        box.style.display = 'none'; 
+    function toggleProfileForm(show) {
+        let box = document.getElementById('edit-profile-box');
+        if(show) {
+            document.getElementById('edit-name').value = userData.name;
+            document.getElementById('edit-phone').value = userData.phone;
+            document.getElementById('edit-city').value = userData.city || "";
+            document.getElementById('edit-pass').value = userData.password || "";
+            document.getElementById('edit-pass').type = "password";
+            box.querySelector('.toggle-password').innerText = "👁️";
+            box.style.display = 'block';
+        } else { box.style.display = 'none'; }
     }
-}
 
     function toggleRoomForm(show) {
         let formBox = document.getElementById('room-form-box');
@@ -2280,14 +2256,9 @@ function listenPrivateMessagesLive() {
     }
 
     function openChat(name, img, roomId, type = 'room') {
-// Иловаи ин қисм ба дохили switchScreen
-    const contactsHeader = document.querySelector('.contacts-sticky-header');
+	const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
-        if (screenId === 'private-chats-screen') {
-            contactsHeader.style.display = 'block';
-        } else {
-            contactsHeader.style.display = 'none';
-        }
+        contactsHeader.style.display = 'none';
     }
         currentChatRoomId = roomId;
         currentChatType = type;
@@ -2664,8 +2635,8 @@ if (m.msgType === 'voice') {
         });
     }
 
-function exitAndClearActiveChat() {
-    // Рамкаро маҷбуран намоён мекунем
+    function exitAndClearActiveChat() {
+    // 1. Дубора намоён кардани рамкаи болоӣ
     const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
         contactsHeader.style.display = 'block'; 
@@ -2692,15 +2663,9 @@ function exitAndClearActiveChat() {
             renderActiveChats(); 
         }
     }
-	
 	// Ин функсияро илова кунед, то паёмҳои шахсиро қабул кунад
 function listenToPrivateMessagesLive() {
-    if (privateChatListener) privateChatListener.off(); // Тоза кардани лисенери кӯҳна
-    
     if (!currentChatRoomId || currentChatType !== 'pm') return;
-
-    privateChatListener = database.ref('private_messages/' + currentChatRoomId);
-    privateChatListener.on('value', (snapshot) => {
 
     // Барои он ки вақти кушода будани чати шахсӣ паёмҳо зуд пайдо шаванд
     database.ref('private_messages/' + currentChatRoomId).on('value', (snapshot) => {
