@@ -804,7 +804,6 @@ img {
         <div class="contacts-sticky-header">
             <div class="contacts-header-wrapper">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <button class="btn btn-secondary btn-sm" onclick="switchScreen('profile-screen')" style="margin: 0; padding: 8px 12px;">←</button>
                     <h3 id="private-screen-title" style="font-size:16px;">💬 Контактҳо</h3>
                 </div>
                 <div style="display: flex; gap: 5px;" id="private-screen-actions-zone">
@@ -827,11 +826,7 @@ img {
         <div class="profile-header-container">
             <h3 style="font-size: 16px;">👤 Профили ман</h3>
             <div class="profile-header-btns">
-                <button class="pms-profile-btn" onclick="buildPrivateChatsListUI()" title="Чатҳои шахсӣ">
-                    💬
-                    <div class="pm-badge-counter" id="profile-pm-badge">0</div>
-                </button>
-                               <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
+                <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
             </div>
             <div class="profile-context-menu" id="profile-context-menu">
                 <button onclick="handleCreateRoomFromMenu()">➕ Сохтани комната</button>
@@ -877,8 +872,8 @@ img {
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главни
         </button>
      <!-- Тугмаи Контактҳо -->
-<button class="nav-item" onclick="switchScreen('private-chats-screen', this)">
-    <div class="nav-badge" id="total-unread-badge">0</div>
+<button class="nav-item" onclick="openContactsScreen(this)">
+    <div class="nav-badge" id="contacts-unread-badge">0</div>
     <!-- Ин ҷо коди иконкаи контактҳо (одамон) аст -->
     <svg viewBox="0 0 24 24">
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
@@ -886,6 +881,7 @@ img {
     Контактҳо
 </button>
         <button class="nav-item active" onclick="switchScreen('profile-screen', this)">
+            <div class="nav-badge" id="rooms-unread-badge">0</div>
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-3-8-3z"/></svg>Я
         </button>
     </div>
@@ -1456,6 +1452,14 @@ function enterApp() {
         }
     }
 
+    function openContactsScreen(element) {
+        switchScreen('private-chats-screen', element);
+        document.getElementById('private-screen-title').innerText = "💬 Контактҳо";
+        document.getElementById('private-screen-actions-zone').style.display = 'flex';
+        document.getElementById('contacts-tabs-bar').style.display = 'flex';
+        switchContactTab(currentContactsTab || 'contacts');
+    }
+
     function switchContactTab(tabId) {
         currentContactsTab = tabId;
         document.querySelectorAll('.contact-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1991,7 +1995,7 @@ function listenToUnreadMessages() {
             });
         }
 
-        let navBadge = document.getElementById('total-unread-badge');
+        let navBadge = document.getElementById('rooms-unread-badge');
         if (navBadge) {
             if (totalUnreadCount > 0) {
                 navBadge.innerText = totalUnreadCount;
@@ -2073,7 +2077,7 @@ function listenPrivateMessagesLive() {
         }
 
         // Намоиши нишон (Badge)
-        let pmBadge = document.getElementById('profile-pm-badge');
+        let pmBadge = document.getElementById('contacts-unread-badge');
         if(pmBadge) {
             if(totalUnreadPM > 0) {
                 pmBadge.innerText = totalUnreadPM;
