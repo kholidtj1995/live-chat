@@ -436,6 +436,36 @@ img {
             transition: transform 0.2s;
         }
         .add-profile-btn:active, .contacts-profile-btn:active, .pms-profile-btn:active { transform: scale(0.9); }
+
+        .pms-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff3b30;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 5px;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 0 2px #ffffff;
+        }
+        body.dark-mode .pms-badge { box-shadow: 0 0 0 2px #334155; }
+
+        .room-unread-badge {
+            background: #ff3b30;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            margin-right: 6px;
+            display: inline-block;
+        }
         
         .profile-context-menu {
             display: none;
@@ -826,6 +856,10 @@ img {
         <div class="profile-header-container">
             <h3 style="font-size: 16px;">👤 Профили ман</h3>
             <div class="profile-header-btns">
+                <button class="pms-profile-btn" onclick="buildPrivateChatsListUI()" title="Паёмҳои шахсӣ">
+                    ✉️
+                    <span class="pms-badge" id="profile-pm-badge">0</span>
+                </button>
                 <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
             </div>
             <div class="profile-context-menu" id="profile-context-menu">
@@ -1410,6 +1444,10 @@ function enterApp() {
                 let secretText = room.isSecret ? "👁️ Намоён кардан дар главни" : "🕵️‍♂️ Танзими Невидимка";
                 let adminWriteText = room.onlyAdminCanWrite ? "👥 Ба ҳама иҷозат додан" : "👤 Танҳо ман нависам";
 
+                let roomChatInfo = activeChats.find(c => c.roomId === room.id);
+                let roomUnreadCount = roomChatInfo ? roomChatInfo.unreadCount : 0;
+                let roomUnreadBadgeHTML = roomUnreadCount > 0 ? `<span class="room-unread-badge">${roomUnreadCount}</span>` : "";
+
                 myRoomsHTML += `
                     <div class="item-card" id="my-room-${room.id}">
                         <div class="card-main-info" onclick="toggleManageMenu('${room.id}')">
@@ -1417,6 +1455,7 @@ function enterApp() {
                             <div class="card-info" style="flex:1; margin-left:10px;">
                                 <b style="font-size:15px; color:#1e293b;">🏢 ${room.name} ${room.isSecret ? "🕵️‍♂️" : ""}</b>
                             </div>
+                            ${roomUnreadBadgeHTML}
                             <span class="lock-icon">${lockIcon}</span>
                         </div>
                         
@@ -2007,6 +2046,7 @@ function listenToUnreadMessages() {
 
         activeChats.sort((a, b) => b.timestamp - a.timestamp);
         renderActiveChats();
+        renderRoomsUI();
     });
 }
 
@@ -2084,6 +2124,17 @@ function listenPrivateMessagesLive() {
                 pmBadge.style.display = 'flex';
             } else {
                 pmBadge.style.display = 'none';
+            }
+        }
+
+        // Нишони тугмаи паёмҳои шахсӣ дар профил (пеш аз тугмаи +)
+        let profilePmBadge = document.getElementById('profile-pm-badge');
+        if(profilePmBadge) {
+            if(totalUnreadPM > 0) {
+                profilePmBadge.innerText = totalUnreadPM;
+                profilePmBadge.style.display = 'block';
+            } else {
+                profilePmBadge.style.display = 'none';
             }
         }
     });
