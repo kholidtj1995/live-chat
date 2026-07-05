@@ -1538,6 +1538,26 @@ function enterApp() {
         });
     }
 
+    function addUserToContactsFromPM(phone, name) {
+        database.ref(`users/${userData.phone}/contacts/${phone}`).once('value').then(snap => {
+            if (snap.exists()) {
+                showSmartAlert(`Корбари "${name}" аллакай дар рӯйхати контактҳои шумо мавҷуд аст!`);
+            } else {
+                showSmartPrompt(`Номи контактро барои "${name}" нависед:`, name, async function(customName) {
+                    if (customName === null || customName === undefined) return;
+                    let finalName = (customName && customName.trim()) ? customName.trim() : name;
+
+                    await database.ref(`users/${userData.phone}/contacts/${phone}`).set({
+                        name: finalName,
+                        addedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    showSmartAlert("Корбар ба контактҳои шумо илова гардид!");
+                    if(currentContactsTab === 'contacts') renderContactsListReal();
+                });
+            }
+        });
+    }
+
     function deleteContactFromMyList(phone, cName) {
         showSmartConfirm(`Оё мехоҳед "${cName}"-ро аз рӯйхати контактҳоятон нест кунед?`, function(yes) {
             if(yes) {
@@ -1624,6 +1644,7 @@ function enterApp() {
                                     ${unreadBadge}
                                     <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, '${item.chatId}')">⋮</button>
                                     <div class="pm-context-dropdown" id="pm-drop-${item.chatId}">
+                                        <button onclick="addUserToContactsFromPM('${appUser.phone}', '${appUser.name}')">➕ Илова ба контакт</button>
                                         <button onclick="clearPrivateChatMessagesOnly('${item.chatId}')">🧹 Тоза кардани чат</button>
                                         <button class="pm-danger-item" onclick="removePrivateChatFromList('${item.chatId}')">🗑️ Нест кардан</button>
                                     </div>
@@ -2116,15 +2137,10 @@ function listenPrivateMessagesLive() {
             });
         }
 
-        // Намоиши нишон (Badge)
+        // Намоиши нишон (Badge) - ХОҲИШИ НАВ: дар тугмаи "Контактҳо" дигар ин бэйҷ намоиш дода намешавад
         let pmBadge = document.getElementById('contacts-unread-badge');
         if(pmBadge) {
-            if(totalUnreadPM > 0) {
-                pmBadge.innerText = totalUnreadPM;
-                pmBadge.style.display = 'flex';
-            } else {
-                pmBadge.style.display = 'none';
-            }
+            pmBadge.style.display = 'none';
         }
 
         // Нишони тугмаи паёмҳои шахсӣ дар профил (пеш аз тугмаи +)
