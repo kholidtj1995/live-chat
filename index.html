@@ -1609,6 +1609,10 @@ function enterApp() {
 
                     database.ref('users/' + otherPhone).once('value', uSnap => {
                         if (uSnap.exists()) {
+                            // ХОҲИШИ НАВ: Агар ман ин корбарро блок карда бошам, дар чатҳои шахсӣ намоиш дода нашавад
+                            let iBlockedThem = info.blockedUsers ? !!info.blockedUsers[userData.phone] : false;
+                            if (iBlockedThem) return;
+
                             let appUser = uSnap.val();
                             let isOnline = false;
                             if (appUser.lastActive) {
@@ -1684,6 +1688,14 @@ function enterApp() {
                 database.ref('users/' + phone).once('value', uSnap => {
                     if (uSnap.exists()) {
                         let appUser = uSnap.val();
+                        let pairIdCheck = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
+
+                        // ХОҲИШИ НАВ: Агар ман ин корбарро блок карда бошам, дар рӯйхати контактҳо намоиш дода нашавад
+                        database.ref('private_status/' + pairIdCheck).once('value', statusSnap => {
+                            let statusInfo = statusSnap.val();
+                            let iBlockedThem = statusInfo && statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
+                            if (iBlockedThem) return;
+
                         let isOnline = false;
                         if(appUser.lastActive) {
                             let diff = Date.now() - appUser.lastActive;
@@ -1722,6 +1734,7 @@ function enterApp() {
                                 </div>
                             </div>`;
                         container.appendChild(row);
+                        });
                     }
                 });
             });
@@ -1740,7 +1753,22 @@ function enterApp() {
             }
 
             let myContacts = contactSnapshot.val();
-            
+
+            // ХОҲИШИ НАВ: Агар ман касеро блок карда бошам, дар "Ҳозир дар шабака" намоиш дода нашавад
+            database.ref('private_status').once('value', statusSnap => {
+                let allStatus = statusSnap.val() || {};
+                let blockedPhones = new Set();
+                Object.keys(allStatus).forEach(key => {
+                    if (key.includes(userData.phone)) {
+                        let info = allStatus[key];
+                        if (info.blockedUsers && info.blockedUsers[userData.phone]) {
+                            let parts = key.split('_');
+                            let other = parts[0] === userData.phone ? parts[1] : parts[0];
+                            blockedPhones.add(other);
+                        }
+                    }
+                });
+
             database.ref('users').once('value', snapshot => {
                 container.innerHTML = "";
                 let onlineCount = 0;
@@ -1748,8 +1776,8 @@ function enterApp() {
                 if(snapshot.exists()) {
                     snapshot.forEach(child => {
                         let user = child.val();
-                        // Санҷиш: Агар корбар дар контактҳо бошад ва худи ман набошад
-                        if(user.phone !== userData.phone && myContacts[user.phone]) {
+                        // Санҷиш: Агар корбар дар контактҳо бошад, худи ман набошад ва блок нашуда бошад
+                        if(user.phone !== userData.phone && myContacts[user.phone] && !blockedPhones.has(user.phone)) {
                             let isOnline = false;
                             if(user.lastActive) {
                                 let diff = Date.now() - user.lastActive;
@@ -1788,6 +1816,7 @@ function enterApp() {
                 if(onlineCount === 0) {
                     container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Дар айни замон аз рӯйхати контактҳоятон ягон кас онлайн нест.</p>";
                 }
+            });
             });
         });
     }
