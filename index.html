@@ -91,35 +91,8 @@ img {
         }
         #all-rooms-list::-webkit-scrollbar { display: none; }
 
-        #auth-screen { display: flex; justify-content: center; align-items: center; height: 100vh; height: 100dvh; z-index: 100; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: absolute; width: 100%; padding: 20px; position: relative; }
+        #auth-screen { display: flex; justify-content: center; align-items: center; height: 100vh; height: 100dvh; z-index: 100; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: absolute; width: 100%; padding: 20px; }
         .auth-form { width: 100%; max-width: 350px; background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-
-        /* Стил барои тугмаи Сӯҳбат бо админ */
-        .admin-chat-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.23);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
-            transition: all 0.2s ease;
-        }
-        .admin-chat-btn:hover {
-            background: rgba(255, 255, 255, 0.35);
-            transform: translateY(-1px);
-        }
-        .admin-chat-btn:active {
-            transform: translateY(1px);
-        }
 
         #chat-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 50; display: none; flex-direction: column; overflow: hidden; }
 		
@@ -793,10 +766,8 @@ img {
 
     <div id="network-status-bar" class="network-bar"></div>
 
-    <!-- ВОРИДШАВӢ БО ТУГМАИ СӮҲБАТ БО АДМИН ДАР КУНҶИ БОЛОИИ РОСТ -->
+    <!-- ВОРИДШАВӢ (ХОҲИШИ НАВ: ҚУТТИИ ШАҲР НЕСТ, ИНТИХОБИ КОДИ ДАВЛАТ ИЛОВА ШУД) -->
     <div id="auth-screen">
-        <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" class="admin-chat-btn">💬 Сӯҳбат бо админ</a>
-        
         <div class="auth-form">
             <h2 style="margin-bottom: 10px;">Воридшавӣ / Сабти ном</h2>
             <input type="text" id="username" placeholder="Номи шумо...">
@@ -2663,7 +2634,7 @@ if (m.msgType === 'voice') {
                 let isBlockedByOther = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[otherPhone] : false;
 
                 if (isBlockedByMe || isBlockedByOther) {
-                    showSmartAlert("Ирсоли паём ғайриимкон аст. Шумо дар рӯйхати сиёҳ қарор доред ё корварро блок намудаед!");
+                    showSmartAlert("Ирсоли паём ғайриимкон аст. Шумо дар рӯйхати сиёҳ қарор доред ё корбарро блок намудаед!");
                     return;
                 }
                 executeMessageSend(text, input);
