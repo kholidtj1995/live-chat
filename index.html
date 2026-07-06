@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Чат бо функсияи Невидимка ва Лички</title>
+    <title>Чат бо функсияи Невидимка ва Лички (Agora)</title>
     <style>
         * { 
             box-sizing: border-box; 
@@ -40,11 +40,11 @@
             user-select: text;
         }
 
-img {
-    -webkit-user-drag: none;
-    -webkit-touch-callout: none;
-    user-select: none;
-}
+        img {
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
 
         .phone-container { 
             width: 100%; 
@@ -95,9 +95,9 @@ img {
         .auth-form { width: 100%; max-width: 350px; background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 
         #chat-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 50; display: none; flex-direction: column; overflow: hidden; }
-		
+        
         .chat-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-		
+        
         .chat-header-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding-right: 5px; }
         .chat-header-actions { position: relative; display: flex; align-items: center; gap: 8px; }
@@ -232,17 +232,17 @@ img {
             border: 2px solid #ffffff;
             flex-shrink: 0;
         }
-		
+        
         .profile-avatar-big { 
-    width: 68px; 
-    height: 68px; 
-    border-radius: 18px;      
-    background: #e2e8f0; 
-    object-fit: cover; 
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
-    border: 2px solid white; 
-    transform: rotate(0deg);  
-}
+            width: 68px; 
+            height: 68px; 
+            border-radius: 18px;      
+            background: #e2e8f0; 
+            object-fit: cover; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+            border: 2px solid white; 
+            transform: rotate(0deg);  
+        }
         .lock-icon { 
             font-size: 15px; 
             margin-left: auto; 
@@ -681,139 +681,136 @@ img {
         .msg-wrapper.me .audio-timeline { background: rgba(255,255,255,0.3); }
         .audio-progress { height: 100%; background: #667eea; border-radius: 2px; width: 0%; }
         .msg-wrapper.me .audio-progress { background: white; }
-		.hidden {
-    display: none !important;
-}
-.image-modal {
-    display: none; 
-    position: fixed; 
-    z-index: 99999; 
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.9);
-    justify-content: center;
-    align-items: center;
-}
+        .hidden { display: none !important; }
 
-.modal-content-wrapper {
-    position: relative; 
-    display: inline-block;
-    max-width: 90%;
-    max-height: 80%;
-}
+        .image-modal {
+            display: none; 
+            position: fixed; 
+            z-index: 99999; 
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
 
-.image-modal img {
-    max-width: 100%;
-    max-height: 80vh;
-    border-radius: 10px;
-    display: block;
-}
+        .modal-content-wrapper {
+            position: relative; 
+            display: inline-block;
+            max-width: 90%;
+            max-height: 80%;
+        }
 
-.close-modal {
-    position: absolute;
-    top: 20px;
-    right: 20px; 
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10000;
-    background: rgba(0, 0, 0, 0.4);
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    line-height: 40px;
-    border-radius: 50%;
-}
+        .image-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            display: block;
+        }
 
-.download-btn-bottom {
-    position: absolute;
-    bottom: -50px; 
-    right: 0;      
-    color: white;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px 20px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 10000;
-}
-.msg-text a {
-    color: #60a5fa !important; 
-    text-decoration: underline;
-}
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px; 
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.4);
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
+        }
 
-.call-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 5px;
-    margin-right: 5px;
-}
-.live-btn {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-left: auto;
-}
+        .download-btn-bottom {
+            position: absolute;
+            bottom: -50px; 
+            right: 0;      
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+        }
+        .msg-text a {
+            color: #60a5fa !important; 
+            text-decoration: underline;
+        }
 
-/* ЭКРАНИ ЗАНГИ ФАЪОЛ (МИСЛИ ВАЦАП - AGORA INTERFACE) */
-.incoming-call-screen {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    z-index: 999999;
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    color: white;
-    padding: 40px 20px;
-    text-align: center;
-}
-.call-avatar {
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    border: 4px solid #667eea;
-    object-fit: cover;
-    margin-bottom: 20px;
-}
-.call-actions-row {
-    display: flex;
-    gap: 40px;
-}
-.call-action-circle {
-    width: 65px; height: 65px;
-    border-radius: 50%;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-.call-accept { background: #10b981; }
-.call-decline { background: #ef4444; }
+        .call-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .live-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+        }
 
-/* Видео контейнер барои Agora */
-#agora-video-view {
-    width: 100%;
-    height: 200px;
-    background: #000;
-    margin-top: 10px;
-    border-radius: 12px;
-    display: none;
-}
+        .incoming-call-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            z-index: 999999;
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .call-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .call-actions-row {
+            display: flex;
+            gap: 40px;
+        }
+        .call-action-circle {
+            width: 65px; height: 65px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .call-accept { background: #10b981; }
+        .call-decline { background: #ef4444; }
+
+        #agora-video-view {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            margin-top: 10px;
+            border-radius: 12px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -822,8 +819,8 @@ img {
 
     <div id="network-status-bar" class="network-bar"></div>
 
-<div id="auth-screen">
-    <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
+    <div id="auth-screen">
+        <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
         <div class="auth-form">
             <h2 style="margin-bottom: 10px;">Воридшавӣ / Сабти ном</h2>
             <input type="text" id="username" placeholder="Номи шумо...">
@@ -858,7 +855,6 @@ img {
             <div class="chat-header-actions" id="chat-header-settings-zone"></div>
         </div>
         
-        <!-- Контейнери видеоии Agora дар болои паёмҳо -->
         <div id="agora-video-view"></div>
         
         <div class="chat-messages" id="chat-messages-list"></div>
@@ -962,13 +958,13 @@ img {
         <button class="nav-item" onclick="switchScreen('home-screen', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главни
         </button>
-<button class="nav-item" onclick="openContactsScreen(this)">
-    <div class="nav-badge" id="contacts-unread-badge">0</div>
-    <svg viewBox="0 0 24 24">
-        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-    </svg>
-    Контактҳо
-</button>
+        <button class="nav-item" onclick="openContactsScreen(this)">
+            <div class="nav-badge" id="contacts-unread-badge">0</div>
+            <svg viewBox="0 0 24 24">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            Контактҳо
+        </button>
         <button class="nav-item active" onclick="switchScreen('profile-screen', this)">
             <div class="nav-badge" id="rooms-unread-badge">0</div>
             <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-3-8-3z"/></svg>Я
@@ -999,9 +995,9 @@ img {
         <div class="toast-buttons" id="toast-buttons-container"></div>
     </div>
 </div>
+
 <div id="image-modal" class="image-modal">
     <span class="close-modal" onclick="document.getElementById('image-modal').style.display='none'">&times;</span>
-    
     <div class="modal-content-wrapper">
         <img id="modal-img" src="">
         <a id="download-btn" href="#" download="image.jpg" class="download-btn-bottom">📥 Зеркашӣ</a>
@@ -1010,7 +1006,6 @@ img {
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<!-- AGORA WEB SDK INTEGRATION -->
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
 
 <script>
@@ -1027,18 +1022,17 @@ img {
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // AGORA ТАНЗИМОТ
+    // AGORA APP ID
     const AGORA_APP_ID = "491ffc4180ed475ab5bda2d66946fe96";
     let agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     let localTracks = { videoTrack: null, audioTrack: null };
-    let remoteUsers = {};
 
-  const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
-const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
-const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
+    const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
+    const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
+    const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
-const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
-dialTone.loop = true;
+    const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
+    dialTone.loop = true;
 
     let mediaRecorder;
     let audioChunks = [];
@@ -1066,7 +1060,7 @@ dialTone.loop = true;
     document.addEventListener("click", function(event) {
         if (event.target.closest("button") || event.target.closest(".item-card") || event.target.closest(".searched-user-box") || event.target.closest(".pm-user-row")) {
             clickSound.currentTime = 0;
-            clickSound.play().catch(err => console.log("Браузер иҷозати saddo надод:", err));
+            clickSound.play().catch(err => console.log("Браузер иҷозати садо надод:", err));
         }
         
         let menu = document.getElementById('profile-context-menu');
@@ -1284,7 +1278,7 @@ dialTone.loop = true;
 
     function handleTyping() {
         if (!currentChatRoomId) return;
-        let typingPath = currentChatType === 'room' ? `typing/${currentChatRoomId}/${userData.phone}` : `typing/${currentChatRoomId}/${userData.phone}`;
+        let typingPath = `typing/${currentChatRoomId}/${userData.phone}`;
         database.ref(typingPath).set(true);
 
         clearTimeout(typingTimeout);
@@ -1381,21 +1375,21 @@ dialTone.loop = true;
         });
     }
 
-function enterApp() {
-    updateProfileUI();
-    updateUserOnlineStatus();
-    
-    monitorAccountSecurity(); 
-    listenForIncomingCalls();
-    
-    document.getElementById('auth-screen').style.display = 'none';
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-    document.getElementById('home-screen').classList.add('active-screen');
-    
-    loadRoomsFromServer();
-    listenToUnreadMessages(); 
-    listenPrivateMessagesLive(); 
-}
+    function enterApp() {
+        updateProfileUI();
+        updateUserOnlineStatus();
+        
+        monitorAccountSecurity(); 
+        listenForIncomingCalls();
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        document.getElementById('home-screen').classList.add('active-screen');
+        
+        loadRoomsFromServer();
+        listenToUnreadMessages(); 
+        listenPrivateMessagesLiveGlobal(); 
+    }
 
     function logout() {
         showSmartConfirm("Оё мехоҳед аз барнома бароед?", function(yes) {
@@ -1569,7 +1563,7 @@ function enterApp() {
                 let callRoomName = roomId + "_live_" + Math.floor(Math.random() * 10000);
                 let dbPath = 'messages/' + roomId;
                 let msgRef = database.ref(dbPath).push();
-                let liveText = `📢 ОҒОЗИ ЭФИРИ НАВ АЗ AGORA! 🎥\nСоҳиби комната эфирро оғоз кард. Барои тамошо кардан, ба чат ворид шавед ва тугмаи эфирро зер кунед. Лоиҳа: ${callRoomName}`;
+                let liveText = `📢 ОҒОЗИ ЭФИРИ НАВ АЗ AGORA! 🎥\nСоҳиби комната эфирро оғоз кард. Лоиҳа: ${callRoomName}`;
                 
                 let msgData = {
                     id: msgRef.key,
@@ -1586,12 +1580,10 @@ function enterApp() {
                 
                 await msgRef.set(msgData);
                 
-                // Кушодани интерфейси видеоии Agora дар чат
                 openChat(roomName, defaultAvatar, roomId, 'room');
                 let videoView = document.getElementById('agora-video-view');
                 videoView.style.display = 'block';
                 
-                // Пайвастшавӣ ҳамчун Host
                 await agoraClient.setClientRole("host");
                 await agoraClient.join(AGORA_APP_ID, callRoomName, null, null);
                 
@@ -1657,7 +1649,7 @@ function enterApp() {
                     if(currentContactsTab === 'contacts') renderContactsListReal();
                 });
             } else {
-                showSmartAlert("Ин рақам ҳоло дар барнома сабти ном нашудааст! (Бинобар ин илова карда намешавад)");
+                showSmartAlert("Ин рақам ҳоло дар барнома сабти ном нашудааст!");
             }
         });
     }
@@ -1721,7 +1713,7 @@ function enterApp() {
                 });
 
                 if (chatsData.length === 0) {
-                    container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Чатҳои фаъоли шахсӣ мавҷуд нестанд.</p>";
+                    container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Чатҳои шахсӣ мавҷуд нестанд.</p>";
                     return;
                 }
 
@@ -1818,44 +1810,44 @@ function enterApp() {
                             let iBlockedThem = statusInfo && statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
                             if (iBlockedThem) return;
 
-                        let isOnline = false;
-                        if(appUser.lastActive) {
-                            let diff = Date.now() - appUser.lastActive;
-                            if(diff < 12000) isOnline = true; 
-                        }
+                            let isOnline = false;
+                            if(appUser.lastActive) {
+                                let diff = Date.now() - appUser.lastActive;
+                                if(diff < 12000) isOnline = true; 
+                            }
 
-                        let statusHTML = isOnline ? `
-                            <span class="online-status-badge">
-                                <span class="online-dot-blinking"></span> в сети
-                            </span>` : `<span style="font-size:11px; color:#94a3b8;">не в сети</span>`;
+                            let statusHTML = isOnline ? `
+                                <span class="online-status-badge">
+                                    <span class="online-dot-blinking"></span> в сети
+                                </span>` : `<span style="font-size:11px; color:#94a3b8;">не в сети</span>`;
 
-                        let contactCustomName = savedContacts[phone].name || appUser.name;
-                        let pairId = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
+                            let contactCustomName = savedContacts[phone].name || appUser.name;
+                            let pairId = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
 
-                        let row = document.createElement('div');
-                        row.className = 'pm-user-row';
-                        row.onclick = () => initiatePrivateChat(appUser.phone, contactCustomName);
-                        row.innerHTML = `
-                            <div class="pm-row-left">
-                                <img src="${appUser.img || defaultAvatar}" class="room-avatar">
-                                <div class="pm-meta-text">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <b>👤 ${contactCustomName}</b>
-                                        ${statusHTML}
+                            let row = document.createElement('div');
+                            row.className = 'pm-user-row';
+                            row.onclick = () => initiatePrivateChat(appUser.phone, contactCustomName);
+                            row.innerHTML = `
+                                <div class="pm-row-left">
+                                    <img src="${appUser.img || defaultAvatar}" class="room-avatar">
+                                    <div class="pm-meta-text">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <b>👤 ${contactCustomName}</b>
+                                            ${statusHTML}
+                                        </div>
+                                        <span class="city-tag">🏠 Шаҳр: ${appUser.city || 'Нишон дода нашудааст'}</span>
+                                        <p style="color:#6366f1;">📞 Рақам: ${appUser.phone}</p>
                                     </div>
-                                    <span class="city-tag">🏠 Шаҳр: ${appUser.city || 'Нишон дода нашудааст'}</span>
-                                    <p style="color:#6366f1;">📞 Рақам: ${appUser.phone}</p>
                                 </div>
-                            </div>
-                            <div class="pm-row-right">
-                                <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, '${pairId}')">⋮</button>
-                                <div class="pm-context-dropdown" id="pm-drop-${pairId}">
-                                    <button onclick="initiatePrivateChat('${appUser.phone}', '${contactCustomName}')">💬 Чат</button>
-                                    <button onclick="toggleBlockUserPM('${pairId}', 'false')">🚫 Блок кардан</button>
-                                    <button class="pm-danger-item" onclick="deleteContactFromMyList('${appUser.phone}', '${contactCustomName}')">🗑️ Нест кардан</button>
-                                </div>
-                            </div>`;
-                        container.appendChild(row);
+                                <div class="pm-row-right">
+                                    <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, '${pairId}')">⋮</button>
+                                    <div class="pm-context-dropdown" id="pm-drop-${pairId}">
+                                        <button onclick="initiatePrivateChat('${appUser.phone}', '${contactCustomName}')">💬 Чат</button>
+                                        <button onclick="toggleBlockUserPM('${pairId}', 'false')">🚫 Блок кардан</button>
+                                        <button class="pm-danger-item" onclick="deleteContactFromMyList('${appUser.phone}', '${contactCustomName}')">🗑️ Нест кардан</button>
+                                    </div>
+                                </div>`;
+                            container.appendChild(row);
                         });
                     }
                 });
@@ -1889,53 +1881,53 @@ function enterApp() {
                     }
                 });
 
-            database.ref('users').once('value', snapshot => {
-                container.innerHTML = "";
-                let onlineCount = 0;
+                database.ref('users').once('value', snapshot => {
+                    container.innerHTML = "";
+                    let onlineCount = 0;
 
-                if(snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        let user = child.val();
-                        if(user.phone !== userData.phone && myContacts[user.phone] && !blockedPhones.has(user.phone)) {
-                            let isOnline = false;
-                            if(user.lastActive) {
-                                let diff = Date.now() - user.lastActive;
-                                if(diff < 12000) isOnline = true; 
-                            }
+                    if(snapshot.exists()) {
+                        snapshot.forEach(child => {
+                            let user = child.val();
+                            if(user.phone !== userData.phone && myContacts[user.phone] && !blockedPhones.has(user.phone)) {
+                                let isOnline = false;
+                                if(user.lastActive) {
+                                    let diff = Date.now() - user.lastActive;
+                                    if(diff < 12000) isOnline = true; 
+                                }
 
-                            if (isOnline) {
-                                onlineCount++;
-                                let contactName = myContacts[user.phone].name || user.name;
-                                let row = document.createElement('div');
-                                row.className = 'pm-user-row';
-                                row.onclick = () => initiatePrivateChat(user.phone, contactName);
-                                row.innerHTML = `
-                                    <div class="pm-row-left">
-                                        <img src="${user.img || defaultAvatar}" class="room-avatar">
-                                        <div class="pm-meta-text">
-                                            <div style="display:flex; align-items:center; gap:8px;">
-                                                <b>👤 ${contactName}</b>
-                                                <span class="online-status-badge">
-                                                    <span class="online-dot-blinking"></span> в сети
-                                                </span>
+                                if (isOnline) {
+                                    onlineCount++;
+                                    let contactName = myContacts[user.phone].name || user.name;
+                                    let row = document.createElement('div');
+                                    row.className = 'pm-user-row';
+                                    row.onclick = () => initiatePrivateChat(user.phone, contactName);
+                                    row.innerHTML = `
+                                        <div class="pm-row-left">
+                                            <img src="${user.img || defaultAvatar}" class="room-avatar">
+                                            <div class="pm-meta-text">
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <b>👤 ${contactName}</b>
+                                                    <span class="online-status-badge">
+                                                        <span class="online-dot-blinking"></span> в сети
+                                                    </span>
+                                                </div>
+                                                <span class="city-tag">🏠 Шаҳр: ${user.city || 'Нишон дода нашудааст'}</span>
+                                                <p style="color:#10b981;">📞 Рақам: ${user.phone}</p>
                                             </div>
-                                            <span class="city-tag">🏠 Шаҳр: ${user.city || 'Нишон дода нашудааст'}</span>
-                                            <p style="color:#10b981;">📞 Рақам: ${user.phone}</p>
                                         </div>
-                                    </div>
-                                    <div class="pm-row-right">
-                                        <span style="font-size:12px; background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:12px; font-weight:600;">Навиштан</span>
-                                    </div>`;
-                                container.appendChild(row);
+                                        <div class="pm-row-right">
+                                            <span style="font-size:12px; background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:12px; font-weight:600;">Навиштан</span>
+                                        </div>`;
+                                    container.appendChild(row);
+                                }
                             }
-                        }
-                    });
-                }
+                        });
+                    }
 
-                if(onlineCount === 0) {
-                    container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Дар айни замон аз рӯйхати контактҳоятон ягон кас онлайн нест.</p>";
-                }
-            });
+                    if(onlineCount === 0) {
+                        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Дар айни замон аз рӯйхати контактҳоятон ягон кас онлайн нест.</p>";
+                    }
+                });
             });
         });
     }
@@ -2003,7 +1995,7 @@ function enterApp() {
             newName = newName.trim();
             if(!newName) { showSmartAlert("Ном наметавонад холӣ бошад!"); return; }
 
-            showSmartPrompt("Рамзи нави комнатаро ворид кунед (агар нахоҳед, холӣ гузоред):", room.pass || "", function(newPass) {
+            showSmartPrompt("Рамзи нави комнатаро ворид кунед:", room.pass || "", function(newPass) {
                 if(newPass === null) return;
 
                 database.ref('rooms/' + roomId).update({
@@ -2024,13 +2016,13 @@ function enterApp() {
 
     function toggleRoomSecret(roomId, currentStatus) {
         database.ref('rooms/' + roomId).update({ isSecret: !currentStatus }).then(() => {
-            showSmartAlert(!currentStatus ? "Комната ҳолати Невидимка гирифт! Он дигар дар Главни ва кофтуков намебарояд." : "Комната барои ҳама намоён шуд!");
+            showSmartAlert(!currentStatus ? "Комната ҳолати Невидимка гирифт!" : "Комната барои ҳама намоён шуд!");
         });
     }
 
     function toggleAdminWriteOnly(roomId, currentStatus) {
         database.ref('rooms/' + roomId).update({ onlyAdminCanWrite: !currentStatus }).then(() => {
-            showSmartAlert(!currentStatus ? "Ҳолати 'Танҳо admin нависад' фаъол шуд!" : "Ҳолати навиштани паём барои ҳама кушода шуд!");
+            showSmartAlert(!currentStatus ? "Ҳолати 'Танҳо admin нависад' фаъол шуд!" : "Ҳолати навиштан кушода шуд!");
         });
     }
 
@@ -2078,15 +2070,6 @@ function enterApp() {
         }
     }
 
-    function filterRoomsByUser(phone, name) {
-        filterByCreatorPhone = phone;
-        document.getElementById('rooms-list-title').innerText = `🏢 Комнатаҳои ${name}`;
-        document.getElementById('reset-filter-btn').style.display = "inline-block";
-        document.getElementById('search-input').value = "";
-        document.getElementById('search-user-result').innerHTML = "";
-        renderRoomsUI();
-    }
-
     function resetRoomFilter() {
         filterByCreatorPhone = "";
         document.getElementById('rooms-list-title').innerText = "🏢 Ҳамаи Комнатаҳо";
@@ -2118,11 +2101,7 @@ function enterApp() {
         if(!timestamp) return "Имрӯз";
         let date = new Date(timestamp);
         let today = new Date();
-        
-        if (date.toDateString() === today.toDateString()) {
-            return "Имрӯз";
-        }
-        
+        if (date.toDateString() === today.toDateString()) return "Имрӯз";
         let months = ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декябр"];
         return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     }
@@ -2133,173 +2112,153 @@ function enterApp() {
         let othersRead = Object.keys(seenBy).some(phone => phone !== msg.phone);
 
         if (othersRead) {
-            return `<span class="msg-ticks ticks-read tick-double">
-                        <span class="tick"></span>
-                        <span class="tick"></span>
-                    </span>`;
+            return `<span class="msg-ticks ticks-read tick-double"><span class="tick"></span><span class="tick"></span></span>`;
         } else if (seenCount >= 1) {
-            return `<span class="msg-ticks ticks-delivered tick-double">
-                        <span class="tick"></span>
-                        <span class="tick"></span>
-                    </span>`;
+            return `<span class="msg-ticks ticks-delivered tick-double"><span class="tick"></span><span class="tick"></span></span>`;
         } else {
-            return `<span class="msg-ticks ticks-sent">
-                        <span class="tick"></span>
-                    </span>`;
+            return `<span class="msg-ticks ticks-sent"><span class="tick"></span></span>`;
         }
     }
 
-function listenToUnreadMessages() {
-    database.ref('messages').on('value', (snapshot) => {
-        let allMessages = snapshot.val();
-        activeChats = [];
-        let totalUnreadCount = 0;
+    function listenToUnreadMessages() {
+        database.ref('messages').on('value', (snapshot) => {
+            let allMessages = snapshot.val();
+            activeChats = [];
+            let totalUnreadCount = 0;
 
-        if (allMessages) {
-            Object.keys(allMessages).forEach(roomId => {
-                let room = roomsData.find(r => r.id === roomId);
-                
-                if (room && room.creatorPhone === userData.phone) {
-                    
-                    let messagesArray = Object.values(allMessages[roomId]);
-                    let unreadForThisRoom = 0;
+            if (allMessages) {
+                Object.keys(allMessages).forEach(roomId => {
+                    let room = roomsData.find(r => r.id === roomId);
+                    if (room && room.creatorPhone === userData.phone) {
+                        let messagesArray = Object.values(allMessages[roomId]);
+                        let unreadForThisRoom = 0;
 
-                    messagesArray.forEach(m => {
-                        if (m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])) {
-                            unreadForThisRoom++;
+                        messagesArray.forEach(m => {
+                            if (m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])) {
+                                unreadForThisRoom++;
+                            }
+                        });
+
+                        if (currentChatRoomId === roomId && currentChatType === 'room') {
+                            unreadForThisRoom = 0;
                         }
-                    });
 
-                    if (currentChatRoomId === roomId && currentChatType === 'room') {
-                        unreadForThisRoom = 0;
-                    }
+                        totalUnreadCount += unreadForThisRoom;
+                        messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                        let lastMsg = messagesArray[messagesArray.length - 1];
 
-                    totalUnreadCount += unreadForThisRoom;
-                    messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    let lastMsg = messagesArray[messagesArray.length - 1];
+                        if (lastMsg) {
+                            let isMyOwnMessage = (lastMsg.phone === userData.phone);
+                            let isUserInsideThisChat = (roomId === currentChatRoomId && currentChatType === 'room');
+                            let isRecentMessage = (Date.now() - (lastMsg.timestamp || 0) < 2500);
 
-                    if (lastMsg) {
-                        let isMyOwnMessage = (lastMsg.phone === userData.phone);
-                        let isUserInsideThisChat = (roomId === currentChatRoomId && currentChatType === 'room');
-                        let isRecentMessage = (Date.now() - (lastMsg.timestamp || 0) < 2500);
-
-                        if (!isMyOwnMessage && !isUserInsideThisChat && isRecentMessage) {
-                            msgSound.currentTime = 0;
-                            msgSound.play().catch(err => console.log("Садо манъ шуд:", err));
+                            if (!isMyOwnMessage && !isUserInsideThisChat && isRecentMessage) {
+                                msgSound.currentTime = 0;
+                                msgSound.play().catch(err => console.log(err));
+                            }
                         }
+
+                        activeChats.push({
+                            roomId: roomId,
+                            roomName: room.name,
+                            roomImg: room.img,
+                            lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.msgType === 'file' ? '📎 Файл/Расм' : lastMsg.text) : "Паёме нест",
+                            lastMessageUser: lastMsg ? lastMsg.username : "",
+                            timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
+                            unreadCount: unreadForThisRoom
+                        });
                     }
-
-                    activeChats.push({
-                        roomId: roomId,
-                        roomName: room.name,
-                        roomImg: room.img,
-                        lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.msgType === 'file' ? '📎 Файл/Расм' : lastMsg.text) : "Паёме нест",
-                        lastMessageUser: lastMsg ? lastMsg.username : "",
-                        timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
-                        unreadCount: unreadForThisRoom
-                    });
-                }
-            });
-        }
-
-        let navBadge = document.getElementById('rooms-unread-badge');
-        if (navBadge) {
-            if (totalUnreadCount > 0) {
-                navBadge.innerText = totalUnreadCount;
-                navBadge.style.display = "block";
-            } else {
-                navBadge.style.display = "none";
+                });
             }
-        }
 
-        activeChats.sort((a, b) => b.timestamp - a.timestamp);
-        renderActiveChats();
-        renderRoomsUI();
-    });
-}
+            let navBadge = document.getElementById('rooms-unread-badge');
+            if (navBadge) {
+                if (totalUnreadCount > 0) {
+                    navBadge.innerText = totalUnreadCount;
+                    navBadge.style.display = "block";
+                } else {
+                    navBadge.style.display = "none";
+                }
+            }
 
-function renderActiveChats() {
-    let activeListHTML = "";
-    let visibleChatsCount = 0;
+            activeChats.sort((a, b) => b.timestamp - a.timestamp);
+            renderActiveChats();
+            renderRoomsUI();
+        });
+    }
 
-    activeChats.forEach(chat => {
-        visibleChatsCount++;
-        let badgeHTML = chat.unreadCount > 0 ? `<span class="badge" style="background:#ff3b30; color:white; padding:2px 7px; border-radius:10px; font-size:12px; font-weight:bold; margin-left:auto;">${chat.unreadCount}</span>` : "";
+    function renderActiveChats() {
+        let activeListHTML = "";
+        let visibleChatsCount = 0;
 
-        activeListHTML += `
-            <div class="item-card" onclick="tryEnterRoom('${chat.roomId}')" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px;">
-                <div class="card-main-info" style="display: flex; align-items: center; flex: 1; overflow: hidden;">
-                    <img src="${chat.roomImg || defaultAvatar}" class="room-avatar" style="width: 40px; height: 40px; border-radius: 12px;">
-                    <div class="card-info" style="flex:1; margin-left:12px; overflow:hidden;">
-                        <div style="font-size:15px; color:#1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            <b>🏢 ${chat.roomName}</b> 
-                            <span style="font-size:13px; color:#64748b; margin-left: 5px;">
+        activeChats.forEach(chat => {
+            visibleChatsCount++;
+            let badgeHTML = chat.unreadCount > 0 ? `<span class="badge" style="margin-left:auto;">${chat.unreadCount}</span>` : "";
+
+            activeListHTML += `
+                <div class="item-card" onclick="tryEnterRoom('${chat.roomId}')" style="padding: 10px 16px;">
+                    <div class="card-main-info">
+                        <img src="${chat.roomImg || defaultAvatar}" class="room-avatar" style="width: 40px; height: 40px;">
+                        <div class="card-info" style="flex:1; margin-left:12px; overflow:hidden;">
+                            <b style="font-size:15px; color:#1e293b;">🏢 ${chat.roomName}</b> 
+                            <span style="font-size:13px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                 ${chat.lastMessageUser ? chat.lastMessageUser + ':' : ''} ${chat.lastMessageText}
                             </span>
                         </div>
+                        ${badgeHTML}
                     </div>
-                </div>
-                ${badgeHTML}
-            </div>`;
-    });
+                </div>`;
+        });
 
-    const activeChatsList = document.getElementById('active-chats-list');
-    if (activeChatsList) {
-        activeChatsList.innerHTML = (visibleChatsCount > 0) ? activeListHTML : "<p style='color:gray; font-size:14px; text-align:center; margin-top:20px;'>Чатҳои фаъол мавҷуд нестанд.</p>";
+        const activeChatsList = document.getElementById('active-chats-list');
+        if (activeChatsList) {
+            activeChatsList.innerHTML = (visibleChatsCount > 0) ? activeListHTML : "<p style='color:gray; font-size:14px; text-align:center; margin-top:20px;'>Чатҳои фаъол мавҷуд нестанд.</p>";
+        }
     }
-}
 
-let lastPlayedSoundTimestamp = 0;
+    let lastPlayedSoundTimestamp = 0;
 
-function listenPrivateMessagesLive() {
-    database.ref('private_status').on('value', snapshot => {
-        let totalUnreadPM = 0;
-        let statusData = snapshot.val();
-        let currentTime = Date.now();
+    function listenPrivateMessagesLiveGlobal() {
+        database.ref('private_status').on('value', snapshot => {
+            let totalUnreadPM = 0;
+            let statusData = snapshot.val();
+            let currentTime = Date.now();
 
-        if(statusData) {
-            Object.keys(statusData).forEach(chatId => {
-                if(chatId.includes(userData.phone)) {
-                    let info = statusData[chatId];
-                    
-                    if(info.lastSender !== userData.phone && !info.read) {
-                        totalUnreadPM++;
-                        
-                        let msgTime = info.timestamp || 0;
-                        let isRecentPM = (currentTime - msgTime < 5000); 
-                        let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
+            if(statusData) {
+                Object.keys(statusData).forEach(chatId => {
+                    if(chatId.includes(userData.phone)) {
+                        let info = statusData[chatId];
+                        if(info.lastSender !== userData.phone && !info.read) {
+                            totalUnreadPM++;
+                            let msgTime = info.timestamp || 0;
+                            let isRecentPM = (currentTime - msgTime < 5000); 
+                            let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
 
-                        if (isRecentPM && !isUserInsideThisPM && msgTime > lastPlayedSoundTimestamp) {
-                            privateMsgSound.currentTime = 0;
-                            privateMsgSound.play().catch(err => console.log("Браузер садои PM-ро манъ кард:", err));
-                            
-                            lastPlayedSoundTimestamp = msgTime;
+                            if (isRecentPM && !isUserInsideThisPM && msgTime > lastPlayedSoundTimestamp) {
+                                privateMsgSound.currentTime = 0;
+                                privateMsgSound.play().catch(err => console.log(err));
+                                lastPlayedSoundTimestamp = msgTime;
+                            }
                         }
                     }
-                }
-            });
-        }
-
-        let pmBadge = document.getElementById('contacts-unread-badge');
-        if(pmBadge) {
-            pmBadge.style.display = 'none';
-        }
-
-        let profilePmBadge = document.getElementById('profile-pm-badge');
-        if(profilePmBadge) {
-            if(totalUnreadPM > 0) {
-                profilePmBadge.innerText = totalUnreadPM;
-                profilePmBadge.style.display = 'block';
-            } else {
-                profilePmBadge.style.display = 'none';
+                });
             }
-        }
-    });
-}
+
+            let profilePmBadge = document.getElementById('profile-pm-badge');
+            if(profilePmBadge) {
+                if(totalUnreadPM > 0) {
+                    profilePmBadge.innerText = totalUnreadPM;
+                    profilePmBadge.style.display = 'block';
+                } else {
+                    profilePmBadge.style.display = 'none';
+                }
+            }
+        });
+    }
 
     function initiatePrivateChat(targetPhone, targetName) {
         if(targetPhone === userData.phone) {
-            showSmartAlert("Шумо наметавонед бо худатон лични чат созед!");
+            showSmartAlert("Шумо наметавонед бо худатон чат созед!");
             return;
         }
         let pairId = userData.phone < targetPhone ? `${userData.phone}_${targetPhone}` : `${targetPhone}_${userData.phone}`;
@@ -2317,11 +2276,8 @@ function listenPrivateMessagesLive() {
         showSmartConfirm("Оё мехоҳед ҳамаи паёмҳоро аз ин чат пок кунед?", function(yes) {
             if(yes) {
                 database.ref('private_messages/' + chatId).remove().then(() => {
-                    database.ref('private_status/' + chatId).update({
-                        lastMsgText: "Чат тоза карда шуд"
-                    });
+                    database.ref('private_status/' + chatId).update({ lastMsgText: "Чат тоза карда шуд" });
                     buildPrivateChatsListUI();
-                    showSmartAlert("Чат тоза карда шуд.");
                 });
             }
         });
@@ -2333,7 +2289,6 @@ function listenPrivateMessagesLive() {
                 database.ref('private_messages/' + chatId).remove();
                 database.ref('private_status/' + chatId).remove().then(() => {
                     buildPrivateChatsListUI();
-                    showSmartAlert("Чат комилан нест карда шуд.");
                 });
             }
         });
@@ -2341,27 +2296,17 @@ function listenPrivateMessagesLive() {
 
     function toggleBlockUserPM(chatId, isCurrentlyBlocked) {
         let blockStatus = String(isCurrentlyBlocked) === "true";
-        let confirmMsg = blockStatus ? "Оё мехоҳед ин корбарро аз блок бароред?" : "Оё мехоҳед ин корбарро блок кунед? Ӯ дигар ба шумо паём навишта наметавонад.";
+        let confirmMsg = blockStatus ? "Оё мехоҳед ин корбарро аз блок бароред?" : "Оё мехоҳед ин корбарро блок кунед?";
         
         showSmartConfirm(confirmMsg, function(yes) {
             if(yes) {
                 let updates = {};
                 updates[`private_status/${chatId}/blockedUsers/${userData.phone}`] = !blockStatus ? true : null;
                 database.ref().update(updates).then(() => {
-                    if(document.getElementById('private-screen-title').innerText.includes("блокшудаҳо")) {
-                        showBlockedUsersBlacklist();
-                    } else {
-                        if (document.getElementById('contacts-tabs-bar').style.display === 'flex') {
-                            if(currentContactsTab === 'contacts') renderContactsListReal();
-                            if(currentContactsTab === 'online') loadOnlineUsersUI();
-                        } else {
-                            buildPrivateChatsListUI();
-                        }
-                    }
+                    buildPrivateChatsListUI();
                     if(currentChatRoomId === chatId) {
                         openChat(document.getElementById('chat-title').innerText, defaultAvatar, chatId, 'pm');
                     }
-                    showSmartAlert(blockStatus ? "Корбар боз карда шуд." : "Корбар блок карда шуд.");
                 });
             }
         });
@@ -2379,8 +2324,7 @@ function listenPrivateMessagesLive() {
                     let reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = () => {
-                        let base64Audio = reader.result;
-                        sendSpecialChatMessage(base64Audio, 'voice');
+                        sendSpecialChatMessage(reader.result, 'voice');
                     }
                 };
                 mediaRecorder.start();
@@ -2464,7 +2408,7 @@ function listenPrivateMessagesLive() {
         };
     }
 
-    // МАНТИҚИ ЗАНГҲОИ ҲАҚИҚӢ БО AGORA (МИСЛИ ВАЦАП)
+    // ЗАНГҲОИ АСЛӢ БО AGORA (МАТНИ АСЛИИ КОДИ ШУМО)
     async function startVoiceCall(chatId) {
         let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
@@ -2489,11 +2433,10 @@ function listenPrivateMessagesLive() {
                     hideCallScreen();
                     database.ref('calls/' + targetPhone).off();
                     
-                    // Пайвастшавӣ ба канали аудиоии Agora
                     await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
                     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
                     await agoraClient.publish([localTracks.audioTrack]);
-                    showSmartAlert("Занги аудиоӣ оғоз шуд. Шумо метавонед сӯҳбат кунед.");
+                    showSmartAlert("Занги аудиоӣ оғоз шуд.");
                 } else if (!c || c.status === 'rejected') {
                     dialTone.pause();
                     hideCallScreen();
@@ -2528,7 +2471,6 @@ function listenPrivateMessagesLive() {
                     hideCallScreen();
                     database.ref('calls/' + targetPhone).off();
                     
-                    // Пайвастшавӣ ба канали видеоии Agora
                     document.getElementById('agora-video-view').style.display = 'block';
                     await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
                     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
@@ -2559,7 +2501,7 @@ function listenPrivateMessagesLive() {
                     'Входящий звонок...', 
                     call.callerName, 
                     call.callerImg || defaultAvatar, 
-                    call.callType === 'audio' ? '📞 Аудиозанг (Танҳо овоз)' : '📹 Видеовизов'
+                    call.callType === 'audio' ? '📞 Аудиозанг' : '📹 Видеовизов'
                 );
                 dialTone.play().catch(e => console.log(e));
             } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
@@ -2568,7 +2510,6 @@ function listenPrivateMessagesLive() {
             }
         });
 
-        // Барои қабули ҷараёни видео/аудиои тарафи дигар дар Agora
         agoraClient.on("user-published", async (user, mediaType) => {
             await agoraClient.subscribe(user, mediaType);
             if (mediaType === "video") {
@@ -2599,7 +2540,6 @@ function listenPrivateMessagesLive() {
             await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
             hideCallScreen();
             
-            // Пайваст шудан ба ҳамон канал бо Agora
             await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, null, null);
             localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
             
@@ -2633,10 +2573,9 @@ function listenPrivateMessagesLive() {
     }
 
     function openChat(name, img, roomId, type = 'room') {
-	const contactsHeader = document.querySelector('.contacts-sticky-header');
-    if (contactsHeader) {
-        contactsHeader.style.display = 'none';
-    }
+        const contactsHeader = document.querySelector('.contacts-sticky-header');
+        if (contactsHeader) { contactsHeader.style.display = 'none'; }
+        
         currentChatRoomId = roomId;
         currentChatType = type;
         document.getElementById('chat-title').innerText = name;
@@ -2675,120 +2614,14 @@ function listenPrivateMessagesLive() {
                     }
                     if (isOnline) {
                         statusSubtitle.innerHTML = `<span style="color:#10b981; font-weight:bold;">в сети 🟢</span>`;
-                        activeTypingListener = database.ref(`typing/${roomId}/${otherPhone}`);
-                        activeTypingListener.on('value', tSnap => {
-                            if(tSnap.exists()) {
-                                statusSubtitle.innerHTML = `<span style="color:#6366f1; font-weight:500; font-style:italic;">печатает...</span>`;
-                            } else {
-                                statusSubtitle.innerHTML = `<span style="color:#10b981; font-weight:bold;">в сети 🟢</span>`;
-                            }
-                        });
                     } else {
-                        if (otherUser.lastActive) {
-                            let lastSeenDate = new Date(otherUser.lastActive);
-                            let timeStr = String(lastSeenDate.getHours()).padStart(2, '0') + ":" + String(lastSeenDate.getMinutes()).padStart(2, '0');
-                            statusSubtitle.innerText = `был(а) в сети: ${timeStr}`;
-                        } else {
-                            statusSubtitle.innerText = "не в сети";
-                        }
-                    }
-                }
-            });
-
-        } else {
-            headerActions.innerHTML = "";
-            statusSubtitle.innerText = "Гурӯҳ (Комната)";
-            activeTypingListener = database.ref(`typing/${roomId}`);
-            activeTypingListener.on('value', tSnap => {
-                if(tSnap.exists()) {
-                    let typers = Object.keys(tSnap.val());
-                    let otherTypers = typers.filter(p => p !== userData.phone);
-                    if(otherTypers.length > 0) {
-                        statusSubtitle.innerHTML = `<span style="color:#6366f1; font-style:italic;">яке аз аъзоён менависад...</span>`;
-                    } else {
-                        statusSubtitle.innerText = "Гурӯҳ (Комната)";
-                    }
-                } else {
-                    statusSubtitle.innerText = "Гурӯҳ (Комната)";
-                }
-            });
-        }
-
-        if(currentChatType === 'pm') {
-            database.ref('private_status/' + roomId).on('value', snap => {
-                if(snap.exists()) {
-                    let statusInfo = snap.val();
-                    if(statusInfo.lastSender !== userData.phone && !statusInfo.read) {
-                        database.ref('private_status/' + roomId).update({ read: true });
-                    }
-                    let isMeBlocking = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
-                    let blockBtn = document.getElementById('chat-dropdown-block-btn');
-                    if(blockBtn) {
-                        blockBtn.innerText = isMeBlocking ? "🔓 Боз кардан" : "🚫 Блок кардан";
-                    }
-                }
-            });
-        }
-
-        if(currentChatType === 'room') {
-            database.ref('rooms/' + roomId).on('value', (roomSnapshot) => {
-                let currentRoom = roomSnapshot.val();
-                let inputZone = document.getElementById('chat-input-zone');
-                
-                if(currentRoom && inputZone) {
-                    let isCurrentAdmin = currentRoom.creatorPhone === userData.phone;
-
-                    if(currentRoom.onlyAdminCanWrite && !isCurrentAdmin) {
-                        inputZone.innerHTML = `<div class="chat-blocked-notice">🔏 Танҳо admin метавонад дар ин чат паём нависад!</div>`;
-                    } else {
-                        inputZone.innerHTML = `
-                            <button onclick="document.getElementById('chat-file-input').click()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px;" title="Фиристодани расм/файл">📎</button>
-                            <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileSelect(this)">
-                            <textarea id="message-input" placeholder="Паёмак..." oninput="autoGrow(this); handleTyping()"></textarea>
-                            <button id="voice-record-btn" onclick="toggleVoiceRecording()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px; margin-right:5px;" title="Записи голос">🎤</button>
-                            <button class="btn" onclick="sendMessage()" style="width: auto; padding: 10px 20px; flex-shrink: 0; height: 40px; border-radius: 18px;">Фиристодан</button>`;
-                        
-                        document.getElementById('message-input').addEventListener('keydown', function(e) {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                sendMessage();
-                            }
-                        });
+                        statusSubtitle.innerText = "не в сети";
                     }
                 }
             });
         } else {
-            database.ref('private_status/' + roomId).on('value', snapshot => {
-                let inputZone = document.getElementById('chat-input-zone');
-                if(!inputZone) return;
-
-                let statusInfo = snapshot.val() || {};
-                let isBlockedByMe = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
-                let isBlockedByOther = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[otherPhone] : false;
-
-                let blockBtn = document.getElementById('chat-dropdown-block-btn');
-                if(blockBtn) blockBtn.innerText = isBlockedByMe ? "🔓 Боз кардан" : "🚫 Блок кардан";
-
-                if(isBlockedByMe) {
-                    inputZone.innerHTML = `<div class="chat-blocked-notice">🚫 Шумо ин корбарро блок кардаед. Барои навиштан ӯро аз блок бароред.</div>`;
-                } else if(isBlockedByOther) {
-                    inputZone.innerHTML = `<div class="chat-blocked-notice" style="color:#b91c1c; font-weight:600; background:#fef2f2;">🚫 Шумо дар рӯйхати сиёҳ қарор доред ва навишта наметавонед!</div>`;
-                } else {
-                    inputZone.innerHTML = `
-                        <button onclick="document.getElementById('chat-file-input').click()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px;" title="Фиристодани расм/файл">📎</button>
-                        <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileSelect(this)">
-                        <textarea id="message-input" placeholder="Паёми шахсӣ..." oninput="autoGrow(this); handleTyping()"></textarea>
-                        <button id="voice-record-btn" onclick="toggleVoiceRecording()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px; margin-right:5px;" title="Записи голос">🎤</button>
-                        <button class="btn" onclick="sendMessage()" style="width: auto; padding: 10px 20px; flex-shrink: 0; height: 40px; border-radius: 18px;">Фиристодан</button>`;
-                    
-                    document.getElementById('message-input').addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            sendMessage();
-                        }
-                    });
-                }
-            });
+            headerActions.innerHTML = "";
+            statusSubtitle.innerText = "Гурӯҳ (Комната)";
         }
 
         let dbPath = currentChatType === 'room' ? 'messages/' + roomId : 'private_messages/' + roomId;
@@ -2813,37 +2646,29 @@ function listenPrivateMessagesLive() {
                     let isMe = m.phone === userData.phone;
                     let wrapperClass = isMe ? "me" : "other";
 
-                    if(currentChatType === 'room') {
-                        if(!isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
-                            database.ref(`messages/${roomId}/${m.id}/seenBy/${userData.phone}`).set(true);
-                        }
+                    if(currentChatType === 'room' && !isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
+                        database.ref(`messages/${roomId}/${m.id}/seenBy/${userData.phone}`).set(true);
+                    } else if (currentChatType === 'pm' && !isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
+                        database.ref(`private_messages/${roomId}/${m.id}/seenBy/${userData.phone}`).set(true);
                     }
 
                     let ticksHTML = isMe ? buildTicksHTML(m) : "";
                     let cityLabel = m.city ? ` (${m.city})` : "";
+                    let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; 
 
-let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; 
-
-if (m.msgType === 'voice') {
-    bubbleContentHTML = `
-        <div class="audio-player">
-            <button class="audio-play-btn" onclick="playAudioMsg(this, '${m.fileData}')">▶️</button>
-            <div class="audio-timeline"><div class="audio-progress"></div></div>
-        </div>`;
-} else if (m.msgType === 'file') {
-    if (m.fileData && m.fileData.startsWith('data:image/')) {
-        bubbleContentHTML = `
-            <img src="${m.fileData}" 
-                 style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer; display:block;" 
-                 onclick="openImageModal('${m.fileData}')">
-        `;
-    } else {
-        bubbleContentHTML = `
-            <a href="${m.fileData}" download="${m.fileName}" style="color:inherit; font-weight:600; text-decoration:underline;">
-                📁 ${m.fileName || 'Файл'}
-            </a>`;
-    }
-}
+                    if (m.msgType === 'voice') {
+                        bubbleContentHTML = `
+                            <div class="audio-player">
+                                <button class="audio-play-btn" onclick="playAudioMsg(this, '${m.fileData}')">▶️</button>
+                                <div class="audio-timeline"><div class="audio-progress"></div></div>
+                            </div>`;
+                    } else if (m.msgType === 'file') {
+                        if (m.fileData && m.fileData.startsWith('data:image/')) {
+                            bubbleContentHTML = `<img src="${m.fileData}" style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer;" onclick="openImageModal('${m.fileData}')">`;
+                        } else {
+                            bubbleContentHTML = `<a href="${m.fileData}" download="${m.fileName}" style="color:inherit; text-decoration:underline;">📁 ${m.fileName || 'Файл'}</a>`;
+                        }
+                    }
 
                     messagesHTML += `
                         <div class="msg-wrapper ${wrapperClass}">
@@ -2878,26 +2703,6 @@ if (m.msgType === 'voice') {
         });
     }
 
-    async function closeChat() {
-        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); }
-        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); }
-        document.getElementById('agora-video-view').style.display = 'none';
-        await agoraClient.leave();
-
-        if(currentChatRoomId) {
-            let dbPath = currentChatType === 'room' ? 'messages/' + currentChatRoomId : 'private_messages/' + currentChatRoomId;
-            database.ref(dbPath).off();
-            if(currentChatType === 'room') database.ref('rooms/' + currentChatRoomId).off();
-            if(currentChatType === 'pm') database.ref('private_status/' + currentChatRoomId).off();
-        }
-        if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
-        if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
-        
-        currentChatRoomId = "";
-        document.getElementById('chat-window').style.display = 'none';
-        listenToUnreadMessages(); 
-    }
-
     function sendMessage() {
         let input = document.getElementById('message-input');
         if(!input) return; 
@@ -2913,7 +2718,7 @@ if (m.msgType === 'voice') {
                 let isBlockedByOther = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[otherPhone] : false;
 
                 if (isBlockedByMe || isBlockedByOther) {
-                    showSmartAlert("Ирсоли паём ғайриимкон аст. Шумо дар рӯйхати сиёҳ қаരോധ доред ё корбарро блок намудаед!");
+                    showSmartAlert("Ирсоли паём ғайриимкон аст!");
                     return;
                 }
                 executeMessageSend(text, input);
@@ -2985,7 +2790,7 @@ if (m.msgType === 'voice') {
                 document.getElementById('room-name').value = "";
                 document.getElementById('room-pass').value = "";
                 document.getElementById('room-icon').value = "";
-                showSmartAlert("Комната бомуваффақият сохта шуд!");
+                showSmartAlert("Комната сохта шуд!");
             });
         }
 
@@ -2998,7 +2803,7 @@ if (m.msgType === 'voice') {
     }
 
     function deleteRoom(roomId) {
-        showSmartConfirm("Оё мехоҳед ин комнатаро нест кунед? Ҳамаи паёмҳо نیز нест мешаванд.", function(yes) {
+        showSmartConfirm("Оё мехоҳед ин комнатаро нест кунед?", function(yes) {
             if(yes) {
                 database.ref('rooms/' + roomId).remove();
                 database.ref('messages/' + roomId).remove();
@@ -3009,140 +2814,71 @@ if (m.msgType === 'voice') {
     function shareRoom(roomId) {
         let roomLink = window.location.origin + window.location.pathname + "?room=" + roomId;
         navigator.clipboard.writeText(roomLink).then(() => {
-            showSmartAlert("Истиноди комната ба буфер нусхабардорӣ шуд!\n\n" + roomLink);
-        }).catch(err => {
-            showSmartPrompt("Истиноди нусхабардорӣ кунед:", roomLink, function(val) {});
+            showSmartAlert("Истиноди комната нусхабардорӣ шуд!\n\n" + roomLink);
         });
     }
 
-async function exitAndClearActiveChat() {
-    if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); }
-    if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); }
-    document.getElementById('agora-video-view').style.display = 'none';
-    await agoraClient.leave();
+    async function exitAndClearActiveChat() {
+        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); }
+        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); }
+        document.getElementById('agora-video-view').style.display = 'none';
+        await agoraClient.leave();
 
-    const contactsHeader = document.querySelector('.contacts-sticky-header');
-    if (contactsHeader) {
-        contactsHeader.style.display = 'block'; 
-    }
-    if (currentChatRoomId && currentChatType === 'room') {
-        localStorage.setItem('last_view_' + currentChatRoomId, Date.now());
-    }
-    if (currentChatRoomId) {
-        database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
-    }
-    if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
-    if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
+        const contactsHeader = document.querySelector('.contacts-sticky-header');
+        if (contactsHeader) { contactsHeader.style.display = 'block'; }
+        
+        if (currentChatRoomId) {
+            database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
+            let dbPath = currentChatType === 'room' ? 'messages/' + currentChatRoomId : 'private_messages/' + currentChatRoomId;
+            database.ref(dbPath).off();
+        }
+        
+        document.getElementById('chat-window').style.display = 'none';
+        currentChatRoomId = "";
 
-    document.getElementById('chat-window').style.display = 'none';
-    currentChatRoomId = "";
-
-    if (currentChatType === 'pm') {
-        if (document.getElementById('contacts-tabs-bar').style.display === 'flex') {
-            if (currentContactsTab === 'contacts') renderContactsListReal();
-            if (currentContactsTab === 'online') loadOnlineUsersUI();
+        if (currentChatType === 'pm') {
+            renderContactsListReal();
         } else {
-            buildPrivateChatsListUI();
+            renderActiveChats(); 
         }
-    } else {
-        renderActiveChats(); 
+
+        const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
+        switchScreen('profile-screen', profileBtn);
     }
 
-    const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
-    switchScreen('profile-screen', profileBtn);
-}
-
-function listenToPrivateMessagesLive() {
-    if (!currentChatRoomId || currentChatType !== 'pm') return;
-
-    database.ref('private_messages/' + currentChatRoomId).on('value', (snapshot) => {
-        if (currentChatRoomId === "") return;
+    function openImageModal(imgSrc) {
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-img');
+        const downloadBtn = document.getElementById('download-btn');
         
-        let messages = snapshot.val();
-        let messagesList = document.getElementById('chat-messages-list');
-        let messagesHTML = "";
-        let lastDateStr = "";
-
-        if (messages) {
-            let messagesArray = Object.values(messages);
-            messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-            messagesArray.forEach(m => {
-                let msgDateStr = formatDateDivider(m.timestamp);
-                if (msgDateStr !== lastDateStr) {
-                    messagesHTML += `<div class="date-divider"><span>${msgDateStr}</span></div>`;
-                    lastDateStr = msgDateStr;
-                }
-
-                let isMe = m.phone === userData.phone;
-                let wrapperClass = isMe ? "me" : "other";
-                
-                if (!isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
-                   database.ref(`private_messages/${currentChatRoomId}/${m.id}/seenBy/${userData.phone}`).set(true);
-                }
-
-                messagesHTML += `
-                    <div class="msg-wrapper ${wrapperClass}">
-                        <img src="${m.userImg || defaultAvatar}" class="msg-avatar">
-                        <div class="msg-body">
-                            <span class="msg-username">${m.username}</span>
-                            <div class="msg-bubble">
-                                <div class="msg-text">${m.text}</div>
-                                <div class="msg-footer">
-                                    <span>${formatTime(m.timestamp)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
+        if (modal && modalImg) {
+            modal.style.display = 'flex';
+            modalImg.src = imgSrc;
+            if (downloadBtn) downloadBtn.href = imgSrc;
         }
-        messagesList.innerHTML = messagesHTML;
-        messagesList.scrollTop = messagesList.scrollHeight;
-    });
-}
-
-function openImageModal(imgSrc) {
-    const modal = document.getElementById('image-modal');
-    const modalImg = document.getElementById('modal-img');
-    const downloadBtn = document.getElementById('download-btn');
-    
-    if (modal && modalImg) {
-        modal.style.display = 'flex';
-        modalImg.src = imgSrc;
-        
-        if (downloadBtn) {
-            downloadBtn.href = imgSrc;
-        }
-    } else {
-        console.error("Modal элемент ёфт нашуд!");
     }
-}
 
-document.getElementById('image-modal').addEventListener('click', function(e) {
-    if (e.target.id === 'modal-img' || e.target.id === 'download-btn' || e.target.classList.contains('modal-btn')) {
-        return;
+    document.getElementById('image-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'modal-img' || e.target.id === 'download-btn') return;
+        this.style.display = 'none';
+    });
+
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return `<a href="${url}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
+        });
     }
-    this.style.display = 'none';
-});
 
-function linkify(text) {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlRegex, function(url) {
-        return `<a href="${url}" target="_blank" style="color: #a8d5f7; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
-    });
-}
-
-function monitorAccountSecurity() {
-    if (!userData || !userData.phone) return;
-
-    database.ref('users/' + userData.phone).on('value', (snapshot) => {
-        if (!snapshot.exists()) {
-            localStorage.clear(); 
-            alert("Ҳисоби шумо аз система нест карда шуд. Лутфан аз нав ворид шавед.");
-            location.reload(); 
-        }
-    });
-}
+    function monitorAccountSecurity() {
+        if (!userData || !userData.phone) return;
+        database.ref('users/' + userData.phone).on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                localStorage.clear(); 
+                location.reload(); 
+            }
+        });
+    }
 </script>
 
 </body>
