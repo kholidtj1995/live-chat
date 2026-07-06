@@ -805,11 +805,14 @@
 
         #agora-video-view {
             width: 100%;
-            height: 200px;
+            height: 250px;
             background: #000;
-            margin-top: 10px;
+            margin: 5px auto;
             border-radius: 12px;
             display: none;
+            position: relative;
+            border: 2px solid #667eea;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -1022,7 +1025,6 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-// Пайвастшавӣ ба App ID-и лоиҳаи нави шумо (Танҳо App ID бе Токен)
     const AGORA_APP_ID = "cc17f089d7e14ab1aef4b7af69340077";
     let agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     let localTracks = { videoTrack: null, audioTrack: null };
@@ -1584,15 +1586,20 @@
                 let videoView = document.getElementById('agora-video-view');
                 videoView.style.display = 'block';
                 
-                await agoraClient.setClientRole("host");
-                await agoraClient.join(AGORA_APP_ID, callRoomName, null, null);
-                
-                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-                
-                localTracks.videoTrack.play('agora-video-view');
-                await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
-                showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
+                try {
+                    await agoraClient.setClientRole("host");
+                    await agoraClient.join(AGORA_APP_ID, callRoomName, null, null);
+                    
+                    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                    
+                    localTracks.videoTrack.play('agora-video-view');
+                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                    showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
+                } catch (err) {
+                    console.error(err);
+                    showSmartAlert("Хатогӣ дар оғози эфир: " + err.message);
+                }
             }
         });
     }
@@ -1964,7 +1971,6 @@
                                         <div class="pm-row-left">
                                             <img src="${otherUser.img || defaultAvatar}" class="room-avatar">
                                             <div class="pm-meta-text">
-                                                <!-- Fixed typo template here -->
                                                 <b>👤 ${otherUser.name} [🚫 БЛОК]</b>
                                                 <p>📞 Рақам: ${otherUser.phone} | Шаҳр: ${otherUser.city || 'Нишон дода нашудааст'}</p>
                                             </div>
@@ -2428,13 +2434,17 @@
 
     function setupAgoraListeners() {
         agoraClient.on("user-published", async (user, mediaType) => {
-            await agoraClient.subscribe(user, mediaType);
-            if (mediaType === "video") {
-                document.getElementById('agora-video-view').style.display = 'block';
-                user.videoTrack.play('agora-video-view');
-            }
-            if (mediaType === "audio") {
-                user.audioTrack.play();
+            try {
+                await agoraClient.subscribe(user, mediaType);
+                if (mediaType === "video") {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    user.videoTrack.play('agora-video-view');
+                }
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                }
+            } catch (e) {
+                console.error("Agora subscription error:", e);
             }
         });
 
@@ -2469,11 +2479,14 @@
                     hideCallScreen();
                     database.ref('calls/' + targetPhone).off();
                     
-                    await agoraClient.setClientRole("host");
-                    await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
-                    
-                    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                    await agoraClient.publish([localTracks.audioTrack]);
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        await agoraClient.publish([localTracks.audioTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогии пайвастшавӣ ба Agora: " + err.message);
+                    }
                 } else if (!c || c.status === 'rejected') {
                     dialTone.pause();
                     hideCallScreen();
@@ -2510,14 +2523,18 @@
                     
                     document.getElementById('agora-video-view').style.display = 'block';
                     
-                    await agoraClient.setClientRole("host");
-                    await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
-                    
-                    localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-                    
-                    localTracks.videoTrack.play('agora-video-view');
-                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
+                        
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                        
+                        localTracks.videoTrack.play('agora-video-view');
+                        await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогӣ дар пайвасти видео: " + err.message);
+                    }
                 } else if (!c || c.status === 'rejected') {
                     dialTone.pause();
                     hideCallScreen();
@@ -2569,18 +2586,23 @@
             await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
             hideCallScreen();
             
-            await agoraClient.setClientRole("host"); 
-            await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, null, null);
-            
-            localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-            
-            if (activeCallSession.type === 'video') {
-                document.getElementById('agora-video-view').style.display = 'block';
-                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-                localTracks.videoTrack.play('agora-video-view');
-                await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
-            } else {
-                await agoraClient.publish([localTracks.audioTrack]);
+            try {
+                await agoraClient.setClientRole("host"); 
+                await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, null, null);
+                
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                
+                if (activeCallSession.type === 'video') {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                    localTracks.videoTrack.play('agora-video-view');
+                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                } else {
+                    await agoraClient.publish([localTracks.audioTrack]);
+                }
+            } catch (err) {
+                console.error(err);
+                showSmartAlert("Хатогӣ ҳангоми қабули занг: " + err.message);
             }
         }
     }
