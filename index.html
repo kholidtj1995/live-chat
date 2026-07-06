@@ -763,6 +763,47 @@ img {
     cursor: pointer;
     margin-left: auto;
 }
+
+/* ЭКРАНИ ЗАНГИ ФАЪОЛ (МИСЛИ ВАЦАП) */
+.incoming-call-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    z-index: 999999;
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+}
+.call-avatar {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    border: 4px solid #667eea;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+.call-actions-row {
+    display: flex;
+    gap: 40px;
+}
+.call-action-circle {
+    width: 65px; height: 65px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.call-accept { background: #10b981; }
+.call-decline { background: #ef4444; }
     </style>
 </head>
 <body>
@@ -921,6 +962,22 @@ img {
     </div>
 </div>
 
+<!-- РАВЗАНАИ ИНТИЗОРИИ ЗАНГ БА СТИЛИ ВАЦАП -->
+<div id="incoming-call-panel" class="incoming-call-screen">
+    <div>
+        <h2 id="call-screen-status">Входящий звонок...</h2>
+        <p id="call-screen-type" style="color: #94a3b8; margin-top: 5px; font-weight: 500;"></p>
+    </div>
+    <div>
+        <img id="call-screen-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="call-avatar">
+        <h1 id="call-screen-name">Корбар</h1>
+    </div>
+    <div class="call-actions-row">
+        <button class="call-action-circle call-decline" onclick="rejectActiveCall()">❌</button>
+        <button class="call-action-circle call-accept" id="call-accept-trigger" onclick="acceptActiveCall()">📞</button>
+    </div>
+</div>
+
 <div id="smart-toast-overlay" class="toast-overlay">
     <div class="toast-box">
         <div id="toast-title" class="toast-title">Огоҳинома</div>
@@ -959,11 +1016,18 @@ img {
 const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
 const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
+// Садои занги Ватсап
+const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
+dialTone.loop = true;
+
     let mediaRecorder;
     let audioChunks = [];
     let isRecording = false;
     let recordingTimerInterval;
     let recordingSeconds = 0;
+
+    let activeCallSession = null;
+    let callListenerRef = null;
 
     document.addEventListener("contextmenu", function(event) {
         let tag = event.target.tagName.toLowerCase();
@@ -1302,6 +1366,7 @@ function enterApp() {
     updateUserOnlineStatus();
     
     monitorAccountSecurity(); 
+    listenForIncomingCalls();
     
     document.getElementById('auth-screen').style.display = 'none';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
@@ -1335,7 +1400,7 @@ function enterApp() {
                 <div class="profile-top-controls">
                     <button class="profile-ctrl-btn" onclick="toggleProfileSettingsDropdown(event)">⚙️</button>
                     <div class="profile-settings-dropdown" id="profile-settings-dropdown">
-                        <button onclick="toggleProfileForm(true)">✏️ Таҳрир</button>
+                        <button onclick="toggleProfileForm(true)">✏️ Танзимот</button>
                         <button onclick="toggleDarkMode()">🌙/☀️ Мавзӯъ</button>
                         <button class="logout-item" onclick="logout()">🚪 Баромадан</button>
                     </div>
@@ -1854,7 +1919,7 @@ function enterApp() {
             if(snapshot.exists()) {
                 snapshot.forEach(child => {
                     let chatId = child.key;
-                    if(chatId.includes(userData.phone)) {
+                    if(child.key.includes(userData.phone)) {
                         let statusInfo = child.val();
                         let isBlockedByMe = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
 
@@ -2364,26 +2429,137 @@ function listenPrivateMessagesLive() {
         };
     }
 
+    // МАНТИҚИ НАВ БАРОИ АУДИОЗАНГ ВА ВИДЕОЗАНГ (МИСЛИ ВАЦАП)
     function startVoiceCall(chatId) {
-        let callLink = "https://meet.jit.si/" + chatId + "_voice_" + Math.floor(Math.random() * 10000);
-        showSmartConfirm("Оё мехоҳед ба ин корбар аудиозанг занед? (Линк ба чат меравад)", function(yes) {
-            if(yes) {
-                let textCall = `📞 Ман ба шумо аудиозанг зада истодаам. Барои ҷавоб додан ба линк клик кунед:\n${callLink}`;
-                executeMessageSend(textCall, { value: "", style: {} });
-                window.open(callLink, '_blank');
-            }
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
+        let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'audio',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller' };
+            showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
+            dialTone.play().catch(e => console.log(e));
+            
+            // Пайгирии ҷавоби корбар
+            database.ref('calls/' + targetPhone).on('value', snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    // Кушодани пайвасти ҳақиқии садо (Jitsi Meet бо танзими танҳо аудио)
+                    window.open("https://meet.jit.si/" + c.roomName + "#config.startWithVideoMuted=true", '_blank');
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар зангро рад кард ё дастнорас аст.");
+                }
+            });
         });
     }
 
     function startVideoCall(chatId) {
-        let callLink = "https://meet.jit.si/" + chatId + "_video_" + Math.floor(Math.random() * 10000);
-        showSmartConfirm("Оё мехоҳед ба ин корбар видеозанг занед? (Линк ба чат меравад)", function(yes) {
-            if(yes) {
-                let textCall = `📹 Ман ба шумо видеозанг зада истодаам. Барои пайваст шудан ба линк клик кунед:\n${callLink}`;
-                executeMessageSend(textCall, { value: "", style: {} });
-                window.open(callLink, '_blank');
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
+        let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'video',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller' };
+            showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
+            dialTone.play().catch(e => console.log(e));
+            
+            database.ref('calls/' + targetPhone).on('value', snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    window.open("https://meet.jit.si/" + c.roomName, '_blank');
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар видеозангро рад кард.");
+                }
+            });
+        });
+    }
+
+    function listenForIncomingCalls() {
+        if (!userData || !userData.phone) return;
+        if (callListenerRef) callListenerRef.off();
+        
+        callListenerRef = database.ref('calls/' + userData.phone);
+        callListenerRef.on('value', snap => {
+            let call = snap.val();
+            if (call && call.status === 'ringing') {
+                // Занги воридотӣ омад!
+                activeCallSession = { callerPhone: call.callerPhone, roomName: call.roomName };
+                showCallScreen(
+                    'Входящий звонок...', 
+                    call.callerName, 
+                    call.callerImg || defaultAvatar, 
+                    call.callType === 'audio' ? '📞 Аудиозанг (Танҳо садо)' : '📹 Видеовизов'
+                );
+                dialTone.play().catch(e => console.log(e));
+            } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
+                // Агар зангзананда худаш зангро кушад
+                dialTone.pause();
+                hideCallScreen();
             }
         });
+    }
+
+    function showCallScreen(statusText, name, img, typeText) {
+        document.getElementById('call-screen-status').innerText = statusText;
+        document.getElementById('call-screen-name').innerText = name;
+        document.getElementById('call-screen-avatar').src = img || defaultAvatar;
+        document.getElementById('call-screen-type').innerText = typeText;
+        document.getElementById('incoming-call-panel').style.display = 'flex';
+    }
+
+    function hideCallScreen() {
+        document.getElementById('incoming-call-panel').style.display = 'none';
+    }
+
+    function acceptActiveCall() {
+        dialTone.pause();
+        if (activeCallSession && activeCallSession.roomName) {
+            database.ref('calls/' + userData.phone).update({ status: 'accepted' }).then(() => {
+                hideCallScreen();
+                // Ворид шудан ба эфир
+                window.open("https://meet.jit.si/" + activeCallSession.roomName, '_blank');
+            });
+        }
+    }
+
+    对抗официо
+    function rejectActiveCall() {
+        dialTone.pause();
+        if (activeCallSession) {
+            if (activeCallSession.role === 'caller') {
+                database.ref('calls/' + activeCallSession.targetPhone).remove();
+            } else {
+                database.ref('calls/' + userData.phone).update({ status: 'rejected' });
+                setTimeout(() => { database.ref('calls/' + userData.phone).remove(); }, 1000);
+            }
+        }
+        hideCallScreen();
     }
 
     function openChat(name, img, roomId, type = 'room') {
@@ -2469,10 +2645,10 @@ function listenPrivateMessagesLive() {
         }
 
         if(currentChatType === 'pm') {
-            database.ref('private_status/' + roomId).once('value', snap => {
+            database.ref('private_status/' + roomId).on('value', snap => {
                 if(snap.exists()) {
                     let statusInfo = snap.val();
-                    if(statusInfo.lastSender !== userData.phone) {
+                    if(statusInfo.lastSender !== userData.phone && !statusInfo.read) {
                         database.ref('private_status/' + roomId).update({ read: true });
                     }
                     let isMeBlocking = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
@@ -2701,8 +2877,10 @@ if (m.msgType === 'voice') {
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
             }
-            input.value = "";
-            input.style.height = "40px";
+            if(input) {
+                input.value = "";
+                if(input.style) input.style.height = "40px";
+            }
         });
     }
 
