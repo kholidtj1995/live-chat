@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Чат бо функсияи Невидимка ва Лички (Agora)</title>
+    <title>Чат бо функсияи Невидимка ва Лички (Whereby)</title>
     <style>
         * { 
             box-sizing: border-box; 
@@ -803,7 +803,9 @@
         .call-accept { background: #10b981; }
         .call-decline { background: #ef4444; }
 
-#agora-video-view { width: 100%; height: 250px; background: #000; display: none; border-radius: 12px; margin-top: 5px; }
+#whereby-embed-container { width: 100%; height: 300px; background: #000; display: none; border-radius: 12px; margin-top: 5px; overflow: hidden; }
+        #whereby-embed-container whereby-embed { width: 100%; height: 100%; display: block; }
+        .call-video-mode #whereby-embed-container { height: calc(100vh - 260px); height: calc(100dvh - 260px); }
     </style>
 </head>
 <body>
@@ -848,7 +850,7 @@
             <div class="chat-header-actions" id="chat-header-settings-zone"></div>
         </div>
         
-        <div id="agora-video-view"></div>
+        <div id="whereby-embed-container"></div>
         
         <div class="chat-messages" id="chat-messages-list"></div>
         
@@ -999,7 +1001,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
+<script type="module" src="https://cdn.srv.whereby.com/embed/v2-embed.js"></script>
 
 <script>
 // Танзимоти Firebase
@@ -1015,16 +1017,15 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-// Танзимоти Agora
-    const AGORA_APP_ID = "cc17f089d7e14ab1aef4b7af69340077";
-    // Агар дар консоли Agora Certificate фаъол бошад, бояд токен истифода баред.
-    // Барои тест метавонед Certificate-ро дар консол хомӯш кунед (App ID without Certificate),
-    // ё дар ин ҷо токени тестии офаридаро (Generate Temp Token) гузоред.
-const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKMVGJKTDc3TDCwsU8xTDU0SkwwTU9NMkswT08wsjU0MDMzNvSu9sxoCGRk8tvExMzKwMjAyMDGA+AwMAMwGHec=";
+// Танзимоти Whereby (ба ҷои Agora)
+    // 1) Ба https://whereby.com сабти ном кунед ва Whereby Embedded-ро фаъол кунед (нақшаи Free кофист).
+    // 2) Дар Dashboard -> Configure -> API калиди API созед (Generate key) ва дар ин ҷо гузоред.
+    // ДИҚҚАТ: Ин калид махфист. Дар лоиҳаи ҳақиқӣ беҳтараш тавассути сервери худ (масалан Firebase Cloud Function) истифода шавад,
+    // на мустақим дар браузер, вале барои соддагӣ дар ин ҷо мисли токени Agora-и қаблӣ мустақим гузошта шудааст.
+    const WHEREBY_API_KEY = "12345";
 
-    let agoraClient = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
-    let localTracks = { videoTrack: null, audioTrack: null };
-    let currentAgoraChannel = null; 
+    let currentWherebyRoomUrl = null;
+    let currentWherebyMeetingId = null;
     let isViewerInLiveRoom = false; 
 
     const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
@@ -1381,7 +1382,6 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         updateUserOnlineStatus();
         
         monitorAccountSecurity(); 
-        setupAgoraListeners();
         listenForIncomingCalls();
         
         document.getElementById('auth-screen').style.display = 'none';
@@ -1525,8 +1525,8 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
                 let roomUnreadCount = roomChatInfo ? roomChatInfo.unreadCount : 0;
                 let roomUnreadBadgeHTML = roomUnreadCount > 0 ? `<span class="room-unread-badge">${roomUnreadCount}</span>` : "";
                 let liveButtonHTML = room.liveChannel 
-                    ? `<button class="live-btn" style="background:#64748b;" onclick="stopAgoraRoomLive('${room.id}')">⏹️ Қатъи эфир</button>`
-                    : `<button class="live-btn" onclick="startAgoraRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>`;
+                    ? `<button class="live-btn" style="background:#64748b;" onclick="stopRoomLive('${room.id}')">⏹️ Қатъи эфир</button>`
+                    : `<button class="live-btn" onclick="startRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>`;
 
                 myRoomsHTML += `
                     <div class="item-card" id="my-room-${room.id}">
@@ -1562,17 +1562,79 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         if (allRoomsList) allRoomsList.innerHTML = allRoomsHTML || "<p style='color:gray; font-size:14px;'>Ҳеҷ комнатае мавҷуд нест.</p>";
     }
 
-    // ================= AGORA: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = audience) =================
+    // ================= WHEREBY: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = мушоҳидакунандагон) =================
 
-    async function startAgoraRoomLive(roomId, roomName) {
-        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Agora оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
+    // Сохтани хонаи нави Whereby тавассути REST API
+    async function createWherebyRoom(roomNamePrefix, isGroup) {
+        let endDate = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(); // 6 соат амал мекунад
+        let response = await fetch('https://api.whereby.dev/v1/meetings', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + WHEREBY_API_KEY,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                endDate: endDate,
+                roomNamePrefix: roomNamePrefix,
+                roomMode: isGroup ? 'group' : 'normal',
+                fields: ['hostRoomUrl']
+            })
+        });
+        if (!response.ok) {
+            let errText = await response.text().catch(() => '');
+            throw new Error('Хатогии Whereby API (' + response.status + '): ' + errText);
+        }
+        return await response.json(); // { roomUrl, hostRoomUrl, meetingId, ... }
+    }
+
+    // Нест кардани хонаи Whereby, вақте эфир/занг тамом мешавад
+    async function deleteWherebyMeeting(meetingId) {
+        if (!meetingId) return;
+        try {
+            await fetch('https://api.whereby.dev/v1/meetings/' + meetingId, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Bearer ' + WHEREBY_API_KEY }
+            });
+        } catch (err) {
+            console.log('Хатогии нест кардани мулоқоти Whereby:', err);
+        }
+    }
+
+    // Кушодани видео/аудио тавассути виджети <whereby-embed>
+    function openWherebyEmbed(roomUrl, options = {}) {
+        let container = document.getElementById('whereby-embed-container');
+        if (!container) return;
+        container.innerHTML = '';
+        container.style.display = 'block';
+
+        let embed = document.createElement('whereby-embed');
+        embed.setAttribute('room', roomUrl);
+        embed.setAttribute('minimal', '');
+        embed.setAttribute('leaveButton', '');
+        if (options.audioOnly) embed.setAttribute('video', 'off');
+        container.appendChild(embed);
+        currentWherebyRoomUrl = roomUrl;
+    }
+
+    // Пӯшидани виджети Whereby (баромадан аз ҳама эфир/занг)
+    function closeWherebyEmbed() {
+        let container = document.getElementById('whereby-embed-container');
+        if (container) {
+            container.innerHTML = '';
+            container.style.display = 'none';
+        }
+        currentWherebyRoomUrl = null;
+    }
+
+    async function startRoomLive(roomId, roomName) {
+        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Whereby оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
             if(!yes) return;
 
-            let callRoomName = "room_live_" + roomId;
-
             try {
-                // Пеш аз пайвастшавӣ ба канали нав, аз ҳама каналҳои қаблӣ мебароем
-                await leaveAgoraChannel();
+                // Пеш аз пайвастшавӣ ба хонаи нав, аз ҳама пайвастҳои қаблӣ мебароем
+                await leaveWherebyRoom();
+
+                let meeting = await createWherebyRoom('room-live-' + roomId, true);
 
                 let dbPath = 'messages/' + roomId;
                 let msgRef = database.ref(dbPath).push();
@@ -1593,34 +1655,29 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
                 await msgRef.set(msgData);
 
                 // Сабти маълумоти эфир дар Firebase, то тамошобинон тавонанд пайдо кунанд
-                await database.ref('rooms/' + roomId).update({ liveChannel: callRoomName, liveHost: userData.phone });
+                await database.ref('rooms/' + roomId).update({
+                    liveChannel: meeting.roomUrl,
+                    liveMeetingId: meeting.meetingId,
+                    liveHost: userData.phone
+                });
 
                 openChat(roomName, defaultAvatar, roomId, 'room');
-                let videoView = document.getElementById('agora-video-view');
-                videoView.style.display = 'block';
-
-                await agoraClient.setClientRole("host");
-                await agoraClient.join(AGORA_APP_ID, callRoomName, AGORA_TEMP_TOKEN, null);
-                currentAgoraChannel = callRoomName;
-
-                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-
-                localTracks.videoTrack.play('agora-video-view');
-                await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                openWherebyEmbed(meeting.hostRoomUrl || meeting.roomUrl);
                 showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
             } catch (err) {
                 console.error(err);
-                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки дар консоли Agora Certificate хомӯш аст ё токени дуруст истифода мешавад.");
+                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки калиди API-и Whereby дуруст гузошта шудааст.");
             }
         });
     }
 
-    async function stopAgoraRoomLive(roomId) {
+    async function stopRoomLive(roomId) {
         showSmartConfirm("Оё мехоҳед эфирро қатъ кунед?", async function(yes) {
             if(!yes) return;
-            await database.ref('rooms/' + roomId).update({ liveChannel: null, liveHost: null });
-            await leaveAgoraChannel();
+            let room = roomsData.find(r => r.id === roomId);
+            await database.ref('rooms/' + roomId).update({ liveChannel: null, liveMeetingId: null, liveHost: null });
+            if (room && room.liveMeetingId) { await deleteWherebyMeeting(room.liveMeetingId); }
+            await leaveWherebyRoom();
             showSmartAlert("Эфир қатъ карда шуд.");
         });
     }
@@ -1628,28 +1685,23 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
     // Вақте корбар чати комнатаро мекушояд, агар эфир фаъол бошад, ӯро ҳамчун тамошобин пайваст мекунад
     async function joinRoomLiveAsViewerIfActive(roomId) {
         let room = roomsData.find(r => r.id === roomId);
-        let videoView = document.getElementById('agora-video-view');
 
         if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
 
         activeRoomLiveListener = database.ref('rooms/' + roomId + '/liveChannel');
         activeRoomLiveListener.on('value', async (snap) => {
-            let channelName = snap.val();
+            let roomUrl = snap.val();
 
-            if (channelName && !isViewerInLiveRoom && room && room.creatorPhone !== userData.phone) {
+            if (roomUrl && !isViewerInLiveRoom && room && room.creatorPhone !== userData.phone) {
                 try {
-                    await leaveAgoraChannel();
-                    await agoraClient.setClientRole("audience");
-                    await agoraClient.join(AGORA_APP_ID, channelName, AGORA_TEMP_TOKEN, null);
-                    currentAgoraChannel = channelName;
+                    await leaveWherebyRoom();
+                    openWherebyEmbed(roomUrl);
                     isViewerInLiveRoom = true;
-                    videoView.style.display = 'block';
                 } catch (err) {
                     console.error("Хатогии пайвастшавии тамошобин ба эфир:", err);
                 }
-            } else if (!channelName && isViewerInLiveRoom) {
-                await leaveAgoraChannel();
-                videoView.style.display = 'none';
+            } else if (!roomUrl && isViewerInLiveRoom) {
+                await leaveWherebyRoom();
             }
         });
     }
@@ -2482,123 +2534,88 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         };
     }
 
-    function setupAgoraListeners() {
-        agoraClient.on("user-published", async (user, mediaType) => {
-            try {
-                await agoraClient.subscribe(user, mediaType);
-                if (mediaType === "video") {
-                    document.getElementById('agora-video-view').style.display = 'block';
-                    user.videoTrack.play('agora-video-view');
-                }
-                if (mediaType === "audio") {
-                    user.audioTrack.play();
-                }
-            } catch (e) {
-                console.error("Agora subscription error:", e);
-            }
-        });
-
-        agoraClient.on("user-unpublished", (user, mediaType) => {
-            if (mediaType === "video") {
-                document.getElementById('agora-video-view').style.display = 'none';
-            }
-        });
-    }
-
     async function startVoiceCall(chatId) {
-        await leaveAgoraChannel();
+        await leaveWherebyRoom();
 
-        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
-        
-        database.ref('calls/' + targetPhone).set({
-            callerPhone: userData.phone,
-            callerName: userData.name,
-            callerImg: userData.img,
-            callType: 'audio',
-            roomName: callRoomName,
-            status: 'ringing',
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'audio' };
-            showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
-            dialTone.play().catch(e => console.log(e));
-            
-            database.ref('calls/' + targetPhone).on('value', async snap => {
-                let c = snap.val();
-                if(c && c.status === 'accepted') {
-                    dialTone.pause();
-                    hideCallScreen();
-                    database.ref('calls/' + targetPhone).off();
-                    
-                    try {
-                        await agoraClient.setClientRole("host");
-                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
-                        currentAgoraChannel = c.roomName;
-                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                        await agoraClient.publish([localTracks.audioTrack]);
-                    } catch (err) {
-                        showSmartAlert("Хатогии пайвастшавӣ ба Agora: " + err.message);
+
+        try {
+            let meeting = await createWherebyRoom('call-' + chatId, false);
+
+            database.ref('calls/' + targetPhone).set({
+                callerPhone: userData.phone,
+                callerName: userData.name,
+                callerImg: userData.img,
+                callType: 'audio',
+                roomUrl: meeting.roomUrl,
+                meetingId: meeting.meetingId,
+                status: 'ringing',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                activeCallSession = { targetPhone: targetPhone, role: 'caller', roomUrl: meeting.hostRoomUrl || meeting.roomUrl, meetingId: meeting.meetingId, type: 'audio' };
+                showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
+                dialTone.play().catch(e => console.log(e));
+
+                database.ref('calls/' + targetPhone).on('value', async snap => {
+                    let c = snap.val();
+                    if(c && c.status === 'accepted') {
+                        dialTone.pause();
+                        hideCallScreen();
+                        database.ref('calls/' + targetPhone).off();
+                        openWherebyEmbed(activeCallSession.roomUrl, { audioOnly: true });
+                    } else if (!c || c.status === 'rejected') {
+                        dialTone.pause();
+                        hideCallScreen();
+                        database.ref('calls/' + targetPhone).off();
+                        showSmartAlert("Корбар зангро рад кард.");
                     }
-                } else if (!c || c.status === 'rejected') {
-                    dialTone.pause();
-                    hideCallScreen();
-                    database.ref('calls/' + targetPhone).off();
-                    showSmartAlert("Корбар зангро рад кард.");
-                }
+                });
             });
-        });
+        } catch (err) {
+            showSmartAlert("Хатогӣ дар сохтани занг тавассути Whereby: " + err.message);
+        }
     }
 
     async function startVideoCall(chatId) {
-        await leaveAgoraChannel();
+        await leaveWherebyRoom();
 
-        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
-        
-        database.ref('calls/' + targetPhone).set({
-            callerPhone: userData.phone,
-            callerName: userData.name,
-            callerImg: userData.img,
-            callType: 'video',
-            roomName: callRoomName,
-            status: 'ringing',
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'video' };
-            showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
-            dialTone.play().catch(e => console.log(e));
-            
-            database.ref('calls/' + targetPhone).on('value', async snap => {
-                let c = snap.val();
-                if(c && c.status === 'accepted') {
-                    dialTone.pause();
-                    hideCallScreen();
-                    database.ref('calls/' + targetPhone).off();
-                    
-                    document.getElementById('agora-video-view').style.display = 'block';
-                    
-                    try {
-                        await agoraClient.setClientRole("host");
-                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
-                        currentAgoraChannel = c.roomName;
-                        
-                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-                        
-                        localTracks.videoTrack.play('agora-video-view');
-                        await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
-                    } catch (err) {
-                        showSmartAlert("Хатогӣ дар пайвасти видео: " + err.message);
+
+        try {
+            let meeting = await createWherebyRoom('call-' + chatId, false);
+
+            database.ref('calls/' + targetPhone).set({
+                callerPhone: userData.phone,
+                callerName: userData.name,
+                callerImg: userData.img,
+                callType: 'video',
+                roomUrl: meeting.roomUrl,
+                meetingId: meeting.meetingId,
+                status: 'ringing',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
+                activeCallSession = { targetPhone: targetPhone, role: 'caller', roomUrl: meeting.hostRoomUrl || meeting.roomUrl, meetingId: meeting.meetingId, type: 'video' };
+                showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
+                dialTone.play().catch(e => console.log(e));
+
+                database.ref('calls/' + targetPhone).on('value', async snap => {
+                    let c = snap.val();
+                    if(c && c.status === 'accepted') {
+                        dialTone.pause();
+                        hideCallScreen();
+                        database.ref('calls/' + targetPhone).off();
+                        openWherebyEmbed(activeCallSession.roomUrl);
+                    } else if (!c || c.status === 'rejected') {
+                        dialTone.pause();
+                        hideCallScreen();
+                        database.ref('calls/' + targetPhone).off();
+                        showSmartAlert("Корбар видеозангро рад кард.");
                     }
-                } else if (!c || c.status === 'rejected') {
-                    dialTone.pause();
-                    hideCallScreen();
-                    database.ref('calls/' + targetPhone).off();
-                    showSmartAlert("Корбар видеозангро рад кард.");
-                }
+                });
             });
-        });
+        } catch (err) {
+            showSmartAlert("Хатогӣ дар сохтани видеозанг тавассути Whereby: " + err.message);
+        }
     }
 
     function listenForIncomingCalls() {
@@ -2609,7 +2626,7 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         callListenerRef.on('value', snap => {
             let call = snap.val();
             if (call && call.status === 'ringing') {
-                activeCallSession = { callerPhone: call.callerPhone, roomName: call.roomName, type: call.callType };
+                activeCallSession = { callerPhone: call.callerPhone, roomUrl: call.roomUrl, meetingId: call.meetingId, type: call.callType };
                 showCallScreen(
                     'Входящий звонок...', 
                     call.callerName, 
@@ -2636,30 +2653,16 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         document.getElementById('incoming-call-panel').style.display = 'none';
     }
 
-// Танзимоти зангҳои Agora
+// Танзимоти зангҳои Whereby
     async function acceptActiveCall() {
         dialTone.pause();
-        if (activeCallSession && activeCallSession.roomName) {
+        if (activeCallSession && activeCallSession.roomUrl) {
             try {
                 await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
                 hideCallScreen();
 
-                await leaveAgoraChannel();
-                
-                await agoraClient.setClientRole("host");
-                await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, AGORA_TEMP_TOKEN, null);
-                currentAgoraChannel = activeCallSession.roomName;
-                
-                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                
-                if (activeCallSession.type === 'video') {
-                    document.getElementById('agora-video-view').style.display = 'block';
-                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-                    localTracks.videoTrack.play('agora-video-view');
-                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
-                } else {
-                    await agoraClient.publish([localTracks.audioTrack]);
-                }
+                await leaveWherebyRoom();
+                openWherebyEmbed(activeCallSession.roomUrl, { audioOnly: activeCallSession.type !== 'video' });
             } catch (err) {
                 showSmartAlert("Хатогӣ ҳангоми пайвастшавӣ: " + err.message);
             }
@@ -2672,24 +2675,21 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         if (activeCallSession) {
             if (activeCallSession.role === 'caller') {
                 database.ref('calls/' + activeCallSession.targetPhone).remove();
+                if (activeCallSession.meetingId) { deleteWherebyMeeting(activeCallSession.meetingId); }
             } else {
                 database.ref('calls/' + userData.phone).update({ status: 'rejected' });
                 setTimeout(() => { database.ref('calls/' + userData.phone).remove(); }, 1000);
             }
         }
-        await leaveAgoraChannel();
+        await leaveWherebyRoom();
         activeCallSession = null;
         hideCallScreen();
     }
 
-// Функсия барои қатъ кардани ҳамаи пайвастҳо
-    async function leaveAgoraChannel() {
-        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); localTracks.audioTrack = null; }
-        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); localTracks.videoTrack = null; }
-        document.getElementById('agora-video-view').style.display = 'none';
+// Функсия барои баромадан аз ҳамаи пайвастҳои Whereby (эфир ё занг)
+    async function leaveWherebyRoom() {
+        closeWherebyEmbed();
         isViewerInLiveRoom = false;
-        currentAgoraChannel = null;
-        try { await agoraClient.leave(); } catch(e) { console.log("Agora leave error:", e); }
     }
 
     function openChat(name, img, roomId, type = 'room') {
@@ -2943,7 +2943,7 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
 
 // Ислоҳи функсияи баромадан аз чат
     async function exitAndClearActiveChat() {
-        await leaveAgoraChannel(); // Ислоҳи муҳим: қатъи Agora ҳангоми баромадан
+        await leaveWherebyRoom(); // Ислоҳи муҳим: қатъи Whereby ҳангоми баромадан
         
         const contactsHeader = document.querySelector('.contacts-sticky-header');
         if (contactsHeader) { contactsHeader.style.display = 'block'; }
