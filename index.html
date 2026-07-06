@@ -1018,12 +1018,10 @@
     const database = firebase.database();
 
 // Танзимоти Whereby (ба ҷои Agora)
-    // 1) Ба https://whereby.com сабти ном кунед ва Whereby Embedded-ро фаъол кунед (нақшаи Free кофист).
-    // 2) Дар Dashboard -> Configure -> API калиди API созед (Generate key) ва дар ин ҷо гузоред.
-    // ДИҚҚАТ: Ин калид махфист. Дар лоиҳаи ҳақиқӣ беҳтараш тавассути сервери худ (масалан Firebase Cloud Function) истифода шавад,
-    // на мустақим дар браузер, вале барои соддагӣ дар ин ҷо мисли токени Agora-и қаблӣ мустақим гузошта шудааст.
-// Танзимоти Whereby (Бо истифода аз токени шумо)
-const WHEREBY_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmFwcGVhci5pbiIsImF1ZCI6Imh0dHBzOi8vYXBpLmFwcGVhci5pbi92MSIsImV4cCI6OTAwNzE5OTI1NDc0MDk5MSwiaWF0IjoxNzgzMzc5Mjg4LCJvcmdhbml6YXRpb25JZCI6MzQwMDY2LCJqdGkiOiI3N2IwNmQxMS1hNjhmLTRjYTktYmNhOC05MjdjM2U5NjI5MWIifQ.B-I-GZB_AJlU50RGf5tWPgHudVAgafywv4vecjTcBe8";
+    // Барои гузаштан аз мушкили CORS, дархостҳо на бевосита ба Whereby,
+    // балки тавассути як "Proxy Worker" (масалан Cloudflare Worker, ройгон) фиристода мешаванд.
+    // Дар ин ҷо суроғаи Worker-и худро гузоред (масалан: https://whereby-proxy.НОМИ_ШУМО.workers.dev)
+    const WHEREBY_PROXY_URL = "https://ancient-breeze-5dc2.kholidtj1995.workers.dev";
 
     let currentWherebyRoomUrl = null;
     let currentWherebyMeetingId = null;
@@ -1565,20 +1563,17 @@ const WHEREBY_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwcz
 
     // ================= WHEREBY: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = мушоҳидакунандагон) =================
 
-    // Сохтани хонаи нави Whereby тавассути REST API
+    // Сохтани хонаи нави Whereby тавассути Proxy Worker (то мушкили CORS пеш наояд)
     async function createWherebyRoom(roomNamePrefix, isGroup) {
-        let endDate = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(); // 6 соат амал мекунад
-        let response = await fetch('https://api.whereby.dev/v1/meetings', {
+        if (!WHEREBY_PROXY_URL || WHEREBY_PROXY_URL.indexOf("ГУЗОРЕД_СУРОҒАИ") !== -1) {
+            throw new Error("Аввал суроғаи Worker-и худро дар WHEREBY_PROXY_URL гузоред.");
+        }
+        let response = await fetch(WHEREBY_PROXY_URL.replace(/\/$/, '') + '/create-meeting', {
             method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + WHEREBY_API_KEY,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                endDate: endDate,
                 roomNamePrefix: roomNamePrefix,
-                roomMode: isGroup ? 'group' : 'normal',
-                fields: ['hostRoomUrl']
+                roomMode: isGroup ? 'group' : 'normal'
             })
         });
         if (!response.ok) {
@@ -1590,11 +1585,10 @@ const WHEREBY_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwcz
 
     // Нест кардани хонаи Whereby, вақте эфир/занг тамом мешавад
     async function deleteWherebyMeeting(meetingId) {
-        if (!meetingId) return;
+        if (!meetingId || !WHEREBY_PROXY_URL || WHEREBY_PROXY_URL.indexOf("ГУЗОРЕД_СУРОҒАИ") !== -1) return;
         try {
-            await fetch('https://api.whereby.dev/v1/meetings/' + meetingId, {
-                method: 'DELETE',
-                headers: { 'Authorization': 'Bearer ' + WHEREBY_API_KEY }
+            await fetch(WHEREBY_PROXY_URL.replace(/\/$/, '') + '/delete-meeting/' + meetingId, {
+                method: 'DELETE'
             });
         } catch (err) {
             console.log('Хатогии нест кардани мулоқоти Whereby:', err);
