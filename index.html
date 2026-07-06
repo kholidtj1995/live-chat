@@ -100,7 +100,7 @@ img {
 		
         .chat-header-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding-right: 5px; }
-        .chat-header-actions { position: relative; }
+        .chat-header-actions { position: relative; display: flex; align-items: center; gap: 8px; }
         .chat-header-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px; }
         .chat-header-dropdown { display: none; position: absolute; top: 35px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 250; width: 160px; overflow: hidden; }
         .chat-header-dropdown button { width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; font-size: 14px; font-weight: 500; color: #334155; cursor: pointer; }
@@ -233,17 +233,15 @@ img {
             flex-shrink: 0;
         }
 		
-		
-		
         .profile-avatar-big { 
     width: 68px; 
     height: 68px; 
-    border-radius: 18px;      /* Ин кунҷҳоро каме гирд мекунад (мисли чоркунҷаи зебо) */
+    border-radius: 18px;      
     background: #e2e8f0; 
     object-fit: cover; 
     box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
     border: 2px solid white; 
-    transform: rotate(0deg);  /* Барои рост истодани расм */
+    transform: rotate(0deg);  
 }
         .lock-icon { 
             font-size: 15px; 
@@ -299,7 +297,6 @@ img {
         .nav-item.active { color: #667eea; font-weight: 600; }
         .nav-item.active svg { transform: scale(1.05); }
          
-        /* ХОҲИШИ НАВ: ТЕКСТИ ПРОФИЛИ МАН БО ИКОНКААШ ДАР ДАРУНИ РАМКАИ КАҶШУДА (ИЗОГНУТЫЙ) */
         .user-profile-box { 
             background: linear-gradient(135deg, #eef2f7 0%, #dde5ed 100%); 
             padding: 20px; 
@@ -368,7 +365,6 @@ img {
             scroll-snap-align: center; 
         }
 
-        /* ХОҲИШИ НАВ: ТЕКСТИ ПРОФИЛИ МАН БО ИКОНКААШ ВА КОНТАКТҲО ДАР ДАРУНИ РАМКАИ КАҶШУДА ЗЕБО */
         .profile-header-container {
             display: flex;
             justify-content: space-between;
@@ -507,7 +503,6 @@ img {
             display: flex;
         }
 
-        /* ХОҲИШИ НАВ: РАМКАИ КАҶШУДА БАРОИ ТЕКСТИ КОНТАКТҲО ВА ТУГМАҲОИ ОН */
         .contacts-sticky-header {
             position: sticky;
             top: 0;
@@ -652,11 +647,9 @@ img {
             margin-top: 1px;
         }
 
-/* МАВЗӮИ ТОРИК (DARK MODE STYLES) */
         body.dark-mode { background-color: #0f172a; color: #f8fafc; }
         body.dark-mode .phone-container { background: #1e293b; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
         
-        /* Ислоҳ: Ҳамаи экранҳо ва рӯйхатҳо заминаи торик мегиранд */
         body.dark-mode .screen, 
         body.dark-mode #home-screen, 
         body.dark-mode #all-rooms-list, 
@@ -677,12 +670,10 @@ img {
         body.dark-mode .contact-tab-btn { color: #cbd5e1; }
         body.dark-mode .contact-tab-btn.active { background: #334155; color: #a5b4fc; }
 
-        /* Ислоҳи ранг барои аудио плеер дар Dark Mode */
         body.dark-mode .audio-player { background: rgba(255,255,255,0.05); }
         body.dark-mode .audio-timeline { background: rgba(255,255,255,0.1); }
         body.dark-mode .audio-progress { background: #818cf8; }
 
-        /* ОВОЗӢ ВА АУДИО ПЛЕЕР СТИЛҲО */
         .audio-player { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 12px; min-width: 160px; margin-top: 4px; }
         .msg-wrapper.me .audio-player { background: rgba(255,255,255,0.15); }
         .audio-play-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: inherit; }
@@ -693,8 +684,6 @@ img {
 		.hidden {
     display: none !important;
 }
-/* Modal барои расми калон */
-/* Асоси Modal */
 .image-modal {
     display: none; 
     position: fixed; 
@@ -706,7 +695,6 @@ img {
     align-items: center;
 }
 
-/* Контейнер барои расм ва тугмаи зеркашӣ */
 .modal-content-wrapper {
     position: relative; 
     display: inline-block;
@@ -714,7 +702,6 @@ img {
     max-height: 80%;
 }
 
-/* Намуди расм дар дохили Modal */
 .image-modal img {
     max-width: 100%;
     max-height: 80vh;
@@ -722,7 +709,6 @@ img {
     display: block;
 }
 
-/* Тугмаи пӯшидан (X) дар тарафи рост */
 .close-modal {
     position: absolute;
     top: 20px;
@@ -739,7 +725,6 @@ img {
     border-radius: 50%;
 }
 
-/* Тугмаи зеркашӣ дар поёни рости расм */
 .download-btn-bottom {
     position: absolute;
     bottom: -50px; 
@@ -753,10 +738,30 @@ img {
     font-weight: 600;
     z-index: 10000;
 }
-/* Ҳамаи ссылкаҳо дар дохили паёмҳо */
 .msg-text a {
-    color: #60a5fa !important; /* Ранги кабуди дурахшон барои истинодҳо */
+    color: #60a5fa !important; 
     text-decoration: underline;
+}
+
+.call-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 5px;
+}
+.live-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: auto;
 }
     </style>
 </head>
@@ -766,7 +771,6 @@ img {
 
     <div id="network-status-bar" class="network-bar"></div>
 
-<!-- ВОРИДШАВӢ (ХОҲИШИ НАВ: ҚУТТИИ ШАҲР НЕСТ, ИНТИХОБИ КОДИ ДАВЛАТ ИЛОВА ШУД) -->
 <div id="auth-screen">
     <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
         <div class="auth-form">
@@ -804,7 +808,6 @@ img {
         </div>
         <div class="chat-messages" id="chat-messages-list"></div>
         
-        <!-- ЧАТ ИНПУТ АРЕА: БО ИМКОНИЯТИ ГОЛОСОВОЙ, РАСМ ВА ФАЙЛ -->
         <div class="chat-input-area" id="chat-input-zone">
             <button onclick="document.getElementById('chat-file-input').click()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px;" title="Фиристодани расм/файл">📎</button>
             <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileSelect(this)">
@@ -830,7 +833,6 @@ img {
         <div id="active-chats-list"></div>
     </div>
 
-    <!-- РАВЗАНАИ КОНТАКТҲО (ХОҲИШИ НАВ: ТЕКСТИ КОНТАКТҲО ВА ТУГМАҲО ДАР ДАРУНИ РАМКАИ КАҶШУДА СТИЛ) -->
     <div id="private-chats-screen" class="screen">
         <div class="contacts-sticky-header">
             <div class="contacts-header-wrapper">
@@ -852,7 +854,6 @@ img {
         <div id="private-users-list-zone"></div>
     </div>
 
-    <!-- ПРОФИЛ (ХОҲИШИ НАВ: ТЕКСТИ ПРОФИЛИ МАН БО ИКОНКААШ ДАР ДАРУНИ РАМКАИ КАҶШУДА) -->
     <div id="profile-screen" class="screen">
         <div class="profile-header-container">
             <h3 style="font-size: 16px;">👤 Профили ман</h3>
@@ -906,10 +907,8 @@ img {
         <button class="nav-item" onclick="switchScreen('home-screen', this)">
             <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главни
         </button>
-     <!-- Тугмаи Контактҳо -->
 <button class="nav-item" onclick="openContactsScreen(this)">
     <div class="nav-badge" id="contacts-unread-badge">0</div>
-    <!-- Ин ҷо коди иконкаи контактҳо (одамон) аст -->
     <svg viewBox="0 0 24 24">
         <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
     </svg>
@@ -960,7 +959,6 @@ img {
 const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
 const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
-    // МИКРОФОН ВА САБТИ ОВОЗ
     let mediaRecorder;
     let audioChunks = [];
     let isRecording = false;
@@ -1029,7 +1027,6 @@ const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj199
     }
     setInterval(updateUserOnlineStatus, 3000);
 
-    // ФУНКСИЯҲОИ МАВЗӮИ ТОРИК (DARK MODE)
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
         let isDark = document.body.classList.contains('dark-mode');
@@ -1201,7 +1198,6 @@ const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj199
         element.style.height = (element.scrollHeight) + "px";
     }
 
-    // ҲОЛО МЕНАВИСАД... (TYPING STATUS)
     function handleTyping() {
         if (!currentChatRoomId) return;
         let typingPath = currentChatType === 'room' ? `typing/${currentChatRoomId}/${userData.phone}` : `typing/${currentChatRoomId}/${userData.phone}`;
@@ -1305,7 +1301,6 @@ function enterApp() {
     updateProfileUI();
     updateUserOnlineStatus();
     
-    // Посбони амният фаъол карда шуд
     monitorAccountSecurity(); 
     
     document.getElementById('auth-screen').style.display = 'none';
@@ -1314,7 +1309,6 @@ function enterApp() {
     
     loadRoomsFromServer();
     listenToUnreadMessages(); 
-    // Хатогиро ислоҳ кардам (фосилаи зиёдатиро нест кардам)
     listenPrivateMessagesLive(); 
 }
 
@@ -1451,13 +1445,14 @@ function enterApp() {
 
                 myRoomsHTML += `
                     <div class="item-card" id="my-room-${room.id}">
-                        <div class="card-main-info" onclick="toggleManageMenu('${room.id}')">
-                            <img src="${room.img || defaultAvatar}" class="room-avatar">
-                            <div class="card-info" style="flex:1; margin-left:10px;">
+                        <div class="card-main-info">
+                            <img src="${room.img || defaultAvatar}" class="room-avatar" onclick="toggleManageMenu('${room.id}')">
+                            <div class="card-info" style="flex:1; margin-left:10px;" onclick="toggleManageMenu('${room.id}')">
                                 <b style="font-size:15px; color:#1e293b;">🏢 ${room.name} ${room.isSecret ? "🕵️‍♂️" : ""}</b>
                             </div>
                             ${roomUnreadBadgeHTML}
-                            <span class="lock-icon">${lockIcon}</span>
+                            <button class="live-btn" onclick="startRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>
+                            <span class="lock-icon" style="margin-left: 10px;">${lockIcon}</span>
                         </div>
                         
                         <button class="manage-btn" onclick="toggleManageMenu('${room.id}')">⚙️ Идоракунӣ</button>
@@ -1480,6 +1475,34 @@ function enterApp() {
         
         if (myRoomsList) myRoomsList.innerHTML = myRoomsHTML || "<p style='color:gray; font-size:14px; padding: 10px;'>Комнатаҳои сохтаи шумо нест.</p>";
         if (allRoomsList) allRoomsList.innerHTML = allRoomsHTML || "<p style='color:gray; font-size:14px;'>Ҳеҷ комнатае мавҷуд нест.</p>";
+    }
+
+    function startRoomLive(roomId, roomName) {
+        let liveLink = "https://meet.jit.si/" + roomId + "_live_" + Math.floor(Math.random() * 10000);
+        showSmartConfirm("Оё мехоҳед эфири комнатаро оғоз кунед? Истиноди эфир ба чат фиристода мешавад.", function(yes) {
+            if(yes) {
+                let dbPath = 'messages/' + roomId;
+                let msgRef = database.ref(dbPath).push();
+                let liveText = `📢 ОҒОЗИ ЭФИРИ НАВ! 🎥\nСоҳиби комната эфирро оғоз кард. Барои ворид шудан ба линк клик кунед:\n${liveLink}`;
+                
+                let msgData = {
+                    id: msgRef.key,
+                    phone: userData.phone,
+                    username: userData.name,
+                    userImg: userData.img,
+                    city: userData.city || "",
+                    text: liveText,
+                    msgType: 'text',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    seenBy: {}
+                };
+                msgData.seenBy[userData.phone] = true;
+                
+                msgRef.set(msgData).then(() => {
+                    window.open(liveLink, '_blank');
+                });
+            }
+        });
     }
 
     function toggleManageMenu(roomId) {
@@ -1610,7 +1633,6 @@ function enterApp() {
 
                     database.ref('users/' + otherPhone).once('value', uSnap => {
                         if (uSnap.exists()) {
-                            // ХОҲИШИ НАВ: Агар ман ин корбарро блок карда бошам, дар чатҳои шахсӣ намоиш дода нашавад
                             let iBlockedThem = info.blockedUsers ? !!info.blockedUsers[userData.phone] : false;
                             if (iBlockedThem) return;
 
@@ -1691,7 +1713,6 @@ function enterApp() {
                         let appUser = uSnap.val();
                         let pairIdCheck = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
 
-                        // ХОҲИШИ НАВ: Агар ман ин корбарро блок карда бошам, дар рӯйхати контактҳо намоиш дода нашавад
                         database.ref('private_status/' + pairIdCheck).once('value', statusSnap => {
                             let statusInfo = statusSnap.val();
                             let iBlockedThem = statusInfo && statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
@@ -1742,7 +1763,6 @@ function enterApp() {
         });
     }
 
-    // ХОҲИШИ НАВ: ДАР ОНЛАЙН ФАҚАТ ОДАМОНЕ КИ ДАР КОНТАКТҲОИ МАН ҲАСТАНД НИШОН ДОДА ШАВАНД
     function loadOnlineUsersUI() {
         const container = document.getElementById('private-users-list-zone');
         container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Ҷустуҷӯи нафарони фаъол...</p>";
@@ -1755,7 +1775,6 @@ function enterApp() {
 
             let myContacts = contactSnapshot.val();
 
-            // ХОҲИШИ НАВ: Агар ман касеро блок карда бошам, дар "Ҳозир дар шабака" намоиш дода нашавад
             database.ref('private_status').once('value', statusSnap => {
                 let allStatus = statusSnap.val() || {};
                 let blockedPhones = new Set();
@@ -1777,7 +1796,6 @@ function enterApp() {
                 if(snapshot.exists()) {
                     snapshot.forEach(child => {
                         let user = child.val();
-                        // Санҷиш: Агар корбар дар контактҳо бошад, худи ман набошад ва блок нашуда бошад
                         if(user.phone !== userData.phone && myContacts[user.phone] && !blockedPhones.has(user.phone)) {
                             let isOnline = false;
                             if(user.lastActive) {
@@ -1912,7 +1930,7 @@ function enterApp() {
 
     function toggleAdminWriteOnly(roomId, currentStatus) {
         database.ref('rooms/' + roomId).update({ onlyAdminCanWrite: !currentStatus }).then(() => {
-            showSmartAlert(!currentStatus ? "Ҳолати 'Танҳо админ нависад' фаъол шуд!" : "Ҳолати навиштани паём барои ҳама кушода шуд!");
+            showSmartAlert(!currentStatus ? "Ҳолати 'Танҳо admin нависад' фаъол шуд!" : "Ҳолати навиштани паём барои ҳама кушода шуд!");
         });
     }
 
@@ -2041,7 +2059,6 @@ function listenToUnreadMessages() {
             Object.keys(allMessages).forEach(roomId => {
                 let room = roomsData.find(r => r.id === roomId);
                 
-                // ИНҶО ТАНҲО КОМНАТАҲОЕ ҚАБУЛ МЕШАВАНД, КИ СОҲИБАШ ШУМО ҲАСТЕД
                 if (room && room.creatorPhone === userData.phone) {
                     
                     let messagesArray = Object.values(allMessages[roomId]);
@@ -2132,7 +2149,6 @@ function renderActiveChats() {
     }
 }
 
-// Ин тағйирёбиро дар сатҳи боло (глобалӣ) илова кунед
 let lastPlayedSoundTimestamp = 0;
 
 function listenPrivateMessagesLive() {
@@ -2146,20 +2162,17 @@ function listenPrivateMessagesLive() {
                 if(chatId.includes(userData.phone)) {
                     let info = statusData[chatId];
                     
-                    // Санҷиш: Агар паём аз дигар кас бошад ва хонда нашуда бошад
                     if(info.lastSender !== userData.phone && !info.read) {
                         totalUnreadPM++;
                         
                         let msgTime = info.timestamp || 0;
-                        let isRecentPM = (currentTime - msgTime < 5000); // Паёми то 5 сония пеш
+                        let isRecentPM = (currentTime - msgTime < 5000); 
                         let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
 
-                        // Садо танҳо агар паём нав бошад, дар чат набошем ва садоро қаблан дар ин вақт назада бошем
                         if (isRecentPM && !isUserInsideThisPM && msgTime > lastPlayedSoundTimestamp) {
                             privateMsgSound.currentTime = 0;
                             privateMsgSound.play().catch(err => console.log("Браузер садои PM-ро манъ кард:", err));
                             
-                            // Вақти садои охиринро нав мекунем, то такрор нашавад
                             lastPlayedSoundTimestamp = msgTime;
                         }
                     }
@@ -2167,13 +2180,11 @@ function listenPrivateMessagesLive() {
             });
         }
 
-        // Намоиши нишон (Badge) - ХОҲИШИ НАВ: дар тугмаи "Контактҳо" дигар ин бэйҷ намоиш дода намешавад
         let pmBadge = document.getElementById('contacts-unread-badge');
         if(pmBadge) {
             pmBadge.style.display = 'none';
         }
 
-        // Нишони тугмаи паёмҳои шахсӣ дар профил (пеш аз тугмаи +)
         let profilePmBadge = document.getElementById('profile-pm-badge');
         if(profilePmBadge) {
             if(totalUnreadPM > 0) {
@@ -2256,7 +2267,6 @@ function listenPrivateMessagesLive() {
         });
     }
 
-    // ИЛОВАИ ФУНКСИЯҲОИ САБТИ ОВОЗ (ГОЛОСОВОЙ)
     function toggleVoiceRecording() {
         const btn = document.getElementById('voice-record-btn');
         if (!isRecording) {
@@ -2294,7 +2304,6 @@ function listenPrivateMessagesLive() {
         }
     }
 
-    // ИЛОВАИ ФИРИСТОДАНИ РАСМ ВА ФАЙЛ
     function handleChatFileSelect(input) {
         if(input.files && input.files[0]) {
             let file = input.files[0];
@@ -2340,7 +2349,6 @@ function listenPrivateMessagesLive() {
         });
     }
 
-    // БОЗИКУНИИ АУДИО (PLAY AUDIO)
     function playAudioMsg(btn, audioSrc) {
         let audio = new Audio(audioSrc);
         let timeline = btn.nextElementSibling.querySelector('.audio-progress');
@@ -2354,6 +2362,28 @@ function listenPrivateMessagesLive() {
             btn.innerText = "▶️";
             timeline.style.width = "0%";
         };
+    }
+
+    function startVoiceCall(chatId) {
+        let callLink = "https://meet.jit.si/" + chatId + "_voice_" + Math.floor(Math.random() * 10000);
+        showSmartConfirm("Оё мехоҳед ба ин корбар аудиозанг занед? (Линк ба чат меравад)", function(yes) {
+            if(yes) {
+                let textCall = `📞 Ман ба шумо аудиозанг зада истодаам. Барои ҷавоб додан ба линк клик кунед:\n${callLink}`;
+                executeMessageSend(textCall, { value: "", style: {} });
+                window.open(callLink, '_blank');
+            }
+        });
+    }
+
+    function startVideoCall(chatId) {
+        let callLink = "https://meet.jit.si/" + chatId + "_video_" + Math.floor(Math.random() * 10000);
+        showSmartConfirm("Оё мехоҳед ба ин корбар видеозанг занед? (Линк ба чат меравад)", function(yes) {
+            if(yes) {
+                let textCall = `📹 Ман ба шумо видеозанг зада истодаам. Барои пайваст шудан ба линк клик кунед:\n${callLink}`;
+                executeMessageSend(textCall, { value: "", style: {} });
+                window.open(callLink, '_blank');
+            }
+        });
     }
 
     function openChat(name, img, roomId, type = 'room') {
@@ -2376,12 +2406,13 @@ function listenPrivateMessagesLive() {
         if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
         if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
 
-        // ПАЙГИРИИ ОНЛАЙН СТАТУС ВА ҲОЛО МЕНАВИСАД...
         let parts = roomId.split('_');
         let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
 
         if(type === 'pm') {
             headerActions.innerHTML = `
+                <button class="call-btn" onclick="startVoiceCall('${roomId}')" title="Занг задан">📞</button>
+                <button class="call-btn" onclick="startVideoCall('${roomId}')" title="Видеовизов">📹</button>
                 <button class="chat-header-btn" onclick="toggleChatHeaderSettingsDropdown(event)">⚙️</button>
                 <div class="chat-header-dropdown" id="chat-header-dropdown-menu">
                     <button id="chat-dropdown-block-btn" onclick="handleBlockFromChatHeader('${roomId}')">Блок кардан</button>
@@ -2398,7 +2429,6 @@ function listenPrivateMessagesLive() {
                     }
                     if (isOnline) {
                         statusSubtitle.innerHTML = `<span style="color:#10b981; font-weight:bold;">в сети 🟢</span>`;
-                        // Санҷиши ҳоло менависад...
                         activeTypingListener = database.ref(`typing/${roomId}/${otherPhone}`);
                         activeTypingListener.on('value', tSnap => {
                             if(tSnap.exists()) {
@@ -2422,7 +2452,6 @@ function listenPrivateMessagesLive() {
         } else {
             headerActions.innerHTML = "";
             statusSubtitle.innerText = "Гурӯҳ (Комната)";
-            // Барои гурӯҳҳо намоиши умумии "хтало менависад"
             activeTypingListener = database.ref(`typing/${roomId}`);
             activeTypingListener.on('value', tSnap => {
                 if(tSnap.exists()) {
@@ -2547,8 +2576,7 @@ function listenPrivateMessagesLive() {
                     let ticksHTML = isMe ? buildTicksHTML(m) : "";
                     let cityLabel = m.city ? ` (${m.city})` : "";
 
-// МУАЙЯНКУНИИ НАМУДИ ПАЁМ (ОДДӢ, ОВОЗӢ Ё РАСМ/ФАЙЛ)
-let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; // Инҷо linkify илова шуд
+let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; 
 
 if (m.msgType === 'voice') {
     bubbleContentHTML = `
@@ -2564,7 +2592,6 @@ if (m.msgType === 'voice') {
                  onclick="openImageModal('${m.fileData}')">
         `;
     } else {
-        // Намоиши файлҳои дигар (масалан PDF ё ғайра)
         bubbleContentHTML = `
             <a href="${m.fileData}" download="${m.fileName}" style="color:inherit; font-weight:600; text-decoration:underline;">
                 📁 ${m.fileName || 'Файл'}
@@ -2663,7 +2690,6 @@ if (m.msgType === 'voice') {
         msgData.seenBy[userData.phone] = true;
 
         msgRef.set(msgData).then(() => {
-            // Тоза кардани нишони таипинг
             database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
             
             if(currentChatType === 'pm') {
@@ -2737,7 +2763,6 @@ if (m.msgType === 'voice') {
     }
 
 function exitAndClearActiveChat() {
-    // 1. Дубора намоён кардани рамкаи болоӣ
     const contactsHeader = document.querySelector('.contacts-sticky-header');
     if (contactsHeader) {
         contactsHeader.style.display = 'block'; 
@@ -2754,8 +2779,6 @@ function exitAndClearActiveChat() {
     document.getElementById('chat-window').style.display = 'none';
     currentChatRoomId = "";
 
-    // ИН ҶО ИЛОВА КАРДА ШУД:
-    // Аввал рӯйхатҳоро навсозӣ мекунем (мантиқи пешинаи шумо)
     if (currentChatType === 'pm') {
         if (document.getElementById('contacts-tabs-bar').style.display === 'flex') {
             if (currentContactsTab === 'contacts') renderContactsListReal();
@@ -2767,15 +2790,13 @@ function exitAndClearActiveChat() {
         renderActiveChats(); 
     }
 
-    // Сипас ба экрани "Я" (Профил) мегузарем
     const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
     switchScreen('profile-screen', profileBtn);
 }
-	// Ин функсияро илова кунед, то паёмҳои шахсиро қабул кунад
+
 function listenToPrivateMessagesLive() {
     if (!currentChatRoomId || currentChatType !== 'pm') return;
 
-    // Барои он ки вақти кушода будани чати шахсӣ паёмҳо зуд пайдо шаванд
     database.ref('private_messages/' + currentChatRoomId).on('value', (snapshot) => {
         if (currentChatRoomId === "") return;
         
@@ -2798,7 +2819,6 @@ function listenToPrivateMessagesLive() {
                 let isMe = m.phone === userData.phone;
                 let wrapperClass = isMe ? "me" : "other";
                 
-                // Агар паём аз дигарон бошад ва ҳоло нахонда бошад, онро хондашуда қайд мекунем
                 if (!isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
                    database.ref(`private_messages/${currentChatRoomId}/${m.id}/seenBy/${userData.phone}`).set(true);
                 }
@@ -2822,7 +2842,7 @@ function listenToPrivateMessagesLive() {
         messagesList.scrollTop = messagesList.scrollHeight;
     });
 }
-// Функсияи кушодани расм бо зеркашӣ
+
 function openImageModal(imgSrc) {
     const modal = document.getElementById('image-modal');
     const modalImg = document.getElementById('modal-img');
@@ -2832,7 +2852,6 @@ function openImageModal(imgSrc) {
         modal.style.display = 'flex';
         modalImg.src = imgSrc;
         
-        // Пайваст кардани расм ба тугмаи зеркашӣ
         if (downloadBtn) {
             downloadBtn.href = imgSrc;
         }
@@ -2841,29 +2860,23 @@ function openImageModal(imgSrc) {
     }
 }
 
-// Пӯшидани Modal (бо тафтиши элементҳо)
 document.getElementById('image-modal').addEventListener('click', function(e) {
-    // Агар клик дар дохили расм ё тугмаи зеркашӣ бошад, Modal баста нашавад
     if (e.target.id === 'modal-img' || e.target.id === 'download-btn' || e.target.classList.contains('modal-btn')) {
         return;
     }
-    // Дар дигар ҳолатҳо Modal баста шавад
     this.style.display = 'none';
 });
-// Ин функсияро дар поёни скриптҳо, дар назди дигар функсияҳо илова кунед
+
 function linkify(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, function(url) {
-        // Ранги кабуди равшан (#a8d5f7) дар ҳама заминаҳо (сафед ё торик) хуб менамояд
         return `<a href="${url}" target="_blank" style="color: #a8d5f7; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
     });
 }
-// ... (ин қисм дигар функсияҳои шумо ҳастанд)
 
 function monitorAccountSecurity() {
     if (!userData || !userData.phone) return;
 
-    // Назорат дар вақти воқеӣ
     database.ref('users/' + userData.phone).on('value', (snapshot) => {
         if (!snapshot.exists()) {
             localStorage.clear(); 
