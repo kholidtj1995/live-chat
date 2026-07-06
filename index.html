@@ -1022,7 +1022,6 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // AGORA APP ID
     const AGORA_APP_ID = "491ffc4180ed475ab5bda2d66946fe96";
     let agoraClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     let localTracks = { videoTrack: null, audioTrack: null };
@@ -1380,6 +1379,7 @@
         updateUserOnlineStatus();
         
         monitorAccountSecurity(); 
+        setupAgoraListeners();
         listenForIncomingCalls();
         
         document.getElementById('auth-screen').style.display = 'none';
@@ -1556,7 +1556,6 @@
         if (allRoomsList) allRoomsList.innerHTML = allRoomsHTML || "<p style='color:gray; font-size:14px;'>Ҳеҷ комнатае мавҷуд нест.</p>";
     }
 
-    // AGORA LIVE STREAMING (ЭФИР) БАРОИ КОМНАТА
     async function startAgoraRoomLive(roomId, roomName) {
         showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Agora оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
             if(yes) {
@@ -2218,6 +2217,23 @@
 
     let lastPlayedSoundTimestamp = 0;
 
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return `<a href="${url}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
+        });
+    }
+
+    function monitorAccountSecurity() {
+        if (!userData || !userData.phone) return;
+        database.ref('users/' + userData.phone).on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                localStorage.clear(); 
+                location.reload(); 
+            }
+        });
+    }
+
     function listenPrivateMessagesLiveGlobal() {
         database.ref('private_status').on('value', snapshot => {
             let totalUnreadPM = 0;
@@ -2408,7 +2424,25 @@
         };
     }
 
-    // ЗАНГҲОИ АСЛӢ БО AGORA (МАТНИ АСЛИИ КОДИ ШУМО)
+    function setupAgoraListeners() {
+        agoraClient.on("user-published", async (user, mediaType) => {
+            await agoraClient.subscribe(user, mediaType);
+            if (mediaType === "video") {
+                document.getElementById('agora-video-view').style.display = 'block';
+                user.videoTrack.play('agora-video-view');
+            }
+            if (mediaType === "audio") {
+                user.audioTrack.play();
+            }
+        });
+
+        agoraClient.on("user-unpublished", (user, mediaType) => {
+            if (mediaType === "video") {
+                document.getElementById('agora-video-view').style.display = 'none';
+            }
+        });
+    }
+
     async function startVoiceCall(chatId) {
         let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
@@ -2433,10 +2467,11 @@
                     hideCallScreen();
                     database.ref('calls/' + targetPhone).off();
                     
+                    await agoraClient.setClientRole("host");
                     await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
+                    
                     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
                     await agoraClient.publish([localTracks.audioTrack]);
-                    showSmartAlert("Занги аудиоӣ оғоз шуд.");
                 } else if (!c || c.status === 'rejected') {
                     dialTone.pause();
                     hideCallScreen();
@@ -2472,7 +2507,10 @@
                     database.ref('calls/' + targetPhone).off();
                     
                     document.getElementById('agora-video-view').style.display = 'block';
+                    
+                    await agoraClient.setClientRole("host");
                     await agoraClient.join(AGORA_APP_ID, c.roomName, null, null);
+                    
                     localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
                     localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
                     
@@ -2509,17 +2547,6 @@
                 hideCallScreen();
             }
         });
-
-        agoraClient.on("user-published", async (user, mediaType) => {
-            await agoraClient.subscribe(user, mediaType);
-            if (mediaType === "video") {
-                document.getElementById('agora-video-view').style.display = 'block';
-                user.videoTrack.play('agora-video-view');
-            }
-            if (mediaType === "audio") {
-                user.audioTrack.play();
-            }
-        });
     }
 
     function showCallScreen(statusText, name, img, typeText) {
@@ -2540,7 +2567,9 @@
             await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
             hideCallScreen();
             
+            await agoraClient.setClientRole("host"); 
             await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, null, null);
+            
             localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
             
             if (activeCallSession.type === 'video') {
@@ -2556,10 +2585,10 @@
 
     async function rejectActiveCall() {
         dialTone.pause();
-        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); }
-        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); }
+        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); localTracks.audioTrack = null; }
+        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); localTracks.videoTrack = null; }
         document.getElementById('agora-video-view').style.display = 'none';
-        await agoraClient.leave();
+        try { await agoraClient.leave(); } catch(e) { console.log(e); }
 
         if (activeCallSession) {
             if (activeCallSession.role === 'caller') {
@@ -2819,10 +2848,10 @@
     }
 
     async function exitAndClearActiveChat() {
-        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); }
-        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); }
+        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); localTracks.audioTrack = null; }
+        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); localTracks.videoTrack = null; }
         document.getElementById('agora-video-view').style.display = 'none';
-        await agoraClient.leave();
+        try { await agoraClient.leave(); } catch(e) { console.log(e); }
 
         const contactsHeader = document.querySelector('.contacts-sticky-header');
         if (contactsHeader) { contactsHeader.style.display = 'block'; }
@@ -2862,23 +2891,6 @@
         if (e.target.id === 'modal-img' || e.target.id === 'download-btn') return;
         this.style.display = 'none';
     });
-
-    function linkify(text) {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, function(url) {
-            return `<a href="${url}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
-        });
-    }
-
-    function monitorAccountSecurity() {
-        if (!userData || !userData.phone) return;
-        database.ref('users/' + userData.phone).on('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                localStorage.clear(); 
-                location.reload(); 
-            }
-        });
-    }
 </script>
 
 </body>
