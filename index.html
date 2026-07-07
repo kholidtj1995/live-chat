@@ -1568,11 +1568,20 @@
         if (!WHEREBY_PROXY_URL || WHEREBY_PROXY_URL.indexOf("ГУЗОРЕД_СУРОҒАИ") !== -1) {
             throw new Error("Аввал суроғаи Worker-и худро дар WHEREBY_PROXY_URL гузоред.");
         }
+        // Whereby танҳо ҳарфҳои хурди лотинӣ, рақамҳо ва тиреро дар roomNamePrefix иҷозат медиҳад.
+        // Аломатҳои дигар (масалан "+" аз рақами телефон, "_") бояд тоза карда шаванд.
+        let safePrefix = roomNamePrefix
+            .toLowerCase()
+            .replace(/[^a-z0-9-]+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .slice(0, 40) || 'room';
+
         let response = await fetch(WHEREBY_PROXY_URL.replace(/\/$/, '') + '/create-meeting', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                roomNamePrefix: roomNamePrefix,
+                roomNamePrefix: safePrefix,
                 roomMode: isGroup ? 'group' : 'normal'
             })
         });
