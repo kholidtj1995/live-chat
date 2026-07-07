@@ -1031,8 +1031,9 @@
     const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
     const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
-    const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
-    dialTone.loop = true;
+    // Садои занги воридшаванда
+const ringtoneSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/audio_zang.mp3");
+ringtoneSound.loop = true; // То қабул ё рад кардан садо диҳад
 
     let mediaRecorder;
     let audioChunks = [];
@@ -2622,28 +2623,44 @@
         }
     }
 
-    function listenForIncomingCalls() {
-        if (!userData || !userData.phone) return;
-        if (callListenerRef) callListenerRef.off();
+// 1. Пеш аз ҳама, дар берун аз функсия садои навро эълон кунед
+const ringtoneSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/audio_zang.mp3");
+ringtoneSound.loop = true; 
+
+function listenForIncomingCalls() {
+    if (!userData || !userData.phone) return;
+    if (callListenerRef) callListenerRef.off();
+    
+    callListenerRef = database.ref('calls/' + userData.phone);
+    callListenerRef.on('value', snap => {
+        let call = snap.val();
         
-        callListenerRef = database.ref('calls/' + userData.phone);
-        callListenerRef.on('value', snap => {
-            let call = snap.val();
-            if (call && call.status === 'ringing') {
-                activeCallSession = { callerPhone: call.callerPhone, roomUrl: call.roomUrl, meetingId: call.meetingId, type: call.callType };
-                showCallScreen(
-                    'Входящий звонок...', 
-                    call.callerName, 
-                    call.callerImg || defaultAvatar, 
-                    call.callType === 'audio' ? '📞 Аудиозанг' : '📹 Видеовизов'
-                );
-                dialTone.play().catch(e => console.log(e));
-            } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
-                dialTone.pause();
-                hideCallScreen();
-            }
-        });
-    }
+        if (call && call.status === 'ringing') {
+            activeCallSession = { 
+                callerPhone: call.callerPhone, 
+                roomUrl: call.roomUrl, 
+                meetingId: call.meetingId, 
+                type: call.callType 
+            };
+            
+            showCallScreen(
+                'Входящий звонок...', 
+                call.callerName, 
+                call.callerImg || defaultAvatar, 
+                call.callType === 'audio' ? '📞 Аудиозанг' : '📹 Видеовизов'
+            );
+            
+            // Иҷро кардани садои занг
+            ringtoneSound.play().catch(e => console.log("Садо иҷозат надорад:", e));
+            
+        } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
+            // Агар занг қатъ шавад ё қабул карда шавад, садоро қатъ мекунем
+            ringtoneSound.pause();
+            ringtoneSound.currentTime = 0; // Барои дафъаи оянда аз аввал сар шавад
+            hideCallScreen();
+        }
+    });
+}
 
     function showCallScreen(statusText, name, img, typeText) {
         document.getElementById('call-screen-status').innerText = statusText;
@@ -2657,38 +2674,17 @@
         document.getElementById('incoming-call-panel').style.display = 'none';
     }
 
-// Танзимоти зангҳои Whereby
-    async function acceptActiveCall() {
-        dialTone.pause();
-        if (activeCallSession && activeCallSession.roomUrl) {
-            try {
-                await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
-                hideCallScreen();
+async function acceptActiveCall() {
+    ringtoneSound.pause(); // Садоро қатъ мекунем
+    ringtoneSound.currentTime = 0; // Садоро ба аввал меорем
+    // ... коди қабул кардани занг ...
+}
 
-                await leaveWherebyRoom();
-                openWherebyEmbed(activeCallSession.roomUrl, { audioOnly: activeCallSession.type !== 'video' });
-            } catch (err) {
-                showSmartAlert("Хатогӣ ҳангоми пайвастшавӣ: " + err.message);
-            }
-        }
-    }
-
-    // Функсияи рад кардани занги воридшаванда / хориҷшаванда
-    async function rejectActiveCall() {
-        dialTone.pause();
-        if (activeCallSession) {
-            if (activeCallSession.role === 'caller') {
-                database.ref('calls/' + activeCallSession.targetPhone).remove();
-                if (activeCallSession.meetingId) { deleteWherebyMeeting(activeCallSession.meetingId); }
-            } else {
-                database.ref('calls/' + userData.phone).update({ status: 'rejected' });
-                setTimeout(() => { database.ref('calls/' + userData.phone).remove(); }, 1000);
-            }
-        }
-        await leaveWherebyRoom();
-        activeCallSession = null;
-        hideCallScreen();
-    }
+async function rejectActiveCall() {
+    ringtoneSound.pause(); // Садоро қатъ мекунем
+    ringtoneSound.currentTime = 0;
+    // ... коди рад кардани занг ...
+}
 
 // Функсия барои баромадан аз ҳамаи пайвастҳои Whereby (эфир ё занг)
     async function leaveWherebyRoom() {
