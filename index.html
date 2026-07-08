@@ -613,6 +613,47 @@
         .network-offline { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; display: flex; }
         .network-online { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; display: flex; }
 
+        .network-offline-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            z-index: 9990;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            text-align: center;
+            padding: 20px;
+        }
+        .network-offline-overlay.show { display: flex; animation: fadeIn 0.25s ease-in-out; }
+        .network-spinner {
+            width: 56px;
+            height: 56px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #ef4444;
+            border-radius: 50%;
+            animation: networkSpin 0.85s linear infinite;
+        }
+        @keyframes networkSpin { to { transform: rotate(360deg); } }
+        .network-offline-overlay p {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            max-width: 260px;
+            line-height: 1.4;
+        }
+        .network-offline-overlay span.sub {
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
         .contacts-tabs {
             display: flex;
             background: #e2e8f0;
@@ -852,6 +893,11 @@
 <div class="phone-container">
 
     <div id="network-status-bar" class="network-bar"></div>
+    <div id="network-offline-overlay" class="network-offline-overlay">
+        <div class="network-spinner"></div>
+        <p>Пайвастшавии интернет қатъ шуд</p>
+        <span class="sub">Лутфан интизор шавед, мо пайваст мешавем...</span>
+    </div>
 
     <div id="auth-screen">
         <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
@@ -1292,9 +1338,12 @@
 
     function initNetworkChecker() {
         const netBar = document.getElementById('network-status-bar');
+        const offlineOverlay = document.getElementById('network-offline-overlay');
         
         function updateStatus() {
             if (navigator.onLine) {
+                if (offlineOverlay) offlineOverlay.classList.remove('show');
+
                 if (netBar.classList.contains('network-offline')) {
                     netBar.className = 'network-bar network-online';
                     netBar.innerHTML = '<span>📶 Пайвастшавӣ барқарор шуд! 🟢</span>';
@@ -1309,6 +1358,8 @@
                 netBar.className = 'network-bar network-offline';
                 netBar.innerHTML = '<span>🔌 Пайвастшавии internet канда шуд! Офлайн ❌</span>';
                 netBar.style.display = 'flex';
+
+                if (offlineOverlay) offlineOverlay.classList.add('show');
             }
         }
 
@@ -1334,7 +1385,7 @@
         let savedUser = localStorage.getItem('chat_user_data');
         if(savedUser) {
             userData = JSON.parse(savedUser);
-            enterApp();
+            enterApp(true);
         }
     }
 
@@ -1428,7 +1479,7 @@
                 if(serverUser.password === pass) {
                     userData = serverUser;
                     localStorage.setItem('chat_user_data', JSON.stringify(userData));
-                    enterApp();
+                    enterApp(true);
                 } else {
                     showSmartAlert("Ин рақами телефон аллакай сабт шудааст ва рамзи воридкардаи шумо нодуруст аст!");
                 }
@@ -1436,13 +1487,13 @@
                 userData = { name: name, phone: phone, password: pass, img: defaultAvatar, city: city };
                 database.ref('users/' + phone).set(userData).then(() => {
                     localStorage.setItem('chat_user_data', JSON.stringify(userData));
-                    enterApp();
+                    enterApp(false);
                 });
             }
         });
     }
 
-    function enterApp() {
+    function enterApp(isReturningUser) {
         updateProfileUI();
         updateUserOnlineStatus();
         
@@ -1451,7 +1502,19 @@
         
         document.getElementById('auth-screen').style.display = 'none';
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.getElementById('home-screen').classList.add('active-screen');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+        if (isReturningUser) {
+            // Корбари сабти ном шуда (аллакай ба қайд гирифташуда) - автоматан ба тугмаи "Я"
+            document.getElementById('profile-screen').classList.add('active-screen');
+            const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
+            if (profileBtn) profileBtn.classList.add('active');
+        } else {
+            // Корбари нав сабтшуда - ба саҳифаи асосӣ
+            document.getElementById('home-screen').classList.add('active-screen');
+            const homeBtn = document.querySelector('.nav-item[onclick*="home-screen"]');
+            if (homeBtn) homeBtn.classList.add('active');
+        }
         
         loadRoomsFromServer();
         listenToUnreadMessages(); 
