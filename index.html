@@ -124,104 +124,57 @@
             overflow: hidden; 
         }
         
-/* Сарлавҳаи чат - ҳамеша дар боло */
-.chat-header { 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    color: white; 
-    padding: 12px 15px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    flex-shrink: 0; 
-    position: relative;
-    z-index: 9999; /* Баландтар карда шуд */
-    height: 60px;
-}
-
-.chat-header-left { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    overflow: hidden; 
-    flex: 1; 
-}
-
-/* Тугмаи бозгашт - кафолати клик */
-.back-btn { 
-    background: none; 
-    border: none; 
-    color: white; 
-    font-size: 24px; 
-    cursor: pointer; 
-    padding: 10px; 
-    flex-shrink: 0;
-    pointer-events: auto; /* Муҳим барои клик */
-    z-index: 10000;
-}
-
-/* Контейнери тугмаҳои занг ва танзимот */
-.chat-header-actions { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-    flex-shrink: 0; 
-    z-index: 10000;
-    pointer-events: auto;
-}
-
-.chat-header-btn, .call-btn { 
-    background: none; 
-    border: none; 
-    color: white; 
-    font-size: 20px; 
-    cursor: pointer; 
-    padding: 8px; 
-    pointer-events: auto;
-    transition: transform 0.2s;
-}
-
-.chat-header-btn:active, .call-btn:active { transform: scale(0.9); }
-
-/* Менюи афтида (Dropdown) */
-.chat-header-dropdown { 
-    display: none; 
-    position: absolute; 
-    top: 50px; 
-    right: 0; 
-    background: white; 
-    border: 1px solid #e2e8f0; 
-    border-radius: 12px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-    z-index: 20000; /* Бояд аз ҳама боло бошад */
-    width: 180px; 
-    overflow: hidden; 
-}
-
-.chat-header-dropdown button { 
-    width: 100%; 
-    padding: 12px 16px; 
-    border: none; 
-    background: none; 
-    text-align: left; 
-    font-size: 14px; 
-    color: #334155; 
-    cursor: pointer; 
-    display: block;
-}
-.chat-header-dropdown button:hover { background: #f1f5f9; }
-
-/* Минтақаи паёмҳо */
-.chat-messages { 
-    flex: 1; 
-    padding: 15px; 
-    overflow-y: auto; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    scrollbar-width: none;
-    z-index: 1; /* Аз сарлавҳа поёнтар аст */
-}
+        .chat-header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 12px 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            flex-shrink: 0; 
+        }
+        
+        .chat-header-left { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding-right: 5px; flex-shrink: 0; }
+        .chat-header-actions { position: relative; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .chat-header-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px; }
+        .chat-header-dropdown { 
+            display: none; 
+            position: absolute; 
+            top: 35px; right: 0; 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+            z-index: 250; 
+            width: 180px; 
+            overflow: hidden; 
+        }
+        .chat-header-dropdown button { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: none; 
+            background: none; 
+            text-align: left; 
+            font-size: 14px; 
+            font-weight: 500; 
+            color: #334155; 
+            cursor: pointer; 
+            display: block;
+        }
+        .chat-header-dropdown button:hover { background: #f1f5f9; }
+         
+        .chat-messages { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            scrollbar-width: none;
+            position: relative;
+        }
+        .chat-messages::-webkit-scrollbar { display: none; }
 
         /* Закреплённое сообщение */
         .pinned-msg-bar {
@@ -2628,58 +2581,47 @@
         closeCallScreen();
     }
 
-// ===== КУШОДАНИ ЧАТ ИСЛОҲШУДА =====
-function openChat(name, img, roomId, type = 'room') {
-    currentChatRoomId = roomId;
-    currentChatType = type;
-    currentChatRoomData = type === 'room' ? roomsData.find(r => r.id === roomId) : null;
-    replyToMsg = null;
+    // ===== КУШОДАНИ ЧАТ (#3 ислоҳ, #7 ислоҳ, #12, #8) =====
+    function openChat(name, img, roomId, type = 'room') {
+        currentChatRoomId = roomId;
+        currentChatType = type;
+        currentChatRoomData = type === 'room' ? roomsData.find(r => r.id === roomId) : null;
+        replyToMsg = null;
 
-    // 1. Пинҳон кардани экранҳои дигар барои ҷилавгирӣ аз пӯшидашавии тугмаҳо
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-    
-    // 2. Равзанаи чатро намоён кардан
-    let chatWindow = document.getElementById('chat-window');
-    chatWindow.style.display = 'flex';
-    chatWindow.style.zIndex = '9999'; // Кафолати дар боло будан
+        let replyBar = document.getElementById('reply-bar');
+        if (replyBar) replyBar.style.display = 'none';
 
-    let replyBar = document.getElementById('reply-bar');
-    if (replyBar) replyBar.style.display = 'none';
+        document.getElementById('chat-title').innerText = name;
+        document.getElementById('chat-window').style.display = 'flex';
 
-    document.getElementById('chat-title').innerText = name;
+        // #3 — ҳангоми кушодани чат, навигатсияи поёнро нигоҳ медорем
+        // (кнопкаҳо нашванд, тугмаи чат иваз нашавад)
 
-    let messagesList = document.getElementById('chat-messages-list');
-    messagesList.innerHTML = "";
+        let messagesList = document.getElementById('chat-messages-list');
+        messagesList.innerHTML = "";
 
-    let headerActions = document.getElementById('chat-header-settings-zone');
-    let statusSubtitle = document.getElementById('chat-user-status-subtitle');
-    statusSubtitle.innerText = "";
+        let headerActions = document.getElementById('chat-header-settings-zone');
+        let statusSubtitle = document.getElementById('chat-user-status-subtitle');
+        statusSubtitle.innerText = "";
 
-    let subsBadge = document.getElementById('room-subscribers-header-badge');
-    if (subsBadge) subsBadge.style.display = 'none';
+        // Нишондоди шумораи обунаҳо (#12)
+        let subsBadge = document.getElementById('room-subscribers-header-badge');
+        if (subsBadge) subsBadge.style.display = 'none';
 
-    if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
-    if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
-    if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
+        if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
+        if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
+        if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
 
-    let pinnedBar = document.getElementById('pinned-msg-bar');
-    if (pinnedBar) pinnedBar.style.display = 'none';
+        // Закреплённое сообщение (#8)
+        let pinnedBar = document.getElementById('pinned-msg-bar');
+        if (pinnedBar) pinnedBar.style.display = 'none';
 
-    if (type === 'pm') {
-        // Кнопкаҳоро бо z-index-и баланд ҷойгир мекунем
-        headerActions.style.zIndex = "10005"; 
-        headerActions.innerHTML = `
-            <button class="call-btn" onclick="startVoiceCall('${roomId}')" title="Занг">📞</button>
-            <button class="call-btn" onclick="startVideoCall('${roomId}')" title="Видео">📹</button>
-            <button class="chat-header-btn" onclick="toggleChatHeaderSettingsDropdown(event)">⚙️</button>
-            <div class="chat-header-dropdown" id="chat-header-dropdown-menu" style="position: absolute; right: 0; top: 50px;">
-                <button onclick="handleBlockFromChatHeader('${roomId}')">🚫 Блок кардан</button>
-                <button onclick="clearPrivateChatMessagesOnly('${roomId}')">🧹 Тоза кардан</button>
-            </div>`;
-    } else {
-        headerActions.innerHTML = ""; // Тоза кардани тугмаҳо барои чатҳои оддӣ
-    }
-}
+        if (type === 'pm') {
+            let parts = roomId.split('_');
+            let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
+
+            // Кнопки шабакаи занг
+            headerActions.innerHTML = `
                 <button class="call-btn" onclick="startVoiceCall('${roomId}')" title="Занг">📞</button>
                 <button class="call-btn" onclick="startVideoCall('${roomId}')" title="Видео">📹</button>
                 <button class="chat-header-btn" onclick="toggleChatHeaderSettingsDropdown(event)">⚙️</button>
