@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --config /etc/livekit.yaml
+    restart: unless-stopped
+    # network_mode: host тавсия дода мешавад, зеро WebRTC ба диапазони калони
+    # портҳои UDP (50000-60000) ниёз дорад, ки маппинги якка-якка кардани онҳо
+    # тавассути Docker port-mapping душвор аст.
+    network_mode: host
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml:ro
+      - ./certs:/etc/livekit/certs:ro
+    environment:
+      - LIVEKIT_CONFIG=/etc/livekit.yaml
+
+# =========================================================================
+# ТАВЗЕҲИ НАСБ:
+#
+# 1. VPS харед (берун аз Русия — масалан Ҳетзнер/Contabo дар Германия, ё
+#    провайдере дар Туркия/ЭМА).
+#
+# 2. Домени худро (masalan turn.yourdomain.com) ба IP-и VPS равона кунед (DNS A-record).
+#
+# 3. Сертификати TLS гиред:
+#      sudo apt install certbot
+#      sudo certbot certonly --standalone -d turn.yourdomain.com
+#    Пас аз гирифтан, файлҳоро нусха кунед:
+#      mkdir -p certs
+#      cp /etc/letsencrypt/live/turn.yourdomain.com/fullchain.pem certs/
+#      cp /etc/letsencrypt/live/turn.yourdomain.com/privkey.pem certs/
+#
+# 4. Дар livekit.yaml:
+#      - domain-ро бо домени воқеии худ иваз кунед
+#      - дар "keys" калиди API ва сирри дарозро (бо: openssl rand -hex 32) гузоред
+#
+# 5. Сервисро оғоз кунед:
+#      docker compose up -d
+#
+# 6. Санҷиш:
+#      curl https://turn.yourdomain.com:443   (бояд посух диҳад, на хатогии пайвастшавӣ)
+#
+# 7. Дар Cloudflare Worker (livekit-token-worker.js) ҳамон калид/сирро
+#    ҳамчун LIVEKIT_API_KEY / LIVEKIT_API_SECRET таъин кунед.
+#
+# 8. Дар index.html:
+#      LIVEKIT_WS_URL = "wss://turn.yourdomain.com"
+# =========================================================================
