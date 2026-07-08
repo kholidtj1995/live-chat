@@ -2581,18 +2581,30 @@
         closeCallScreen();
     }
 
-    // ===== КУШОДАНИ ЧАТ (#3 ислоҳ, #7 ислоҳ, #12, #8) =====
-    function openChat(name, img, roomId, type = 'room') {
-        currentChatRoomId = roomId;
-        currentChatType = type;
-        currentChatRoomData = type === 'room' ? roomsData.find(r => r.id === roomId) : null;
-        replyToMsg = null;
+// ===== КУШОДАНИ ЧАТ (#3 ислоҳ, #7 ислоҳ, #12, #8) =====
+function openChat(name, img, roomId, type = 'room') {
+    currentChatRoomId = roomId;
+    currentChatType = type;
+    currentChatRoomData = type === 'room' ? roomsData.find(r => r.id === roomId) : null;
+    replyToMsg = null;
 
-        let replyBar = document.getElementById('reply-bar');
-        if (replyBar) replyBar.style.display = 'none';
+    // 1. Ҳамаи экранҳоро, ки класси 'screen' доранд, пинҳон кунед
+    document.querySelectorAll('.screen').forEach(screen => {
+        screen.style.display = 'none';
+    });
 
-        document.getElementById('chat-title').innerText = name;
-        document.getElementById('chat-window').style.display = 'flex';
+    // 2. Рамкаи чатро намоён кунед
+    let chatWindow = document.getElementById('chat-window');
+    chatWindow.style.display = 'flex';
+
+    // (Боқимондаи кодҳои шумо)
+    let replyBar = document.getElementById('reply-bar');
+    if (replyBar) replyBar.style.display = 'none';
+
+    document.getElementById('chat-title').innerText = name;
+    
+    // ... давоми кодҳои шумо ...
+}
 
         // #3 — ҳангоми кушодани чат, навигатсияи поёнро нигоҳ медорем
         // (кнопкаҳо нашванд, тугмаи чат иваз нашавад)
