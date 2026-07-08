@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Чат бо функсияи Невидимка ва Лички (Whereby)</title>
+    <title>Чат бо функсияи Невидимка ва Лички (LiveKit)</title>
     <style>
         * { 
             box-sizing: border-box; 
@@ -816,8 +816,9 @@
             color: white; padding: 14px 18px; display: flex; justify-content: space-between;
             align-items: center; font-weight: 600; flex-shrink: 0; background: rgba(15,23,42,0.85);
         }
-        #call-embed-container { flex: 1; min-height: 0; }
-        #call-embed-container whereby-embed { width: 100%; height: 100%; display: block; }
+        #call-embed-container { flex: 1; min-height: 0; position: relative; background: #111; }
+        #call-embed-container .lk-media-el { width: 100%; height: 100%; display: block; object-fit: cover; }
+        #call-embed-container .lk-local-preview { position: absolute; width: 90px; height: 120px; right: 12px; bottom: 12px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); z-index: 5; }
         .active-call-bottombar { padding: 18px; display: flex; justify-content: center; flex-shrink: 0; background: rgba(15,23,42,0.85); }
         .active-call-bottombar .call-action-circle { transform: rotate(135deg); background: #ef4444; }
 
@@ -842,8 +843,9 @@
             50% { opacity: 0.15; }
         }
 
-#whereby-embed-container { width: 100%; height: 300px; background: #000; display: none; border-radius: 12px; margin-top: 5px; overflow: hidden; }
-        #whereby-embed-container whereby-embed { width: 100%; height: 100%; display: block; }
+#whereby-embed-container { width: 100%; height: 300px; background: #000; display: none; border-radius: 12px; margin-top: 5px; overflow: hidden; position: relative; }
+        #whereby-embed-container .lk-media-el { width: 100%; height: 100%; display: block; object-fit: cover; }
+        #whereby-embed-container .lk-local-preview { position: absolute; width: 70px; height: 95px; right: 10px; bottom: 10px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); z-index: 5; }
         .call-video-mode #whereby-embed-container { height: calc(100vh - 260px); height: calc(100dvh - 260px); }
     </style>
 </head>
@@ -1051,7 +1053,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script type="module" src="https://cdn.srv.whereby.com/embed/v2-embed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
 
 <script>
 // Танзимоти Firebase
@@ -1067,15 +1069,18 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-// Танзимоти Whereby (ба ҷои Agora)
-    // Барои гузаштан аз мушкили CORS, дархостҳо на бевосита ба Whereby,
-    // балки тавассути як "Proxy Worker" (масалан Cloudflare Worker, ройгон) фиристода мешаванд.
-    // Дар ин ҷо суроғаи Worker-и худро гузоред (масалан: https://whereby-proxy.НОМИ_ШУМО.workers.dev)
-    const WHEREBY_PROXY_URL = "https://ancient-breeze-5dc2.kholidtj1995.workers.dev";
+// Танзимоти LiveKit (ба ҷои Whereby) — барои занг/эфир бе VPN дар Русия/ОМ
+    // 1. Суроғаи WebSocket-и сервери LiveKit-и худатон (ниг. дастури "livekit-server-setup.md")
+    const LIVEKIT_WS_URL = "wss://ГУЗОРЕД_СУРОҒАИ_LIVEKIT_СЕРВЕРИ_ХУДАТОНРО";
+    // 2. Суроғаи Cloudflare Worker-и худатон, ки токенҳои пайвастшавӣ месозад (ниг. "livekit-token-worker.js")
+    const LIVEKIT_TOKEN_ENDPOINT = "https://ГУЗОРЕД_СУРОҒАИ_WORKER_ХУДАТОНРО.workers.dev/token";
+    const LIVEKIT_END_ROOM_ENDPOINT = "https://ГУЗОРЕД_СУРОҒАИ_WORKER_ХУДАТОНРО.workers.dev/end-room";
 
     let currentWherebyRoomUrl = null;
     let currentWherebyMeetingId = null;
-    let isViewerInLiveRoom = false; 
+    let isViewerInLiveRoom = false;
+    let currentLKRoom = null;         // Объекти фаъоли LivekitClient.Room
+    let currentLKContainerId = null;  // ID-и контейнере, ки видео дар он нишон дода мешавад
 
     const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
     const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
@@ -1679,13 +1684,10 @@
 
     // ================= WHEREBY: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = мушоҳидакунандагон) =================
 
-    // Сохтани хонаи нави Whereby тавассути Proxy Worker (то мушкили CORS пеш наояд)
+    // Сохтани номи ягонаи ҳуҷраи LiveKit (комилан локалӣ, бе дархости шабакавӣ —
+    // худи ҳуҷра дар сервери LiveKit ҳангоми пайвастшавии аввалин пайдо мешавад)
     async function createWherebyRoom(roomNamePrefix, isGroup) {
-        if (!WHEREBY_PROXY_URL || WHEREBY_PROXY_URL.indexOf("ГУЗОРЕД_СУРОҒАИ") !== -1) {
-            throw new Error("Аввал суроғаи Worker-и худро дар WHEREBY_PROXY_URL гузоред.");
-        }
-        // Whereby танҳо ҳарфҳои хурди лотинӣ, рақамҳо ва тиреро дар roomNamePrefix иҷозат медиҳад.
-        // Аломатҳои дигар (масалан "+" аз рақами телефон, "_") бояд тоза карда шаванд.
+        // LiveKit танҳо ҳарфҳои лотинӣ, рақамҳо ва тиреро дар номи ҳуҷра тавсия мекунад.
         let safePrefix = roomNamePrefix
             .toLowerCase()
             .replace(/[^a-z0-9-]+/g, '-')
@@ -1693,61 +1695,129 @@
             .replace(/^-+|-+$/g, '')
             .slice(0, 40) || 'room';
 
-        let response = await fetch(WHEREBY_PROXY_URL.replace(/\/$/, '') + '/create-meeting', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                roomNamePrefix: safePrefix,
-                roomMode: isGroup ? 'group' : 'normal'
-            })
-        });
-        if (!response.ok) {
-            let errText = await response.text().catch(() => '');
-            throw new Error('Хатогии Whereby API (' + response.status + '): ' + errText);
-        }
-        return await response.json(); // { roomUrl, hostRoomUrl, meetingId, ... }
+        let roomName = safePrefix + '-' + Date.now().toString(36);
+
+        return {
+            roomUrl: roomName,       // барои мутобиқат бо коди кӯҳна — акнун "номи ҳуҷра" аст, на URL
+            hostRoomUrl: roomName,
+            meetingId: roomName
+        };
     }
 
-    // Нест кардани хонаи Whereby, вақте эфир/занг тамом мешавад
+    // Хабар додан ба сервери LiveKit, ки ҳуҷраро (агар лозим бошад) пеш аз вақт хомӯш кунад.
+    // Ин қадами ихтиёрист: агар кор накунад ҳам мушкиле нест — ҳуҷраи холӣ худ аз худ
+    // пас аз чанд дақиқа аз ҷониби LiveKit нест карда мешавад.
     async function deleteWherebyMeeting(meetingId) {
-        if (!meetingId || !WHEREBY_PROXY_URL || WHEREBY_PROXY_URL.indexOf("ГУЗОРЕД_СУРОҒАИ") !== -1) return;
+        if (!meetingId) return;
         try {
-            await fetch(WHEREBY_PROXY_URL.replace(/\/$/, '') + '/delete-meeting/' + meetingId, {
-                method: 'DELETE'
+            await fetch(LIVEKIT_END_ROOM_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ room: meetingId })
             });
         } catch (err) {
-            console.log('Хатогии нест кардани мулоқоти Whereby:', err);
+            console.log('Хатогии қатъ кардани ҳуҷраи LiveKit (муҳим нест):', err);
         }
     }
 
-    // Кушодани видео/аудио тавассути виджети <whereby-embed>
-    function openWherebyEmbed(roomUrl, options = {}) {
-        let container = document.getElementById('whereby-embed-container');
-        if (!container) return;
+    // ==== Мантиқи умумии пайвастшавӣ ба LiveKit (истифода дар openWherebyEmbed ва openCallScreen) ====
+    async function _lkConnectAndRender(containerId, roomName, options = {}) {
+        await _lkDisconnectInternal();
+
+        let container = document.getElementById(containerId);
+        if (!container) throw new Error('Контейнери ' + containerId + ' дар саҳифа ёфт нашуд.');
         container.innerHTML = '';
         container.style.display = 'block';
+        container.style.position = 'relative';
 
-        let embed = document.createElement('whereby-embed');
-        embed.setAttribute('room', roomUrl);
-        embed.setAttribute('minimal', '');
-        embed.setAttribute('leaveButton', '');
-        if (options.audioOnly) embed.setAttribute('video', 'off');
-        container.appendChild(embed);
-        currentWherebyRoomUrl = roomUrl;
+        let identity = (typeof userData !== 'undefined' && userData && userData.phone) ? userData.phone : ('guest-' + Date.now());
+        let displayName = (typeof userData !== 'undefined' && userData && userData.name) ? userData.name : 'Корбар';
+
+        // 1) Гирифтани токени пайвастшавӣ аз Worker-и худатон
+        let tokenResp = await fetch(LIVEKIT_TOKEN_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ room: roomName, identity: identity, name: displayName })
+        });
+        if (!tokenResp.ok) {
+            let errText = await tokenResp.text().catch(() => '');
+            throw new Error('Хатогии гирифтани токен (' + tokenResp.status + '): ' + errText);
+        }
+        let tokenData = await tokenResp.json(); // { token: "..." }
+
+        // 2) Сохтани ҳуҷраи LiveKit ва гӯш кардани рӯйдодҳо
+        let room = new LivekitClient.Room({ adaptiveStream: true, dynacast: true });
+
+        room.on(LivekitClient.RoomEvent.TrackSubscribed, (track) => {
+            if (track.kind === 'video' || track.kind === 'audio') {
+                let el = track.attach();
+                el.classList.add('lk-media-el');
+                el.autoplay = true;
+                el.playsInline = true;
+                container.appendChild(el);
+            }
+        });
+        room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track) => {
+            track.detach().forEach(el => el.remove());
+        });
+        room.on(LivekitClient.RoomEvent.Disconnected, () => {
+            if (currentLKRoom === room) { currentLKRoom = null; }
+        });
+
+        // 3) Пайвастшавии воқеӣ ба сервери LiveKit
+        await room.connect(LIVEKIT_WS_URL, tokenData.token);
+
+        // 4) Фаъол кардани микрофон/камераи худи корбар
+        await room.localParticipant.setMicrophoneEnabled(true);
+        if (!options.audioOnly) {
+            await room.localParticipant.setCameraEnabled(true);
+            room.localParticipant.videoTrackPublications.forEach((pub) => {
+                if (pub.track) {
+                    let el = pub.track.attach();
+                    el.classList.add('lk-media-el', 'lk-local-preview');
+                    el.autoplay = true;
+                    el.playsInline = true;
+                    el.muted = true;
+                    container.appendChild(el);
+                }
+            });
+        }
+
+        currentLKRoom = room;
+        currentLKContainerId = containerId;
+        return room;
     }
 
-    // Пӯшидани виджети Whereby (баромадан аз ҳама эфир/занг)
-    function closeWherebyEmbed() {
-        let container = document.getElementById('whereby-embed-container');
-        if (container) {
-            container.innerHTML = '';
-            container.style.display = 'none';
+    async function _lkDisconnectInternal() {
+        if (currentLKRoom) {
+            try { await currentLKRoom.disconnect(); } catch (e) { console.log(e); }
+            currentLKRoom = null;
         }
+        if (currentLKContainerId) {
+            let c = document.getElementById(currentLKContainerId);
+            if (c) { c.innerHTML = ''; c.style.display = 'none'; }
+            currentLKContainerId = null;
+        }
+    }
+
+    // Кушодани видео/аудио тавассути LiveKit дар контейнери эфир/комната
+    function openWherebyEmbed(roomName, options = {}) {
+        currentWherebyRoomUrl = roomName;
+        return _lkConnectAndRender('whereby-embed-container', roomName, options)
+            .catch(err => {
+                console.error(err);
+                showSmartAlert('Хатогии пайвастшавӣ ба занг: ' + err.message);
+            });
+    }
+
+    // Пӯшидани пайвасти LiveKit (баромадан аз ҳама эфир/занг)
+    function closeWherebyEmbed() {
+        _lkDisconnectInternal();
         currentWherebyRoomUrl = null;
     }
 
     async function startRoomLive(roomId, roomName) {
-        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Whereby оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
+        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
             if(!yes) return;
 
             try {
@@ -1786,7 +1856,7 @@
                 showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
             } catch (err) {
                 console.error(err);
-                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки калиди API-и Whereby дуруст гузошта шудааст.");
+                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки LIVEKIT_WS_URL ва LIVEKIT_TOKEN_ENDPOINT дуруст гузошта шудаанд.");
             }
         });
     }
@@ -2758,7 +2828,7 @@
                 });
             });
         } catch (err) {
-            showSmartAlert("Хатогӣ дар сохтани занг тавассути Whereby: " + err.message);
+            showSmartAlert("Хатогӣ дар сохтани занг: " + err.message);
         }
     }
 
@@ -2812,7 +2882,7 @@
                 });
             });
         } catch (err) {
-            showSmartAlert("Хатогӣ дар сохтани видеозанг тавассути Whereby: " + err.message);
+            showSmartAlert("Хатогӣ дар сохтани видеозанг: " + err.message);
         }
     }
 
@@ -2863,28 +2933,23 @@
     }
 
     // Кушодани экрани алоҳидаи занг (пас аз қабул) — на дар чат, балки экрани мустақил
-    function openCallScreen(name, roomUrl, options = {}) {
-        let container = document.getElementById('call-embed-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        let embed = document.createElement('whereby-embed');
-        embed.setAttribute('room', roomUrl);
-        embed.setAttribute('minimal', '');
-        if (options.audioOnly) embed.setAttribute('video', 'off');
-        container.appendChild(embed);
-
+    function openCallScreen(name, roomName, options = {}) {
         document.getElementById('active-call-name-label').innerText = name || 'Корбар';
         document.getElementById('active-call-timer').innerText = '00:00';
         document.getElementById('active-call-screen').style.display = 'flex';
         startCallTimerDisplay();
+
+        _lkConnectAndRender('call-embed-container', roomName, options)
+            .catch(err => {
+                console.error(err);
+                showSmartAlert('Хатогии пайвастшавӣ ба занг: ' + err.message);
+            });
     }
 
     function closeCallScreen() {
         let screen = document.getElementById('active-call-screen');
         if (screen) screen.style.display = 'none';
-        let container = document.getElementById('call-embed-container');
-        if (container) container.innerHTML = '';
+        _lkDisconnectInternal();
         stopCallTimerDisplay();
         callInProgress = false;
     }
