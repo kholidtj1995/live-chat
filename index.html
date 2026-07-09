@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Чат бо функсияи Невидимка ва Лички (Jitsi)</title>
+    <title>Чат бо функсияи Невидимка ва Лички (Agora)</title>
     <style>
         * { 
             box-sizing: border-box; 
@@ -613,47 +613,6 @@
         .network-offline { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; display: flex; }
         .network-online { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; display: flex; }
 
-        .network-offline-overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.78);
-            backdrop-filter: blur(3px);
-            -webkit-backdrop-filter: blur(3px);
-            z-index: 9990;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 18px;
-            text-align: center;
-            padding: 20px;
-        }
-        .network-offline-overlay.show { display: flex; animation: fadeIn 0.25s ease-in-out; }
-        .network-spinner {
-            width: 56px;
-            height: 56px;
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #ef4444;
-            border-radius: 50%;
-            animation: networkSpin 0.85s linear infinite;
-        }
-        @keyframes networkSpin { to { transform: rotate(360deg); } }
-        .network-offline-overlay p {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            max-width: 260px;
-            line-height: 1.4;
-        }
-        .network-offline-overlay span.sub {
-            color: #cbd5e1;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
         .contacts-tabs {
             display: flex;
             background: #e2e8f0;
@@ -841,51 +800,10 @@
             justify-content: center;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
-        .call-accept { background: #10b981; animation: pulse-accept-btn 1.4s infinite; }
+        .call-accept { background: #10b981; }
         .call-decline { background: #ef4444; }
-        @keyframes pulse-accept-btn {
-            0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.65); }
-            70% { box-shadow: 0 0 0 22px rgba(16,185,129,0); }
-            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
-        }
 
-        .active-call-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 999998; display: none; flex-direction: column;
-        }
-        .active-call-topbar {
-            color: white; padding: 14px 18px; display: flex; justify-content: space-between;
-            align-items: center; font-weight: 600; flex-shrink: 0; background: rgba(15,23,42,0.85);
-        }
-        #call-embed-container { flex: 1; min-height: 0; }
-        #call-embed-container iframe { width: 100%; height: 100%; display: block; border: 0; }
-        .active-call-bottombar { padding: 18px; display: flex; justify-content: center; flex-shrink: 0; background: rgba(15,23,42,0.85); }
-        .active-call-bottombar .call-action-circle { transform: rotate(135deg); background: #ef4444; }
-
-        .room-bell-btn {
-            background: none; border: none; font-size: 18px; cursor: pointer; padding: 4px;
-            position: relative; margin-left: 6px;
-        }
-        .room-bell-alert { animation: bell-shake 0.6s infinite; }
-        .room-bell-alert::after {
-            content: ""; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
-            border: 2px solid #ef4444; border-radius: 50%; animation: bell-ring-blink 1s infinite;
-        }
-        @keyframes bell-shake {
-            0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(15deg); }
-            40% { transform: rotate(-15deg); }
-            60% { transform: rotate(8deg); }
-            80% { transform: rotate(-8deg); }
-        }
-        @keyframes bell-ring-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.15; }
-        }
-
-#jitsi-embed-container { width: 100%; height: 300px; background: #000; display: none; border-radius: 12px; margin-top: 5px; overflow: hidden; }
-        #jitsi-embed-container iframe { width: 100%; height: 100%; display: block; border: 0; }
-        .call-video-mode #jitsi-embed-container { height: calc(100vh - 260px); height: calc(100dvh - 260px); }
+#agora-video-view { width: 100%; height: 250px; background: #000; display: none; border-radius: 12px; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -893,11 +811,6 @@
 <div class="phone-container">
 
     <div id="network-status-bar" class="network-bar"></div>
-    <div id="network-offline-overlay" class="network-offline-overlay">
-        <div class="network-spinner"></div>
-        <p>Пайвастшавии интернет қатъ шуд</p>
-        <span class="sub">Лутфан интизор шавед, мо пайваст мешавем...</span>
-    </div>
 
     <div id="auth-screen">
         <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
@@ -935,7 +848,7 @@
             <div class="chat-header-actions" id="chat-header-settings-zone"></div>
         </div>
         
-        <div id="jitsi-embed-container"></div>
+        <div id="agora-video-view"></div>
         
         <div class="chat-messages" id="chat-messages-list"></div>
         
@@ -1067,17 +980,6 @@
     </div>
 </div>
 
-<div id="active-call-screen" class="active-call-screen">
-    <div class="active-call-topbar">
-        <span id="active-call-name-label">Корбар</span>
-        <span id="active-call-timer">00:00</span>
-    </div>
-    <div id="call-embed-container"></div>
-    <div class="active-call-bottombar">
-        <button class="call-action-circle" onclick="endActiveCall()">📞</button>
-    </div>
-</div>
-
 <div id="smart-toast-overlay" class="toast-overlay">
     <div class="toast-box">
         <div id="toast-title" class="toast-title">Огоҳинома</div>
@@ -1097,7 +999,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script src="https://meet.jit.si/external_api.js"></script>
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
 
 <script>
 // Танзимоти Firebase
@@ -1113,29 +1015,24 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-// Танзимоти Jitsi Meet (ба ҷои Whereby)
-    // Jitsi ба бэкенд/прокси ниёз надорад — ҳуҷра бо номи ягона худ ба худ сохта мешавад.
-    // Сервери ройгони ҷамъиятии meet.jit.si дар Русия бе VPN дастрас аст.
-    const JITSI_DOMAIN = "meet.jit.si";
+// Танзимоти Agora
+    const AGORA_APP_ID = "cc17f089d7e14ab1aef4b7af69340077";
+    // Агар дар консоли Agora Certificate фаъол бошад, бояд токен истифода баред.
+    // Барои тест метавонед Certificate-ро дар консол хомӯш кунед (App ID without Certificate),
+    // ё дар ин ҷо токени тестии офаридаро (Generate Temp Token) гузоред.
+const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKMVGJKTDc3TDCwsU8xTDU0SkwwTU9NMkswT08wsjU0MDMzNvSu9sxoCGRk8tvExMzKwMjAyMDGA+AwMAMwGHec=";
 
-    let currentJitsiApi = null;
-    let currentJitsiRoomName = null;
+    let agoraClient = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+    let localTracks = { videoTrack: null, audioTrack: null };
+    let currentAgoraChannel = null; 
     let isViewerInLiveRoom = false; 
 
     const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
     const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
     const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
 
-    // Садои занги воридшаванда (то ҷавоб додан)
-    const incomingCallSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/audio_zang.mp3");
-    incomingCallSound.loop = true;
-    // Садои гудок вақте худи корбар занг мезанад (то тарафи дигар ҷавоб диҳад)
-    const outgoingCallSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/gudok_ravi.mp3");
-    outgoingCallSound.loop = true;
-    // Садои қатъ шудани занг (вақте тарафи дигар рад/бекор мекунад)
-    const callEndedSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/kushtani%20zang.mp3");
-    // Садои огоҳинома барои комнатаҳое, ки корбар ба онҳо обуна шудааст
-    const subscribeAlertSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/kolokolchik.mp3");
+    const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
+    dialTone.loop = true;
 
     let mediaRecorder;
     let audioChunks = [];
@@ -1145,15 +1042,6 @@
 
     let activeCallSession = null;
     let callListenerRef = null;
-    let callStartTimestamp = null;
-    let callInProgress = false;
-    let callTimerInterval = null;
-
-    // Обунаи корбар ба комнатаҳо (барои зангулаи огоҳинома)
-    let subscribedRoomIds = [];
-    let roomBellAlerts = {}; // roomId -> true агар паём/эфири нав бошад
-    let roomAlertBaselineTimestamp = Date.now(); // паёмҳои пеш аз ин вақт "кӯҳна" ҳисоб мешаванд
-    let roomLiveStateCache = {}; // roomId -> true/false, барои пайдо кардани лаҳзаи оғози эфир
 
     document.addEventListener("contextmenu", function(event) {
         let tag = event.target.tagName.toLowerCase();
@@ -1338,12 +1226,9 @@
 
     function initNetworkChecker() {
         const netBar = document.getElementById('network-status-bar');
-        const offlineOverlay = document.getElementById('network-offline-overlay');
         
         function updateStatus() {
             if (navigator.onLine) {
-                if (offlineOverlay) offlineOverlay.classList.remove('show');
-
                 if (netBar.classList.contains('network-offline')) {
                     netBar.className = 'network-bar network-online';
                     netBar.innerHTML = '<span>📶 Пайвастшавӣ барқарор шуд! 🟢</span>';
@@ -1358,8 +1243,6 @@
                 netBar.className = 'network-bar network-offline';
                 netBar.innerHTML = '<span>🔌 Пайвастшавии internet канда шуд! Офлайн ❌</span>';
                 netBar.style.display = 'flex';
-
-                if (offlineOverlay) offlineOverlay.classList.add('show');
             }
         }
 
@@ -1385,7 +1268,7 @@
         let savedUser = localStorage.getItem('chat_user_data');
         if(savedUser) {
             userData = JSON.parse(savedUser);
-            enterApp(true);
+            enterApp();
         }
     }
 
@@ -1479,7 +1362,7 @@
                 if(serverUser.password === pass) {
                     userData = serverUser;
                     localStorage.setItem('chat_user_data', JSON.stringify(userData));
-                    enterApp(true);
+                    enterApp();
                 } else {
                     showSmartAlert("Ин рақами телефон аллакай сабт шудааст ва рамзи воридкардаи шумо нодуруст аст!");
                 }
@@ -1487,39 +1370,27 @@
                 userData = { name: name, phone: phone, password: pass, img: defaultAvatar, city: city };
                 database.ref('users/' + phone).set(userData).then(() => {
                     localStorage.setItem('chat_user_data', JSON.stringify(userData));
-                    enterApp(false);
+                    enterApp();
                 });
             }
         });
     }
 
-    function enterApp(isReturningUser) {
+    function enterApp() {
         updateProfileUI();
         updateUserOnlineStatus();
         
         monitorAccountSecurity(); 
+        setupAgoraListeners();
         listenForIncomingCalls();
         
         document.getElementById('auth-screen').style.display = 'none';
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-        if (isReturningUser) {
-            // Корбари сабти ном шуда (аллакай ба қайд гирифташуда) - автоматан ба тугмаи "Я"
-            document.getElementById('profile-screen').classList.add('active-screen');
-            const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
-            if (profileBtn) profileBtn.classList.add('active');
-        } else {
-            // Корбари нав сабтшуда - ба саҳифаи асосӣ
-            document.getElementById('home-screen').classList.add('active-screen');
-            const homeBtn = document.querySelector('.nav-item[onclick*="home-screen"]');
-            if (homeBtn) homeBtn.classList.add('active');
-        }
+        document.getElementById('home-screen').classList.add('active-screen');
         
         loadRoomsFromServer();
         listenToUnreadMessages(); 
         listenPrivateMessagesLiveGlobal(); 
-        listenToRoomSubscriptions();
     }
 
     function logout() {
@@ -1611,51 +1482,12 @@
         if (openBtn) openBtn.style.display = show ? 'none' : 'block';
     }
 
-    // ================= ОБУНА БА КОМНАТАҲО (зангулаи огоҳинома) =================
-    function listenToRoomSubscriptions() {
-        if (!userData || !userData.phone) return;
-        database.ref('users/' + userData.phone + '/subscriptions').on('value', snap => {
-            let data = snap.val();
-            subscribedRoomIds = data ? Object.keys(data) : [];
-            renderRoomsUI();
-        });
-    }
-
-    function toggleRoomSubscription(roomId, event) {
-        if (event) event.stopPropagation();
-        let isSubscribed = subscribedRoomIds.includes(roomId);
-
-        if (isSubscribed) {
-            database.ref('users/' + userData.phone + '/subscriptions/' + roomId).remove();
-            database.ref('room_subscribers/' + roomId + '/' + userData.phone).remove();
-        } else {
-            database.ref('users/' + userData.phone + '/subscriptions/' + roomId).set(true);
-            database.ref('room_subscribers/' + roomId + '/' + userData.phone).set(true);
-            showSmartAlert("Шумо ба ин комната обуна шудед! Ҳангоми паём ё эфири нав, зангула огоҳ мекунад.");
-        }
-    }
-
     function loadRoomsFromServer() {
         database.ref('rooms').on('value', (snapshot) => {
             let rooms = snapshot.val();
             roomsData = []; 
             if(rooms) {
-                Object.keys(rooms).forEach(id => {
-                    let room = rooms[id];
-                    roomsData.push(room);
-
-                    // Агар корбар ба ин комната обуна бошад ва эфир нав оғоз шуда бошад — зангуларо фаъол мекунем
-                    let isLiveNow = !!room.liveChannel;
-                    let wasLiveBefore = !!roomLiveStateCache[id];
-                    if (subscribedRoomIds.includes(id) && room.creatorPhone !== userData.phone) {
-                        if (isLiveNow && !wasLiveBefore) {
-                            roomBellAlerts[id] = true;
-                            subscribeAlertSound.currentTime = 0;
-                            subscribeAlertSound.play().catch(e => console.log(e));
-                        }
-                    }
-                    roomLiveStateCache[id] = isLiveNow;
-                });
+                Object.keys(rooms).forEach(id => { roomsData.push(rooms[id]); });
             }
             renderRoomsUI();
         });
@@ -1672,14 +1504,6 @@
             if (!room.isSecret || room.creatorPhone === userData.phone) {
                 let hiddenBadge = room.isSecret ? " <span style='color:#6366f1; font-size:11px;'>[🕵️‍♂️ Невидимка]</span>" : "";
                 let liveBadge = room.liveChannel ? " <span style='color:#ef4444; font-size:11px; font-weight:bold;'>🔴 ЭФИР</span>" : "";
-
-                let bellHTML = "";
-                if (room.creatorPhone !== userData.phone) {
-                    let isSubscribed = subscribedRoomIds.includes(room.id);
-                    let hasAlert = !!roomBellAlerts[room.id];
-                    bellHTML = `<button class="room-bell-btn${hasAlert ? ' room-bell-alert' : ''}" title="${isSubscribed ? 'Бекор кардани обуна' : 'Обуна шудан'}" onclick="toggleRoomSubscription('${room.id}', event)">${isSubscribed ? '🔔' : '🔕'}</button>`;
-                }
-
                 allRoomsHTML += `
                     <div class="item-card" onclick="tryEnterRoom('${room.id}')">
                         <div class="card-main-info">
@@ -1688,7 +1512,6 @@
                                 <b style="font-size:15px; color:#1e293b;">🏢 ${room.name} ${hiddenBadge}${liveBadge}</b>
                                 <span style="font-size:12px; color:#6366f1; font-weight:500; margin-top:2px;">Аз: ${room.creatorName}</span>
                             </div>
-                            ${bellHTML}
                             <span class="lock-icon">${lockIcon}</span>
                         </div>
                     </div>`;
@@ -1702,8 +1525,8 @@
                 let roomUnreadCount = roomChatInfo ? roomChatInfo.unreadCount : 0;
                 let roomUnreadBadgeHTML = roomUnreadCount > 0 ? `<span class="room-unread-badge">${roomUnreadCount}</span>` : "";
                 let liveButtonHTML = room.liveChannel 
-                    ? `<button class="live-btn" style="background:#64748b;" onclick="stopRoomLive('${room.id}')">⏹️ Қатъи эфир</button>`
-                    : `<button class="live-btn" onclick="startRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>`;
+                    ? `<button class="live-btn" style="background:#64748b;" onclick="stopAgoraRoomLive('${room.id}')">⏹️ Қатъи эфир</button>`
+                    : `<button class="live-btn" onclick="startAgoraRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>`;
 
                 myRoomsHTML += `
                     <div class="item-card" id="my-room-${room.id}">
@@ -1739,85 +1562,17 @@
         if (allRoomsList) allRoomsList.innerHTML = allRoomsHTML || "<p style='color:gray; font-size:14px;'>Ҳеҷ комнатае мавҷуд нест.</p>";
     }
 
-    // ================= JITSI: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = мушоҳидакунандагон) =================
+    // ================= AGORA: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = audience) =================
 
-    // Сохтани номи ягонаи ҳуҷраи Jitsi. Ҳеҷ дархости шабакавӣ лозим нест (фарқ аз Whereby) —
-    // барои ҳамин на бэкенд, на прокси-Worker лозим намемонад.
-    function createJitsiRoom(roomNamePrefix) {
-        // Танҳо ҳарфҳои хурди лотинӣ, рақамҳо ва тиреро мегузорем (масалан "+" аз рақами телефон тоза мешавад).
-        let safePrefix = roomNamePrefix
-            .toLowerCase()
-            .replace(/[^a-z0-9-]+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/^-+|-+$/g, '')
-            .slice(0, 40) || 'room';
-        // Рамзи тасодуфӣ илова мекунем, то дигар касе номи ҳуҷраро тахмин зада натавонад
-        // (номи ҳуҷра фақат тавассути Firebase байни ду тараф мубодила мешавад).
-        let randomToken = Math.random().toString(36).slice(2, 10);
-        return { roomName: 'tj-' + safePrefix + '-' + randomToken };
-    }
-
-    // Кушодани видео/аудио тавассути Jitsi Meet External API дар контейнери додашуда
-    function openJitsiEmbed(containerId, roomName, options = {}) {
-        let container = document.getElementById(containerId);
-        if (!container) return;
-
-        if (currentJitsiApi) {
-            try { currentJitsiApi.dispose(); } catch (e) {}
-            currentJitsiApi = null;
-        }
-
-        container.innerHTML = '';
-        container.style.display = 'block';
-
-        currentJitsiApi = new JitsiMeetExternalAPI(JITSI_DOMAIN, {
-            roomName: roomName,
-            parentNode: container,
-            width: '100%',
-            height: '100%',
-            userInfo: { displayName: (typeof userData !== 'undefined' && userData && userData.name) || 'Корбар' },
-            configOverwrite: {
-                prejoinPageEnabled: false,
-                disableDeepLinking: true,
-                startWithVideoMuted: !!options.audioOnly,
-                startWithAudioMuted: !!options.startMuted
-            },
-            interfaceConfigOverwrite: {
-                SHOW_JITSI_WATERMARK: false,
-                SHOW_WATERMARK_FOR_GUESTS: false,
-                MOBILE_APP_PROMO: false,
-                DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
-            }
-        });
-
-        currentJitsiRoomName = roomName;
-    }
-
-    // Пӯшидани виҷети Jitsi (баромадан аз ҳама эфир/занг)
-    function closeJitsiEmbed() {
-        if (currentJitsiApi) {
-            try { currentJitsiApi.dispose(); } catch (e) {}
-            currentJitsiApi = null;
-        }
-        ['jitsi-embed-container', 'call-embed-container'].forEach(id => {
-            let container = document.getElementById(id);
-            if (container) {
-                container.innerHTML = '';
-                if (id === 'jitsi-embed-container') container.style.display = 'none';
-            }
-        });
-        currentJitsiRoomName = null;
-    }
-
-    async function startRoomLive(roomId, roomName) {
-        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
+    async function startAgoraRoomLive(roomId, roomName) {
+        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Agora оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
             if(!yes) return;
 
-            try {
-                // Пеш аз пайвастшавӣ ба хонаи нав, аз ҳама пайвастҳои қаблӣ мебароем
-                await leaveJitsiRoom();
+            let callRoomName = "room_live_" + roomId;
 
-                let meeting = createJitsiRoom('room-live-' + roomId);
+            try {
+                // Пеш аз пайвастшавӣ ба канали нав, аз ҳама каналҳои қаблӣ мебароем
+                await leaveAgoraChannel();
 
                 let dbPath = 'messages/' + roomId;
                 let msgRef = database.ref(dbPath).push();
@@ -1838,26 +1593,34 @@
                 await msgRef.set(msgData);
 
                 // Сабти маълумоти эфир дар Firebase, то тамошобинон тавонанд пайдо кунанд
-                await database.ref('rooms/' + roomId).update({
-                    liveChannel: meeting.roomName,
-                    liveHost: userData.phone
-                });
+                await database.ref('rooms/' + roomId).update({ liveChannel: callRoomName, liveHost: userData.phone });
 
                 openChat(roomName, defaultAvatar, roomId, 'room');
-                openJitsiEmbed('jitsi-embed-container', meeting.roomName, { audioOnly: false, startMuted: false });
+                let videoView = document.getElementById('agora-video-view');
+                videoView.style.display = 'block';
+
+                await agoraClient.setClientRole("host");
+                await agoraClient.join(AGORA_APP_ID, callRoomName, AGORA_TEMP_TOKEN, null);
+                currentAgoraChannel = callRoomName;
+
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+
+                localTracks.videoTrack.play('agora-video-view');
+                await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
                 showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
             } catch (err) {
                 console.error(err);
-                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message);
+                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки дар консоли Agora Certificate хомӯш аст ё токени дуруст истифода мешавад.");
             }
         });
     }
 
-    async function stopRoomLive(roomId) {
+    async function stopAgoraRoomLive(roomId) {
         showSmartConfirm("Оё мехоҳед эфирро қатъ кунед?", async function(yes) {
             if(!yes) return;
             await database.ref('rooms/' + roomId).update({ liveChannel: null, liveHost: null });
-            await leaveJitsiRoom();
+            await leaveAgoraChannel();
             showSmartAlert("Эфир қатъ карда шуд.");
         });
     }
@@ -1865,24 +1628,28 @@
     // Вақте корбар чати комнатаро мекушояд, агар эфир фаъол бошад, ӯро ҳамчун тамошобин пайваст мекунад
     async function joinRoomLiveAsViewerIfActive(roomId) {
         let room = roomsData.find(r => r.id === roomId);
+        let videoView = document.getElementById('agora-video-view');
 
         if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
 
         activeRoomLiveListener = database.ref('rooms/' + roomId + '/liveChannel');
         activeRoomLiveListener.on('value', async (snap) => {
-            let jitsiRoomName = snap.val();
+            let channelName = snap.val();
 
-            if (jitsiRoomName && !isViewerInLiveRoom && room && room.creatorPhone !== userData.phone) {
+            if (channelName && !isViewerInLiveRoom && room && room.creatorPhone !== userData.phone) {
                 try {
-                    await leaveJitsiRoom();
-                    // Тамошобинон бо микрофони хомӯш ворид мешаванд (мисли эфири одӣ)
-                    openJitsiEmbed('jitsi-embed-container', jitsiRoomName, { audioOnly: false, startMuted: true });
+                    await leaveAgoraChannel();
+                    await agoraClient.setClientRole("audience");
+                    await agoraClient.join(AGORA_APP_ID, channelName, AGORA_TEMP_TOKEN, null);
+                    currentAgoraChannel = channelName;
                     isViewerInLiveRoom = true;
+                    videoView.style.display = 'block';
                 } catch (err) {
                     console.error("Хатогии пайвастшавии тамошобин ба эфир:", err);
                 }
-            } else if (!jitsiRoomName && isViewerInLiveRoom) {
-                await leaveJitsiRoom();
+            } else if (!channelName && isViewerInLiveRoom) {
+                await leaveAgoraChannel();
+                videoView.style.display = 'none';
             }
         });
     }
@@ -1939,19 +1706,7 @@
                     if(currentContactsTab === 'contacts') renderContactsListReal();
                 });
             } else {
-                // Корбар ҳоло дар барнома сабти ном нашудааст, вале контактро бо ин рақам сабт мекунем
-                showSmartPrompt(`Ин рақам ҳоло дар барнома сабти ном нашудааст. Номи контактро нависед:`, "", async function(customName) {
-                    if (customName === null || customName === undefined) return;
-                    let finalName = (customName && customName.trim()) ? customName.trim() : phone;
-
-                    await database.ref(`users/${userData.phone}/contacts/${phone}`).set({
-                        name: finalName,
-                        addedAt: firebase.database.ServerValue.TIMESTAMP,
-                        unregistered: true
-                    });
-                    showSmartAlert("Контакт илова карда шуд. Ин рақам ҳоло дар барнома сабти ном нест — вақте сабти ном кунад, чат бо ӯ дастрас мешавад.");
-                    if(currentContactsTab === 'contacts') renderContactsListReal();
-                });
+                showSmartAlert("Ин рақам ҳоло дар барнома сабти ном нашудааст!");
             }
         });
     }
@@ -2151,30 +1906,6 @@
                                 </div>`;
                             container.appendChild(row);
                         });
-                    } else {
-                        // Корбар дар барнома сабти ном нашудааст — контакти "холӣ"-ро нишон медиҳем
-                        let contactCustomName = savedContacts[phone].name || phone;
-                        let row = document.createElement('div');
-                        row.className = 'pm-user-row';
-                        row.onclick = () => showSmartAlert(`"${contactCustomName}" ҳоло дар барнома сабти ном нест. Вақте ки ӯ сабти ном кунад, шумо метавонед бо ӯ чат кунед.`);
-                        row.innerHTML = `
-                            <div class="pm-row-left">
-                                <img src="${defaultAvatar}" class="room-avatar" style="opacity:0.5;">
-                                <div class="pm-meta-text">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <b style="color:#94a3b8;">👤 ${contactCustomName}</b>
-                                    </div>
-                                    <span style="color:#f59e0b; font-size:12px; font-weight:600;">⏳ Ҳоло дар барнома сабти ном нест</span>
-                                    <p style="color:#6366f1;">📞 Рақам: ${phone}</p>
-                                </div>
-                            </div>
-                            <div class="pm-row-right">
-                                <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, 'unreg-${phone}')">⋮</button>
-                                <div class="pm-context-dropdown" id="pm-drop-unreg-${phone}">
-                                    <button class="pm-danger-item" onclick="deleteContactFromMyList('${phone}', '${contactCustomName}')">🗑️ Нест кардан</button>
-                                </div>
-                            </div>`;
-                        container.appendChild(row);
                     }
                 });
             });
@@ -2406,7 +2137,6 @@
     function tryEnterRoom(roomId) {
         let room = roomsData.find(r => r.id === roomId);
         if(room) {
-            if (roomBellAlerts[roomId]) { roomBellAlerts[roomId] = false; renderRoomsUI(); }
             if(room.pass) {
                 showSmartPrompt(`Ин комната қулф аст 🔒. Рамзро ворид кунед:`, "", function(userPass) {
                     if(userPass === room.pass) { openChat(room.name, room.img, room.id, 'room'); } 
@@ -2494,22 +2224,6 @@
                             timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
                             unreadCount: unreadForThisRoom
                         });
-                    } else if (room && subscribedRoomIds.includes(roomId)) {
-                        // Комнатае, ки корбар ба он обуна аст (на аз худи ӯ сохта шудааст)
-                        let messagesArray = Object.values(allMessages[roomId]);
-                        messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                        let lastMsg = messagesArray[messagesArray.length - 1];
-
-                        if (lastMsg && lastMsg.phone !== userData.phone && (lastMsg.timestamp || 0) > roomAlertBaselineTimestamp) {
-                            let isUserInsideThisRoom = (roomId === currentChatRoomId && currentChatType === 'room');
-                            if (!isUserInsideThisRoom) {
-                                if (!roomBellAlerts[roomId]) {
-                                    subscribeAlertSound.currentTime = 0;
-                                    subscribeAlertSound.play().catch(e => console.log(e));
-                                }
-                                roomBellAlerts[roomId] = true;
-                            }
-                        }
                     }
                 });
             }
@@ -2588,8 +2302,7 @@
                 Object.keys(statusData).forEach(chatId => {
                     if(chatId.includes(userData.phone)) {
                         let info = statusData[chatId];
-                        // Танҳо вақте ки паёми ҳақиқӣ мавҷуд аст (на танҳо кушодани чат), ҳисоб карда шавад
-                        if(info.lastMsgText && info.lastSender !== userData.phone && !info.read) {
+                        if(info.lastSender !== userData.phone && !info.read) {
                             totalUnreadPM++;
                             let msgTime = info.timestamp || 0;
                             let isRecentPM = (currentTime - msgTime < 5000); 
@@ -2769,110 +2482,123 @@
         };
     }
 
+    function setupAgoraListeners() {
+        agoraClient.on("user-published", async (user, mediaType) => {
+            try {
+                await agoraClient.subscribe(user, mediaType);
+                if (mediaType === "video") {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    user.videoTrack.play('agora-video-view');
+                }
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                }
+            } catch (e) {
+                console.error("Agora subscription error:", e);
+            }
+        });
+
+        agoraClient.on("user-unpublished", (user, mediaType) => {
+            if (mediaType === "video") {
+                document.getElementById('agora-video-view').style.display = 'none';
+            }
+        });
+    }
+
     async function startVoiceCall(chatId) {
-        await leaveJitsiRoom();
+        await leaveAgoraChannel();
 
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
-        let titleEl = document.getElementById('chat-title');
-        let otherName = titleEl ? titleEl.innerText : 'Корбар';
-
-        try {
-            let meeting = createJitsiRoom('call-' + chatId);
-
-            database.ref('calls/' + targetPhone).set({
-                callerPhone: userData.phone,
-                callerName: userData.name,
-                callerImg: userData.img,
-                callType: 'audio',
-                roomUrl: meeting.roomName,
-                status: 'ringing',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                activeCallSession = { targetPhone: targetPhone, role: 'caller', roomUrl: meeting.roomName, type: 'audio', otherName: otherName };
-                callInProgress = false;
-                showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
-                outgoingCallSound.currentTime = 0;
-                outgoingCallSound.play().catch(e => console.log(e));
-
-                database.ref('calls/' + targetPhone).on('value', async snap => {
-                    let c = snap.val();
-                    if(c && c.status === 'accepted' && !callInProgress) {
-                        callInProgress = true;
-                        outgoingCallSound.pause();
-                        hideCallScreen();
-                        callStartTimestamp = Date.now();
-                        openCallScreen(otherName, activeCallSession.roomUrl, { audioOnly: true });
-                    } else if (c && c.status === 'ended') {
-                        database.ref('calls/' + targetPhone).off();
-                        outgoingCallSound.pause();
-                        closeCallScreen();
-                        activeCallSession = null;
-                    } else if (!c || c.status === 'rejected') {
-                        outgoingCallSound.pause();
-                        callEndedSound.currentTime = 0;
-                        callEndedSound.play().catch(e => console.log(e));
-                        hideCallScreen();
-                        database.ref('calls/' + targetPhone).off();
-                        if (!callInProgress) showSmartAlert("Корбар зангро рад кард.");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'audio',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'audio' };
+            showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
+            dialTone.play().catch(e => console.log(e));
+            
+            database.ref('calls/' + targetPhone).on('value', async snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
+                        currentAgoraChannel = c.roomName;
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        await agoraClient.publish([localTracks.audioTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогии пайвастшавӣ ба Agora: " + err.message);
                     }
-                });
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар зангро рад кард.");
+                }
             });
-        } catch (err) {
-            showSmartAlert("Хатогӣ дар сохтани занг: " + err.message);
-        }
+        });
     }
 
     async function startVideoCall(chatId) {
-        await leaveJitsiRoom();
+        await leaveAgoraChannel();
 
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
         let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
-        let titleEl = document.getElementById('chat-title');
-        let otherName = titleEl ? titleEl.innerText : 'Корбар';
-
-        try {
-            let meeting = createJitsiRoom('call-' + chatId);
-
-            database.ref('calls/' + targetPhone).set({
-                callerPhone: userData.phone,
-                callerName: userData.name,
-                callerImg: userData.img,
-                callType: 'video',
-                roomUrl: meeting.roomName,
-                status: 'ringing',
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            }).then(() => {
-                activeCallSession = { targetPhone: targetPhone, role: 'caller', roomUrl: meeting.roomName, type: 'video', otherName: otherName };
-                callInProgress = false;
-                showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
-                outgoingCallSound.currentTime = 0;
-                outgoingCallSound.play().catch(e => console.log(e));
-
-                database.ref('calls/' + targetPhone).on('value', async snap => {
-                    let c = snap.val();
-                    if(c && c.status === 'accepted' && !callInProgress) {
-                        callInProgress = true;
-                        outgoingCallSound.pause();
-                        hideCallScreen();
-                        callStartTimestamp = Date.now();
-                        openCallScreen(otherName, activeCallSession.roomUrl, { audioOnly: false });
-                    } else if (c && c.status === 'ended') {
-                        database.ref('calls/' + targetPhone).off();
-                        outgoingCallSound.pause();
-                        closeCallScreen();
-                        activeCallSession = null;
-                    } else if (!c || c.status === 'rejected') {
-                        outgoingCallSound.pause();
-                        callEndedSound.currentTime = 0;
-                        callEndedSound.play().catch(e => console.log(e));
-                        hideCallScreen();
-                        database.ref('calls/' + targetPhone).off();
-                        if (!callInProgress) showSmartAlert("Корбар видеозангро рад кард.");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'video',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'video' };
+            showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
+            dialTone.play().catch(e => console.log(e));
+            
+            database.ref('calls/' + targetPhone).on('value', async snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
+                        currentAgoraChannel = c.roomName;
+                        
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                        
+                        localTracks.videoTrack.play('agora-video-view');
+                        await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогӣ дар пайвасти видео: " + err.message);
                     }
-                });
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар видеозангро рад кард.");
+                }
             });
-        } catch (err) {
-            showSmartAlert("Хатогӣ дар сохтани видеозанг: " + err.message);
-        }
+        });
     }
 
     function listenForIncomingCalls() {
@@ -2883,28 +2609,17 @@
         callListenerRef.on('value', snap => {
             let call = snap.val();
             if (call && call.status === 'ringing') {
-                callInProgress = false;
-                activeCallSession = { callerPhone: call.callerPhone, callerName: call.callerName, callerImg: call.callerImg, roomUrl: call.roomUrl, type: call.callType, role: 'callee' };
+                activeCallSession = { callerPhone: call.callerPhone, roomName: call.roomName, type: call.callType };
                 showCallScreen(
                     'Входящий звонок...', 
                     call.callerName, 
                     call.callerImg || defaultAvatar, 
                     call.callType === 'audio' ? '📞 Аудиозанг' : '📹 Видеовизов'
                 );
-                incomingCallSound.currentTime = 0;
-                incomingCallSound.play().catch(e => console.log(e));
-            } else if (call && call.status === 'ended') {
-                incomingCallSound.pause();
+                dialTone.play().catch(e => console.log(e));
+            } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
+                dialTone.pause();
                 hideCallScreen();
-                closeCallScreen();
-                activeCallSession = null;
-            } else if (!call) {
-                if (document.getElementById('incoming-call-panel').style.display === 'flex') {
-                    incomingCallSound.pause();
-                    callEndedSound.currentTime = 0;
-                    callEndedSound.play().catch(e => console.log(e));
-                    hideCallScreen();
-                }
             }
         });
     }
@@ -2921,144 +2636,60 @@
         document.getElementById('incoming-call-panel').style.display = 'none';
     }
 
-    // Кушодани экрани алоҳидаи занг (пас аз қабул) — на дар чат, балки экрани мустақил
-    function openCallScreen(name, roomName, options = {}) {
-        openJitsiEmbed('call-embed-container', roomName, options);
-
-        document.getElementById('active-call-name-label').innerText = name || 'Корбар';
-        document.getElementById('active-call-timer').innerText = '00:00';
-        document.getElementById('active-call-screen').style.display = 'flex';
-        startCallTimerDisplay();
-    }
-
-    function closeCallScreen() {
-        let screen = document.getElementById('active-call-screen');
-        if (screen) screen.style.display = 'none';
-        closeJitsiEmbed();
-        stopCallTimerDisplay();
-        callInProgress = false;
-    }
-
-    function startCallTimerDisplay() {
-        stopCallTimerDisplay();
-        callTimerInterval = setInterval(() => {
-            if (!callStartTimestamp) return;
-            let el = document.getElementById('active-call-timer');
-            if (el) el.innerText = formatCallDuration(Date.now() - callStartTimestamp);
-        }, 1000);
-    }
-
-    function stopCallTimerDisplay() {
-        if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
-    }
-
-    function formatCallDuration(ms) {
-        let totalSec = Math.floor(ms / 1000);
-        let m = Math.floor(totalSec / 60);
-        let s = totalSec % 60;
-        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-    }
-
-    // Сабти хабари занг дар чати шахсӣ (мисли барномаҳои дигар)
-    function logCallToChat(chatId, text) {
-        let msgRef = database.ref('private_messages/' + chatId).push();
-        let msgData = {
-            id: msgRef.key,
-            phone: userData.phone,
-            username: userData.name,
-            userImg: userData.img,
-            city: userData.city || "",
-            text: text,
-            msgType: 'text',
-            timestamp: firebase.database.ServerValue.TIMESTAMP,
-            seenBy: {}
-        };
-        msgData.seenBy[userData.phone] = true;
-        msgRef.set(msgData);
-
-        database.ref('private_status/' + chatId).update({
-            exists: true,
-            lastMsgText: text,
-            lastSender: userData.phone,
-            read: false,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-    }
-
-// Танзимоти зангҳои Jitsi
+// Танзимоти зангҳои Agora
     async function acceptActiveCall() {
-        incomingCallSound.pause();
-        if (activeCallSession && activeCallSession.roomUrl) {
+        dialTone.pause();
+        if (activeCallSession && activeCallSession.roomName) {
             try {
                 await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
                 hideCallScreen();
 
-                await leaveJitsiRoom();
-                callInProgress = true;
-                callStartTimestamp = Date.now();
-                openCallScreen(activeCallSession.callerName || 'Корбар', activeCallSession.roomUrl, { audioOnly: activeCallSession.type !== 'video' });
+                await leaveAgoraChannel();
+                
+                await agoraClient.setClientRole("host");
+                await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, AGORA_TEMP_TOKEN, null);
+                currentAgoraChannel = activeCallSession.roomName;
+                
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                
+                if (activeCallSession.type === 'video') {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                    localTracks.videoTrack.play('agora-video-view');
+                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                } else {
+                    await agoraClient.publish([localTracks.audioTrack]);
+                }
             } catch (err) {
                 showSmartAlert("Хатогӣ ҳангоми пайвастшавӣ: " + err.message);
             }
         }
     }
 
-    // Функсияи рад кардани занги воридшаванда / бекор кардани занги баромада (пеш аз ҷавоб)
+    // Функсияи рад кардани занги воридшаванда / хориҷшаванда
     async function rejectActiveCall() {
-        incomingCallSound.pause();
-        outgoingCallSound.pause();
+        dialTone.pause();
         if (activeCallSession) {
-            let icon = activeCallSession.type === 'video' ? '📹' : '📞';
             if (activeCallSession.role === 'caller') {
-                let otherPhone = activeCallSession.targetPhone;
-                let pairId = userData.phone < otherPhone ? `${userData.phone}_${otherPhone}` : `${otherPhone}_${userData.phone}`;
-                logCallToChat(pairId, `${icon} Занги бекоршуда`);
-
                 database.ref('calls/' + activeCallSession.targetPhone).remove();
             } else {
-                let otherPhone = activeCallSession.callerPhone;
-                let pairId = userData.phone < otherPhone ? `${userData.phone}_${otherPhone}` : `${otherPhone}_${userData.phone}`;
-                logCallToChat(pairId, `${icon} Занги радшуда`);
-
                 database.ref('calls/' + userData.phone).update({ status: 'rejected' });
                 setTimeout(() => { database.ref('calls/' + userData.phone).remove(); }, 1000);
             }
         }
-        await leaveJitsiRoom();
-        closeCallScreen();
+        await leaveAgoraChannel();
         activeCallSession = null;
         hideCallScreen();
     }
 
-    // Функсияи қатъ кардани занги фаъол (пас аз он ки сӯҳбат оғоз ёфта буд)
-    async function endActiveCall() {
-        let session = activeCallSession;
-        let durationMs = callStartTimestamp ? (Date.now() - callStartTimestamp) : 0;
-
-        if (session) {
-            let otherPhone = session.role === 'caller' ? session.targetPhone : session.callerPhone;
-            let pairId = userData.phone < otherPhone ? `${userData.phone}_${otherPhone}` : `${otherPhone}_${userData.phone}`;
-            let icon = session.type === 'video' ? '📹' : '📞';
-            let label = session.type === 'video' ? 'Видеозанг' : 'Занги садоӣ';
-            let logText = durationMs > 1000
-                ? `${icon} ${label} — давомнокӣ ${formatCallDuration(durationMs)}`
-                : `${icon} ${label} қатъ шуд`;
-            logCallToChat(pairId, logText);
-
-            let calleePhone = session.role === 'caller' ? session.targetPhone : userData.phone;
-            database.ref('calls/' + calleePhone).update({ status: 'ended' }).catch(() => {});
-            setTimeout(() => { database.ref('calls/' + calleePhone).remove().catch(() => {}); }, 1500);
-        }
-
-        activeCallSession = null;
-        callStartTimestamp = null;
-        closeCallScreen();
-    }
-
-// Функсия барои баромадан аз ҳамаи пайвастҳои Jitsi (эфир ё занг)
-    async function leaveJitsiRoom() {
-        closeJitsiEmbed();
+// Функсия барои қатъ кардани ҳамаи пайвастҳо
+    async function leaveAgoraChannel() {
+        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); localTracks.audioTrack = null; }
+        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); localTracks.videoTrack = null; }
+        document.getElementById('agora-video-view').style.display = 'none';
         isViewerInLiveRoom = false;
+        currentAgoraChannel = null;
+        try { await agoraClient.leave(); } catch(e) { console.log("Agora leave error:", e); }
     }
 
     function openChat(name, img, roomId, type = 'room') {
@@ -3312,7 +2943,7 @@
 
 // Ислоҳи функсияи баромадан аз чат
     async function exitAndClearActiveChat() {
-        await leaveJitsiRoom(); // Ислоҳи муҳим: қатъи занг/эфир ҳангоми баромадан
+        await leaveAgoraChannel(); // Ислоҳи муҳим: қатъи Agora ҳангоми баромадан
         
         const contactsHeader = document.querySelector('.contacts-sticky-header');
         if (contactsHeader) { contactsHeader.style.display = 'block'; }
