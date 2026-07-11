@@ -1,1 +1,3088 @@
+<!DOCTYPE html>
+<html lang="tg" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Чат бо функсияи Невидимка ва Лички (Agora)</title>
+    <style>
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        body { 
+            background-color: #f5f7fb; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            height: 100dvh; 
+            overflow: hidden; 
+            transition: background-color 0.3s;
+        }
 
+        body, button, .nav-item, .item-card, .chat-header, .online-status-badge, .profile-ctrl-btn, .pm-user-row, .msg-username, .msg-footer {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none; 
+        }
+
+        input, textarea, .msg-text, .toast-input {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
+
+        .phone-container { 
+            width: 100%; 
+            max-width: 480px; 
+            height: 100vh; 
+            height: 100dvh; 
+            background: #f8fafc; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
+            overflow: hidden; 
+            transition: background 0.3s;
+        }
+        
+        .screen { 
+            display: none; 
+            flex-direction: column; 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            background: #f8fafc; 
+            -webkit-overflow-scrolling: touch; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none;  
+            transition: background 0.3s;
+        }
+        .screen::-webkit-scrollbar { display: none; } 
+
+        .active-screen { display: flex; animation: fadeIn 0.2s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+         
+        #home-screen { display: none; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: 0; background: #f8fafc; }
+        #home-screen.active-screen { display: flex; }
+        
+        #all-rooms-list { 
+            flex: 1; 
+            overflow-y: auto; 
+            scrollbar-width: none; 
+            padding-bottom: 20px; 
+            background: transparent; 
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px; 
+        }
+        #all-rooms-list::-webkit-scrollbar { display: none; }
+
+        #auth-screen { display: flex; justify-content: center; align-items: center; height: 100vh; height: 100dvh; z-index: 100; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: absolute; width: 100%; padding: 20px; }
+        .auth-form { width: 100%; max-width: 350px; background: white; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+
+        #chat-window { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 50; display: none; flex-direction: column; overflow: hidden; }
+        
+        .chat-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        
+        .chat-header-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .back-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; padding-right: 5px; }
+        .chat-header-actions { position: relative; display: flex; align-items: center; gap: 8px; }
+        .chat-header-btn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px; }
+        .chat-header-dropdown { display: none; position: absolute; top: 35px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 250; width: 160px; overflow: hidden; }
+        .chat-header-dropdown button { width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; font-size: 14px; font-weight: 500; color: #334155; cursor: pointer; }
+        .chat-header-dropdown button:hover { background: #f1f5f9; }
+         
+        .chat-messages { 
+            flex: 1; 
+            padding: 15px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            scrollbar-width: none;
+        }
+        .chat-messages::-webkit-scrollbar { display: none; }
+         
+        .date-divider { text-align: center; margin: 10px 0; display: flex; align-items: center; justify-content: center; width: 100%; }
+        .date-divider span { background: rgba(0, 0, 0, 0.06); color: #666; padding: 4px 14px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+
+        .msg-wrapper { display: flex; gap: 8px; width: 100%; max-width: 80%; margin-bottom: 2px; }
+        .msg-wrapper.me { align-self: flex-end; flex-direction: row-reverse; }
+        .msg-wrapper.other { align-self: flex-start; flex-direction: row; }
+         
+        .msg-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #e2e8f0; flex-shrink: 0; }
+         
+        .msg-body { display: flex; flex-direction: column; max-width: calc(100% - 40px); position: relative; }
+        .msg-wrapper.me .msg-body { align-items: flex-end; }
+        .msg-wrapper.other .msg-body { align-items: flex-start; }
+         
+        .msg-username { font-size: 11px; color: #718096; font-weight: 600; margin-bottom: 2px; padding: 0 4px; }
+         
+        .msg-bubble { position: relative; border-radius: 16px; padding: 10px 14px; padding-bottom: 24px; min-width: 90px; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+        .msg-wrapper.me .msg-bubble { background: #667eea; color: white; border-bottom-right-radius: 4px; padding-top: 22px; } 
+        .msg-wrapper.other .msg-bubble { background: white; color: #333; border-bottom-left-radius: 4px; }
+         
+        .msg-text { font-size: 15px; word-break: break-word; overflow-wrap: break-word; line-height: 20px; }
+
+        .msg-footer { position: absolute; bottom: 4px; right: 10px; display: flex; align-items: center; gap: 4px; font-size: 11px; }
+        .msg-wrapper.me .msg-footer { color: rgba(255, 255, 255, 0.75); }
+        .msg-wrapper.other .msg-footer { color: #a0aec0; }
+
+        .msg-ticks {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 2px;
+            position: relative;
+            height: 14px;
+        }
+        .tick {
+            display: inline-block;
+            width: 10px;
+            height: 14px;
+            position: relative;
+        }
+        .tick::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 9px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(40deg) skewX(-5deg);
+            position: absolute;
+            top: 1px;
+            left: 1px;
+        }
+        .tick-double { display: inline-flex; align-items: center; }
+        .tick-double .tick:nth-child(2) { margin-left: -5px; }
+        .ticks-sent { color: rgba(255,255,255,0.7); }
+        .ticks-delivered { color: rgba(255,255,255,0.7); }
+        .ticks-read .tick { color: #a8d5f7; }
+
+        .badge { background: #ff3b30; color: white; border-radius: 10px; padding: 2px 7px; font-size: 11px; font-weight: bold; display: inline-block; min-width: 18px; text-align: center; }
+        .nav-item { position: relative; }
+        .nav-badge { position: absolute; top: 4px; right: 22%; background: #ff3b30; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: bold; min-width: 16px; text-align: center; display: none; }
+
+        .chat-input-area { padding: 10px; background: white; display: flex; gap: 8px; border-top: 1px solid #edf2f7; align-items: flex-end; flex-shrink: 0; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        #message-input { flex: 1; width: 0; height: 40px; max-height: 100px; padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 18px; font-size: 15px; background: #f8fafc; outline: none; resize: none; overflow-y: auto; line-height: 20px; }
+        .chat-blocked-notice { width: 100%; text-align: center; padding: 12px; font-size: 14px; color: #718096; background: #edf2f7; border-radius: 12px; font-weight: 500; }
+
+        input[type="text"], input[type="tel"], input[type="password"], select { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 16px; background: #f8fafc; outline: none; -webkit-appearance: none; }
+        input:focus, #message-input:focus, select:focus { border-color: #667eea; background: #fff; }
+         
+        .password-container { position: relative; width: 100%; }
+        .password-container input { padding-right: 45px; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: #718096; outline: none; }
+
+        .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; margin-top: 8px; }
+        .btn-danger { background: linear-gradient(135deg, #f56565 0%, #c53030 100%); color: white; margin-top: 8px; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; width: auto; display: inline-block; margin-top: 10px; }
+
+        .create-room-box, .edit-profile-box { display: none; background: white; padding: 15px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-top: 10px; animation: slideDown 0.2s ease-in-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .item-card { 
+            background: #ffffff; 
+            padding: 16px; 
+            margin-bottom: 14px; 
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            border-bottom-left-radius: 35px; 
+            border-bottom-right-radius: 35px; 
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.05), 0 1px 3px rgba(0, 0, 0, 0.01); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            cursor: pointer; 
+            position: relative; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .item-card:hover, .item-card:active { 
+            transform: translateY(-3px) scale(1.01); 
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.12); 
+            border-color: rgba(102, 126, 234, 0.3);
+            background: linear-gradient(145deg, #ffffff, #fcfdfe);
+        }
+        .card-main-info { display: flex; align-items: center; width: 100%; justify-content: space-between; }
+        .card-info { display: flex; flex-direction: column; gap: 4px; max-width: 75%; }
+         
+        .room-avatar, .user-avatar { 
+            width: 48px; 
+            height: 48px; 
+            border-radius: 16px; 
+            background: #f1f5f9; 
+            object-fit: cover; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            border: 2px solid #ffffff;
+            flex-shrink: 0;
+        }
+        
+        .profile-avatar-big { 
+            width: 68px; 
+            height: 68px; 
+            border-radius: 18px;      
+            background: #e2e8f0; 
+            object-fit: cover; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+            border: 2px solid white; 
+            transform: rotate(0deg);  
+        }
+        .lock-icon { 
+            font-size: 15px; 
+            margin-left: auto; 
+            background: #f8fafc; 
+            padding: 6px 10px; 
+            border-radius: 12px; 
+            color: #64748b;
+            border: 1px solid #edf2f7;
+        }
+
+        .manage-btn { 
+            background: #f8fafc; 
+            color: #6366f1; 
+            border: 1px solid #e0e7ff; 
+            border-radius: 12px; 
+            padding: 10px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            width: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            margin-top: 4px; 
+            transition: all 0.2s; 
+        }
+        .manage-btn:hover { background: #eef2ff; border-color: #c7d2fe; }
+
+        .manage-menu { display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px; margin-top: 5px; animation: fadeIn 0.2s ease; }
+        .menu-item { width: 100%; text-align: left; padding: 8px 12px; border: none; background: none; font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; }
+        .menu-item:hover { background: #e2e8f0; }
+        .menu-item.danger { color: #dc2626; }
+        .menu-item.danger:hover { background: #fee2e2; }
+
+        .bottom-nav { 
+            height: calc(65px + env(safe-area-inset-bottom)); 
+            border-top: 1px solid #edf2f7; 
+            border-top-left-radius: 25px; 
+            border-top-right-radius: 25px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            background: #f8fafc; 
+            flex-shrink: 0; 
+            width: 100%; 
+            padding-bottom: env(safe-area-inset-bottom); 
+            box-shadow: none; 
+        }
+        .nav-item { border: none; background: none; font-size: 12px; color: #a0aec0; display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; cursor: pointer; height: 100%; justify-content: center; transition: color 0.2s; }
+        .nav-item svg { width: 24px; height: 24px; fill: currentColor; transition: transform 0.2s; }
+        .nav-item.active { color: #667eea; font-weight: 600; }
+        .nav-item.active svg { transform: scale(1.05); }
+         
+        .user-profile-box { 
+            background: linear-gradient(135deg, #eef2f7 0%, #dde5ed 100%); 
+            padding: 20px; 
+            border-radius: 30px 15px 45px 15px; 
+            margin-bottom: 20px; 
+            border: 1px solid rgba(255, 255, 255, 0.6); 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            position: relative; 
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+        
+        .profile-top-controls { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .profile-ctrl-btn { background: #ffffff; border: 1px solid #e2e8f0; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: all 0.2s; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .profile-ctrl-btn:hover { background: #f1f5f9; transform: scale(1.05); }
+        
+        .profile-settings-dropdown { display: none; position: absolute; top: 40px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 200; width: 160px; overflow: hidden; animation: slideDown 0.15s ease-in-out; }
+        .profile-settings-dropdown button { width: 100%; padding: 10px 14px; border: none; background: none; text-align: left; font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; }
+        .profile-settings-dropdown button:hover { background: #f1f5f9; }
+        .profile-settings-dropdown button.logout-item { color: #dc2626; border-top: 1px solid #f1f5f9; }
+
+        .pm-badge-counter { position: absolute; top: -3px; right: -3px; background: #ff3b30; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 9px; font-weight: bold; display: none; align-items: center; justify-content: center; border: 1px solid white; }
+
+        .searched-user-box { display: flex; align-items: center; gap: 12px; background: #e0e7ff; padding: 12px; border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
+        hr { border: 0; height: 1px; background: #e2e8f0; margin: 20px 0; }
+
+        .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 20px; backdrop-filter: blur(3px); }
+        .toast-box { background: white; width: 100%; max-width: 340px; border-radius: 20px; padding: 22px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); animation: toastPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes toastPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .toast-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1e293b; }
+        .toast-msg { font-size: 15px; color: #475569; line-height: 22px; margin-bottom: 20px; word-break: break-word; }
+        .toast-buttons { display: flex; gap: 10px; justify-content: center; }
+        .toast-btn { flex: 1; padding: 11px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .toast-btn-ok { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .toast-btn-cancel { background: #f1f5f9; color: #64748b; }
+        .toast-input { width: 100%; padding: 11px 14px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 15px; margin-bottom: 15px; outline: none; }
+        .toast-input:focus { border-color: #667eea; }
+
+        #search-input { position: sticky; top: 0; z-index: 10; background-color: #f8fafc; margin-top: 0; margin-bottom: 10px; padding-top: 20px; }
+        #search-user-result { position: sticky; top: 60px; z-index: 9; background-color: #f8fafc; }
+        .rooms-title-container { position: sticky; top: 60px; z-index: 8; background: #f8fafc; margin: 0 0 12px 0; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        #search-user-result:not(:empty) + .rooms-title-container { top: 140px; }
+        .rooms-title-container h3 { font-size: 16px; color: #4a5568; font-weight: 600; }
+
+        #my-rooms-list {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            overflow-x: auto;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;  
+            padding: 10px 30px; 
+            width: 100%;
+            scroll-snap-type: x mandatory; 
+            -webkit-overflow-scrolling: touch;
+            align-items: flex-start; 
+        }
+        #my-rooms-list::-webkit-scrollbar { display: none; } 
+         
+        #my-rooms-list .item-card {
+            flex-shrink: 0;
+            width: calc(100% - 10px); 
+            max-width: 360px;
+            margin-bottom: 0;
+            scroll-snap-align: center; 
+        }
+
+        .profile-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 30px 15px 45px 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .profile-header-btns {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .add-profile-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.25);
+            transition: transform 0.2s;
+        }
+        .contacts-profile-btn {
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+            color: white;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(52, 211, 153, 0.25);
+            transition: transform 0.2s;
+        }
+        .pms-profile-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            color: white;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(99, 102, 241, 0.25);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .add-profile-btn:active, .contacts-profile-btn:active, .pms-profile-btn:active { transform: scale(0.9); }
+
+        .pms-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff3b30;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 5px;
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 0 2px #ffffff;
+        }
+        body.dark-mode .pms-badge { box-shadow: 0 0 0 2px #334155; }
+
+        .room-unread-badge {
+            background: #ff3b30;
+            color: white;
+            border-radius: 10px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            min-width: 16px;
+            text-align: center;
+            margin-right: 6px;
+            display: inline-block;
+        }
+        
+        .profile-context-menu {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            z-index: 150;
+            width: 180px;
+            overflow: hidden;
+            animation: slideDown 0.15s ease-in-out;
+        }
+        .profile-context-menu button {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-context-menu button:hover { background: #f1f5f9; }
+        
+        #private-chats-screen {
+            padding: 0;
+            overflow: hidden; 
+            display: none; 
+            flex-direction: column;
+        }
+        #private-chats-screen.active-screen {
+            display: flex;
+        }
+
+        .contacts-sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8fafc;
+            padding: 20px 20px 5px 20px;
+        }
+        .contacts-header-wrapper {
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 30px 15px 45px 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #private-users-list-zone {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px 20px 20px 20px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        #private-users-list-zone::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .pm-user-row { 
+            background: #ffffff; 
+            padding: 14px; 
+            border-radius: 18px 18px 28px 28px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border: 1px solid #edf2f7; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(102,126,234,0.03); 
+            transition: all 0.2s; 
+            position: relative;
+            z-index: 1; 
+        }
+        .pm-user-row:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 14px rgba(102,126,234,0.06); 
+            border-color: rgba(102,126,234,0.15); 
+        }
+        .pm-row-left { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
+        .pm-meta-text { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+        .pm-meta-text b { font-size: 15px; color: #1e293b; }
+        .pm-meta-text .city-tag { font-size: 12px; color: #667eea; font-weight: 500; }
+        .pm-meta-text p { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .pm-row-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            margin-left: 10px; 
+            position: relative; 
+        }
+        
+        .pm-dots-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #94a3b8; cursor: pointer; padding: 4px 8px; border-radius: 50%; transition: background 0.2s; }
+        .pm-dots-btn:hover { background: #f1f5f9; color: #475569; }
+
+        .pm-context-dropdown { 
+            display: none; 
+            position: absolute; 
+            top: 32px; 
+            right: 0; 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+            z-index: 999; 
+            width: 160px; 
+            overflow: hidden; 
+            animation: slideDown 0.15s ease-in-out; 
+        }
+        .pm-context-dropdown button { width: 100%; padding: 11px 14px; border: none; background: none; text-align: left; font-size: 13px; font-weight: 500; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .pm-context-dropdown button:hover { background: #f1f5f9; }
+        .pm-context-dropdown button.pm-danger-item { color: #ef4444; }
+        .pm-context-dropdown button.pm-danger-item:hover { background: #fee2e2; }
+
+        .online-status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #10b981; font-weight: bold; }
+        .online-dot-blinking { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; animation: pulseGlow 1.5s infinite; }
+        @keyframes pulseGlow { 0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.5); } 100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+
+        .network-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 8px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            animation: slideDown 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .network-offline { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; display: flex; }
+        .network-online { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: white; display: flex; }
+
+        .contacts-tabs {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            gap: 4px;
+        }
+        .contact-tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4a5568;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .contact-tab-btn.active {
+            background: #ffffff;
+            color: #667eea;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .chat-header-subtitle {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            display: block;
+            margin-top: 1px;
+        }
+
+        body.dark-mode { background-color: #0f172a; color: #f8fafc; }
+        body.dark-mode .phone-container { background: #1e293b; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+        
+        body.dark-mode .screen, 
+        body.dark-mode #home-screen, 
+        body.dark-mode #all-rooms-list, 
+        body.dark-mode #my-rooms-list,
+        body.dark-mode #private-chats-screen { background: #1e293b !important; }
+
+        body.dark-mode .item-card, body.dark-mode .pm-user-row, body.dark-mode .profile-header-container, body.dark-mode .contacts-header-wrapper { background: #334155; border-color: rgba(255,255,255,0.08); color: #f8fafc; }
+        body.dark-mode .pm-meta-text b, body.dark-mode .rooms-list-title h3, body.dark-mode h3 { color: #f8fafc !important; }
+        body.dark-mode .pm-meta-text p, body.dark-mode .lock-icon, body.dark-mode .manage-btn { color: #cbd5e1; background: #475569; border-color: #475569; }
+        body.dark-mode .chat-input-area, body.dark-mode #search-input, body.dark-mode .contacts-sticky-header, body.dark-mode .rooms-title-container { background: #1e293b; }
+        body.dark-mode #message-input, body.dark-mode input, body.dark-mode select { background: #334155; color: white; border-color: #475569; }
+        body.dark-mode .msg-bubble { background: #475569; color: white; }
+        body.dark-mode .profile-ctrl-btn { background: #334155; border-color: #475569; }
+        body.dark-mode .profile-settings-dropdown, body.dark-mode .profile-context-menu, body.dark-mode .pm-context-dropdown, body.dark-mode .chat-header-dropdown { background: #334155; border-color: #475569; }
+        body.dark-mode .profile-settings-dropdown button, body.dark-mode .profile-context-menu button, body.dark-mode .pm-context-dropdown button, body.dark-mode .chat-header-dropdown button { color: #f8fafc; }
+        body.dark-mode .bottom-nav { background: #1e293b; border-color: #334155; }
+        body.dark-mode .contacts-tabs { background: #475569; }
+        body.dark-mode .contact-tab-btn { color: #cbd5e1; }
+        body.dark-mode .contact-tab-btn.active { background: #334155; color: #a5b4fc; }
+
+        body.dark-mode .audio-player { background: rgba(255,255,255,0.05); }
+        body.dark-mode .audio-timeline { background: rgba(255,255,255,0.1); }
+        body.dark-mode .audio-progress { background: #818cf8; }
+
+        .audio-player { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 12px; min-width: 160px; margin-top: 4px; }
+        .msg-wrapper.me .audio-player { background: rgba(255,255,255,0.15); }
+        .audio-play-btn { background: none; border: none; cursor: pointer; font-size: 18px; color: inherit; }
+        .audio-timeline { flex: 1; height: 4px; background: rgba(0,0,0,0.1); border-radius: 2px; position: relative; }
+        .msg-wrapper.me .audio-timeline { background: rgba(255,255,255,0.3); }
+        .audio-progress { height: 100%; background: #667eea; border-radius: 2px; width: 0%; }
+        .msg-wrapper.me .audio-progress { background: white; }
+        .hidden { display: none !important; }
+
+        .image-modal {
+            display: none; 
+            position: fixed; 
+            z-index: 99999; 
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content-wrapper {
+            position: relative; 
+            display: inline-block;
+            max-width: 90%;
+            max-height: 80%;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px; 
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.4);
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 50%;
+        }
+
+        .download-btn-bottom {
+            position: absolute;
+            bottom: -50px; 
+            right: 0;       
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+        }
+        .msg-text a {
+            color: #60a5fa !important; 
+            text-decoration: underline;
+        }
+
+        .call-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            margin-right: 5px;
+        }
+        .live-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .incoming-call-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            z-index: 999999;
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .call-avatar {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .call-actions-row {
+            display: flex;
+            gap: 40px;
+        }
+        .call-action-circle {
+            width: 65px; height: 65px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .call-accept { background: #10b981; }
+        .call-decline { background: #ef4444; }
+
+#agora-video-view { width: 100%; height: 250px; background: #000; display: none; border-radius: 12px; margin-top: 5px; }
+    <style>
+        /* ===== Зинда ва зебо кардани тугмахо (анимация) ===== */
+        button, .nav-item, .btn, .chat-header-btn, .back-btn, .pm-dots-btn,
+        .menu-item, .toast-btn, .call-action-circle, .call-btn, .live-btn,
+        .manage-btn, .contact-tab-btn, .profile-ctrl-btn, .add-profile-btn,
+        .pms-profile-btn, .audio-play-btn, .toggle-password {
+            transition: transform 0.12s cubic-bezier(.34,1.56,.64,1), box-shadow 0.18s ease, filter 0.18s ease, background 0.18s ease;
+            will-change: transform;
+        }
+        button:active, .nav-item:active, .btn:active, .chat-header-btn:active,
+        .back-btn:active, .pm-dots-btn:active, .menu-item:active, .toast-btn:active,
+        .call-action-circle:active, .call-btn:active, .live-btn:active,
+        .manage-btn:active, .contact-tab-btn:active, .profile-ctrl-btn:active,
+        .add-profile-btn:active, .pms-profile-btn:active, .audio-play-btn:active,
+        .toggle-password:active {
+            transform: scale(0.9);
+        }
+        .btn:hover, .live-btn:hover, .manage-btn:hover { filter: brightness(1.06); box-shadow: 0 4px 14px rgba(102,126,234,0.28); }
+        .nav-item:hover { filter: brightness(1.1); }
+        .call-accept { animation: pulseAccept 1.4s infinite; }
+        @keyframes pulseAccept { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55);} 50% { box-shadow: 0 0 0 10px rgba(34,197,94,0);} }
+        .ripple-el { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); transform: scale(0); animation: rippleAnim 0.5s ease-out; pointer-events: none; z-index: 5; }
+        @keyframes rippleAnim { to { transform: scale(2.6); opacity: 0; } }
+        button, .nav-item { position: relative; overflow: hidden; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+
+    <div id="network-status-bar" class="network-bar"></div>
+
+    <div id="auth-screen">
+        <a href="https://kholidtj1995.github.io/AdminChat/" target="_blank" onclick="try { clickSound.currentTime = 0; clickSound.play(); } catch(e) { console.log(e); }" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); z-index: 999999;">💬 Суҳбат бо админ</a>
+        <div class="auth-form">
+            <h2 style="margin-bottom: 10px;">Воридшавӣ / Сабти ном</h2>
+            <input type="text" id="username" placeholder="Номи шумо...">
+            
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <select id="phone-country-code" style="width: 100px; margin: 8px 0;">
+                    <option value="+992">+992 🇹🇯</option>
+                    <option value="+7">+7 🇷🇺</option>
+                    <option value="+998">+998 🇺🇿</option>
+                    <option value="+996">+996 🇰🇬</option>
+                </select>
+                <input type="tel" id="userphone" placeholder="Рақами телефон" style="flex: 1;">
+            </div>
+
+            <div class="password-container">
+                <input type="password" id="userpass" placeholder="Рамзи махфии шумо...">
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('userpass', this)">👁️</button>
+            </div>
+            <button class="btn" onclick="login()">Ворид шудан</button>
+        </div>
+    </div>
+
+    <div id="chat-window">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <button class="back-btn" onclick="exitAndClearActiveChat()">←</button>
+                <div style="display: flex; flex-direction: column;">
+                    <h4 id="chat-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">Номи чат</h4>
+                    <span id="chat-user-status-subtitle" class="chat-header-subtitle"></span>
+                </div>
+            </div>
+            <div class="chat-header-actions" id="chat-header-settings-zone"></div>
+        </div>
+        
+        <div id="agora-video-view"></div>
+        
+        <div class="chat-messages" id="chat-messages-list"></div>
+        
+        <div class="chat-input-area" id="chat-input-zone">
+            <button onclick="document.getElementById('chat-file-input').click()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px;" title="Фиристодани расм/файл">📎</button>
+            <input type="file" id="chat-file-input" style="display:none;" onchange="handleChatFileSelect(this)">
+            <textarea id="message-input" placeholder="Паёмак..." oninput="autoGrow(this); handleTyping()"></textarea>
+            
+            <button id="voice-record-btn" onclick="toggleVoiceRecording()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:5px; margin-right:5px;" title="Записи голос">🎤</button>
+            <button class="btn" onclick="sendMessage()" style="width: auto; padding: 10px 20px; flex-shrink: 0; height: 40px; border-radius: 18px;">Фиристодан</button>
+        </div>
+    </div>
+
+    <div id="home-screen" class="screen">
+        <input type="text" id="search-input" onkeyup="searchFunction()" placeholder="🔍 Ҷустуҷӯ бо номи комната ё рақам...">
+        <div id="search-user-result"></div>
+        <div class="rooms-title-container">
+            <h3 id="rooms-list-title">🏢 Ҳамаи Комнатаҳо</h3>
+            <button id="reset-filter-btn" class="btn btn-secondary btn-sm" onclick="resetRoomFilter()" style="display: none; margin: 0;">Ҳамаашро нишон деҳ</button>
+        </div>
+        <div id="all-rooms-list"></div>
+    </div>
+
+    <div id="chat-screen" class="screen">
+        <h3 style="margin-bottom: 10px;">💬 Чатҳои фаъол</h3>
+        <div id="active-chats-list"></div>
+    </div>
+
+    <div id="private-chats-screen" class="screen">
+        <div class="contacts-sticky-header">
+            <div class="contacts-header-wrapper">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h3 id="private-screen-title" style="font-size:16px;">💬 Контактҳо</h3>
+                </div>
+                <div style="display: flex; gap: 5px;" id="private-screen-actions-zone">
+                    <button class="pm-dots-btn" onclick="showBlockedUsersBlacklist()" title="Рӯйхати сиёҳ" style="font-size:18px; padding: 6px;">🚫</button>
+                    <button class="pm-dots-btn" id="add-contact-action-btn" onclick="addNewContactFromInput()" title="Илова кардани контакт" style="font-size:18px; padding: 6px;">➕</button>
+                </div>
+            </div>
+
+            <div class="contacts-tabs" id="contacts-tabs-bar">
+                <button class="contact-tab-btn active" id="tab-contacts" onclick="switchContactTab('contacts')">Контактҳои ман</button>
+                <button class="contact-tab-btn" id="tab-online" onclick="switchContactTab('online')">Ҳозир дар шабака 🟢</button>
+            </div>
+        </div>
+
+        <div id="private-users-list-zone"></div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+        <div class="profile-header-container">
+            <h3 style="font-size: 16px;">👤 Профили ман</h3>
+            <div class="profile-header-btns">
+                <button class="pms-profile-btn" onclick="buildPrivateChatsListUI()" title="Паёмҳои шахсӣ">
+                    ✉️
+                    <span class="pms-badge" id="profile-pm-badge">0</span>
+                </button>
+                <button class="add-profile-btn" onclick="toggleProfileContextMenu(event)">+</button>
+            </div>
+            <div class="profile-context-menu" id="profile-context-menu">
+                <button onclick="handleCreateRoomFromMenu()">➕ Сохтани комната</button>
+            </div>
+        </div>
+        
+        <div class="user-profile-box" id="my-profile-info"></div>
+
+        <div class="edit-profile-box" id="edit-profile-box">
+            <h4 style="margin-bottom: 5px; color: #4a5568;">Таҳрири маълумот</h4>
+            <input type="text" id="edit-name" placeholder="Номи нав">
+            <input type="tel" id="edit-phone" placeholder="Рақами нав" readonly style="background:#e2e8f0; color:gray;">
+            <input type="text" id="edit-city" placeholder="Номи шаҳр">
+             
+            <div class="password-container">
+                <input type="password" id="edit-pass" placeholder="Рамзи (парол)-и нав">
+                <button type="button" class="toggle-password" onclick="toggleProfilePasswordVisibility('edit-pass', this)">👁️</button>
+            </div>
+
+            <label style="font-size: 13px; color: gray; display:block; margin-top:5px;">Расми профил:</label>
+            <input type="file" id="edit-avatar-file" accept="image/*" style="margin-bottom: 10px; width: 100%;">
+            <button class="btn" onclick="saveProfileChanges()">Ҳифз кардан</button>
+            <button class="btn btn-secondary" onclick="toggleProfileForm(false)">Баргаштан</button>
+        </div>
+
+        <div class="create-room-box" id="room-form-box">
+            <h4 style="margin-bottom: 5px; color: #4a5568;">Маълумоти комната</h4>
+            <input type="text" id="room-name" placeholder="Номи комната">
+            <input type="password" id="room-pass" placeholder="Рамз (парол) - ихтиёри">
+            <label style="font-size: 13px; color: gray; display:block; margin-top:5px;">Расми комната (Ихтиёри):</label>
+            <input type="file" id="room-icon" accept="image/*" style="margin-bottom: 10px; width: 100%;">
+            <button class="btn" onclick="createRoom()">Сохтан</button>
+            <button class="btn btn-secondary" onclick="toggleRoomForm(false)">Баргаштан</button>
+        </div>
+         
+        <hr>
+        <h3 style="margin-bottom: 10px;">📦 Комнатаҳои сохтаи ман</h3>
+        <div id="my-rooms-list"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="switchScreen('home-screen', this)">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главни
+        </button>
+        <button class="nav-item" onclick="openContactsScreen(this)">
+            <div class="nav-badge" id="contacts-unread-badge">0</div>
+            <svg viewBox="0 0 24 24">
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+            </svg>
+            Контактҳо
+        </button>
+        <button class="nav-item active" onclick="switchScreen('profile-screen', this)">
+            <div class="nav-badge" id="rooms-unread-badge">0</div>
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-3-8-3z"/></svg>Я
+        </button>
+    </div>
+</div>
+
+<div id="incoming-call-panel" class="incoming-call-screen">
+    <div>
+        <h2 id="call-screen-status">Входящий звонок...</h2>
+        <p id="call-screen-type" style="color: #94a3b8; margin-top: 5px; font-weight: 500;"></p>
+    </div>
+    <div>
+        <img id="call-screen-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="call-avatar">
+        <h1 id="call-screen-name">Корбар</h1>
+    </div>
+    <div class="call-actions-row">
+        <button class="call-action-circle call-decline" onclick="rejectActiveCall()">❌</button>
+        <button class="call-action-circle call-accept" id="call-accept-trigger" onclick="acceptActiveCall()">📞</button>
+    </div>
+</div>
+
+<div id="smart-toast-overlay" class="toast-overlay">
+    <div class="toast-box">
+        <div id="toast-title" class="toast-title">Огоҳинома</div>
+        <div id="toast-msg" class="toast-msg">Матни паём дар ин ҷо пайдо мешавад.</div>
+        <div id="toast-input-container"></div>
+        <div class="toast-buttons" id="toast-buttons-container"></div>
+    </div>
+</div>
+
+<div id="image-modal" class="image-modal">
+    <span class="close-modal" onclick="document.getElementById('image-modal').style.display='none'">&times;</span>
+    <div class="modal-content-wrapper">
+        <img id="modal-img" src="">
+        <a id="download-btn" href="#" download="image.jpg" class="download-btn-bottom">📥 Зеркашӣ</a>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
+
+<script>
+// Танзимоти Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+        authDomain: "live-chat-ea070.firebaseapp.com",
+        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com", 
+        projectId: "live-chat-ea070",
+        storageBucket: "live-chat-ea070.firebasestorage.app",
+        messagingSenderId: "321161064947",
+        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+// Танзимоти Agora
+    const AGORA_APP_ID = "cc17f089d7e14ab1aef4b7af69340077";
+    // Агар дар консоли Agora Certificate фаъол бошад, бояд токен истифода баред.
+    // Барои тест метавонед Certificate-ро дар консол хомӯш кунед (App ID without Certificate),
+    // ё дар ин ҷо токени тестии офаридаро (Generate Temp Token) гузоред.
+const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKMVGJKTDc3TDCwsU8xTDU0SkwwTU9NMkswT08wsjU0MDMzNvSu9sxoCGRk8tvExMzKwMjAyMDGA+AwMAMwGHec=";
+
+    let agoraClient = AgoraRTC.createClient({ mode: "live", codec: "vp8" });
+    let localTracks = { videoTrack: null, audioTrack: null };
+    let currentAgoraChannel = null; 
+    let isViewerInLiveRoom = false; 
+
+    const clickSound = new Audio("https://raw.githubusercontent.com/behruzaliev451-jpg/live-chat/main/ckik.mp3");
+    const msgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/smshujra.mp3");
+    const privateMsgSound = new Audio("https://raw.githubusercontent.com/kholidtj1995/live-chat/main/chat.mp3");
+
+    const dialTone = new Audio("https://actions.google.com/sounds/v1/communication/phone_dialing.ogg");
+    dialTone.loop = true;
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let recordingTimerInterval;
+    let recordingSeconds = 0;
+
+    let activeCallSession = null;
+    let callListenerRef = null;
+
+    document.addEventListener("contextmenu", function(event) {
+        let tag = event.target.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || event.target.closest('.msg-text')) {
+            return; 
+        }
+        event.preventDefault();
+    }, false);
+
+    document.addEventListener("dragstart", function(event) {
+        if (event.target.tagName.toLowerCase() === 'img') {
+            event.preventDefault();
+        }
+    }, false);
+
+    document.addEventListener("click", function(event) {
+        if (event.target.closest("button") || event.target.closest(".item-card") || event.target.closest(".searched-user-box") || event.target.closest(".pm-user-row")) {
+            clickSound.currentTime = 0;
+            clickSound.play().catch(err => console.log("Браузер иҷозати садо надод:", err));
+        }
+        
+        let menu = document.getElementById('profile-context-menu');
+        if (menu && !event.target.closest('.profile-header-container')) {
+            menu.style.display = 'none';
+        }
+
+        let settingsDropdown = document.getElementById('profile-settings-dropdown');
+        if (settingsDropdown && !event.target.closest('.profile-top-controls')) {
+            settingsDropdown.style.display = 'none';
+        }
+
+        if (!event.target.closest('.pm-row-right') && !event.target.closest('.pm-dots-btn')) {
+            document.querySelectorAll('.pm-context-dropdown').forEach(d => d.style.display = 'none');
+        }
+
+        let chatDrop = document.getElementById('chat-header-dropdown-menu');
+        if (chatDrop && !event.target.closest('#chat-header-settings-zone')) {
+            chatDrop.style.display = 'none';
+        }
+    });
+
+    let currentChatRoomId = "";
+    let currentChatType = "room"; 
+    let roomsData = []; 
+    let activeChats = []; 
+    let filterByCreatorPhone = "";
+    let currentContactsTab = "contacts"; 
+    let activeChatHeaderListener = null; 
+    let activeTypingListener = null;
+    let typingTimeout = null;
+    let activeRoomLiveListener = null; 
+    const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+     
+    let userData = { name: "", phone: "", password: "", img: defaultAvatar, city: "Нишон дода нашудааст" };
+
+    function updateUserOnlineStatus() {
+        if (userData && userData.phone) {
+            database.ref('users/' + userData.phone).update({
+                lastActive: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+    setInterval(updateUserOnlineStatus, 3000);
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        let isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('chat_dark_mode', isDark ? 'true' : 'false');
+        let drop = document.getElementById('profile-settings-dropdown');
+        if (drop) drop.style.display = 'none';
+    }
+
+    function loadSavedTheme() {
+        let savedTheme = localStorage.getItem('chat_dark_mode');
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+
+    function toggleProfileContextMenu(event) {
+        event.stopPropagation();
+        let menu = document.getElementById('profile-context-menu');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function toggleProfileSettingsDropdown(event) {
+        event.stopPropagation();
+        let dropdown = document.getElementById('profile-settings-dropdown');
+        dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function toggleChatHeaderSettingsDropdown(event) {
+        event.stopPropagation();
+        let dropdown = document.getElementById('chat-header-dropdown-menu');
+        if (dropdown) dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function togglePmRowDotsMenu(event, chatId) {
+        event.stopPropagation();
+        let dropdown = document.getElementById(`pm-drop-${chatId}`);
+        if(dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        } else {
+            document.querySelectorAll('.pm-context-dropdown').forEach(d => d.style.display = 'none');
+            dropdown.style.display = 'block';
+        }
+    }
+
+    function handleCreateRoomFromMenu() {
+        document.getElementById('profile-context-menu').style.display = 'none';
+        toggleRoomForm(true); 
+    }
+
+    function showSmartAlert(message, callback) {
+        const overlay = document.getElementById('smart-toast-overlay');
+        document.getElementById('toast-title').innerText = "🔔 Огоҳинома";
+        document.getElementById('toast-msg').innerText = message;
+        document.getElementById('toast-input-container').innerHTML = "";
+        
+        const btnZone = document.getElementById('toast-buttons-container');
+        btnZone.innerHTML = `<button class="toast-btn toast-btn-ok" id="toast-ok-btn">OK</button>`;
+        
+        overlay.style.display = 'flex';
+        document.getElementById('toast-ok-btn').onclick = function() {
+            overlay.style.display = 'none';
+            if(callback) callback();
+        };
+    }
+
+    function showSmartConfirm(message, callback) {
+        const overlay = document.getElementById('smart-toast-overlay');
+        document.getElementById('toast-title').innerText = "❓ Тасдиқ кунед";
+        document.getElementById('toast-msg').innerText = message;
+        document.getElementById('toast-input-container').innerHTML = "";
+        
+        const btnZone = document.getElementById('toast-buttons-container');
+        btnZone.innerHTML = `
+            <button class="toast-btn toast-btn-cancel" id="toast-cancel-btn">Не</button>
+            <button class="toast-btn toast-btn-ok" id="toast-ok-btn">Ҳа</button>
+        `;
+        
+        overlay.style.display = 'flex';
+        document.getElementById('toast-ok-btn').onclick = function() {
+            overlay.style.display = 'none';
+            if(callback) callback(true);
+        };
+        document.getElementById('toast-cancel-btn').onclick = function() {
+            overlay.style.display = 'none';
+            if(callback) callback(false);
+        };
+    }
+
+    function showSmartPrompt(message, defaultValue, callback) {
+        const overlay = document.getElementById('smart-toast-overlay');
+        document.getElementById('toast-title').innerText = "✍️ Воридкунӣ";
+        document.getElementById('toast-msg').innerText = message;
+        
+        const inputZone = document.getElementById('toast-input-container');
+        inputZone.innerHTML = `<input type="text" id="toast-prompt-field" class="toast-input" value="${defaultValue || ''}">`;
+        
+        const btnZone = document.getElementById('toast-buttons-container');
+        btnZone.innerHTML = `
+            <button class="toast-btn toast-btn-cancel" id="toast-cancel-btn">Баргаштан</button>
+            <button class="toast-btn toast-btn-ok" id="toast-ok-btn">Сабт</button>
+        `;
+        
+        overlay.style.display = 'flex';
+        const field = document.getElementById('toast-prompt-field');
+        field.focus();
+        field.select();
+
+        document.getElementById('toast-ok-btn').onclick = function() {
+            let val = field.value;
+            overlay.style.display = 'none';
+            if(callback) callback(val);
+        };
+        document.getElementById('toast-cancel-btn').onclick = function() {
+            overlay.style.display = 'none';
+            if(callback) callback(null);
+        };
+    }
+
+    function initNetworkChecker() {
+        const netBar = document.getElementById('network-status-bar');
+        
+        function updateStatus() {
+            if (navigator.onLine) {
+                if (netBar.classList.contains('network-offline')) {
+                    netBar.className = 'network-bar network-online';
+                    netBar.innerHTML = '<span>📶 Пайвастшавӣ барқарор шуд! 🟢</span>';
+                    netBar.style.display = 'flex';
+                    setTimeout(() => {
+                        netBar.style.display = 'none';
+                    }, 3000);
+                } else {
+                    netBar.style.display = 'none';
+                }
+            } else {
+                netBar.className = 'network-bar network-offline';
+                netBar.innerHTML = '<span>🔌 Пайвастшавии internet канда шуд! Офлайн ❌</span>';
+                netBar.style.display = 'flex';
+            }
+        }
+
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+    }
+
+    window.onload = function() {
+        initNetworkChecker(); 
+        loadSavedTheme();
+        
+        const msgInput = document.getElementById('message-input');
+        if (msgInput) {
+            msgInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        let savedUser = localStorage.getItem('chat_user_data');
+        if(savedUser) {
+            userData = JSON.parse(savedUser);
+            enterApp();
+        }
+    }
+
+    function autoGrow(element) {
+        element.style.height = "40px"; 
+        element.style.height = (element.scrollHeight) + "px";
+    }
+
+    function handleTyping() {
+        if (!currentChatRoomId) return;
+        let typingPath = `typing/${currentChatRoomId}/${userData.phone}`;
+        database.ref(typingPath).set(true);
+
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            database.ref(typingPath).remove();
+        }, 2000);
+    }
+
+    function toggleProfilePasswordVisibility(inputId, btn) {
+        let input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.innerText = "🙈";
+        } else {
+            input.type = "password";
+            btn.innerText = "👁️";
+        }
+    }
+
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'hidden' && currentChatRoomId) {
+            let typingPath = `typing/${currentChatRoomId}/${userData.phone}`;
+            database.ref(typingPath).remove();
+        }
+    });
+
+    function togglePasswordVisibility(inputId, btn) {
+        let input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.innerText = "🙈";
+        } else {
+            input.type = "password";
+            btn.innerText = "👁️";
+        }
+    }
+
+    function compressImage(file, callback) {
+        let reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (event) {
+            let img = new Image();
+            img.src = event.target.result;
+            img.onload = function () {
+                let canvas = document.createElement('canvas');
+                let MAX_WIDTH = 120;
+                let MAX_HEIGHT = 120;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                let ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+                callback(canvas.toDataURL("image/jpeg", 0.7));
+            }
+        }
+    }
+
+    function login() {
+        let name = document.getElementById('username').value.trim();
+        let countryCode = document.getElementById('phone-country-code').value;
+        let localPhone = document.getElementById('userphone').value.trim().replace(/[\s\-\+\(\)]/g, '');
+        let city = "Нишон дода нашудааст";
+        let pass = document.getElementById('userpass').value.trim();
+         
+        if(!name || !localPhone || !pass) { showSmartAlert("Лутфан ном, рақам ва рамзи махфиро нависед!"); return; }
+        if(pass.length < 4) { showSmartAlert("Рамз бояд ҳадди ақал аз 4 аломат иборат бошад!"); return; }
+
+        let phone = countryCode + localPhone;
+
+        database.ref('users/' + phone).once('value', (snapshot) => {
+            let serverUser = snapshot.val();
+            if(serverUser) {
+                if(serverUser.password === pass) {
+                    userData = serverUser;
+                    localStorage.setItem('chat_user_data', JSON.stringify(userData));
+                    enterApp();
+                } else {
+                    showSmartAlert("Ин рақами телефон аллакай сабт шудааст ва рамзи воридкардаи шумо нодуруст аст!");
+                }
+            } else {
+                userData = { name: name, phone: phone, password: pass, img: defaultAvatar, city: city };
+                database.ref('users/' + phone).set(userData).then(() => {
+                    localStorage.setItem('chat_user_data', JSON.stringify(userData));
+                    enterApp();
+                });
+            }
+        });
+    }
+
+    function enterApp() {
+        updateProfileUI();
+        updateUserOnlineStatus();
+        
+        monitorAccountSecurity(); 
+        setupAgoraListeners();
+        listenForIncomingCalls();
+        
+        document.getElementById('auth-screen').style.display = 'none';
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        document.getElementById('home-screen').classList.add('active-screen');
+        
+        loadRoomsFromServer();
+        listenToUnreadMessages(); 
+        listenPrivateMessagesLiveGlobal(); 
+    }
+
+    function logout() {
+        showSmartConfirm("Оё мехоҳед аз барнома бароед?", function(yes) {
+            if(yes) {
+                localStorage.removeItem('chat_user_data');
+                location.reload();
+            }
+        });
+    }
+
+    function updateProfileUI() {
+        const profileBox = document.getElementById('my-profile-info');
+        if (profileBox) {
+            profileBox.innerHTML = `
+                <img src="${userData.img || defaultAvatar}" class="profile-avatar-big">
+                <div style="flex: 1; font-size: 15px; color: #2d3748; position: relative; padding-right: 40px;" class="profile-text-zone">
+                    <b>Ном:</b> <span>${userData.name}</span><br>
+                    <span style="margin-top: 2px; display:inline-block;"><b>Рақам:</b> <span>${userData.phone}</span></span><br>
+                    <span style="margin-top: 2px; display:inline-block; color: #667eea; font-weight: 500;"><b>Шаҳр:</b> <span>${userData.city || "Нишон дода нашудааст"}</span></span>
+                </div>
+                
+                <div class="profile-top-controls">
+                    <button class="profile-ctrl-btn" onclick="toggleProfileSettingsDropdown(event)">⚙️</button>
+                    <div class="profile-settings-dropdown" id="profile-settings-dropdown">
+                        <button onclick="toggleProfileForm(true)">✏️ Танзимот</button>
+                        <button onclick="toggleDarkMode()">🌙/☀️ Мавзӯъ</button>
+                        <button class="logout-item" onclick="logout()">🚪 Баромадан</button>
+                    </div>
+                </div>`;
+        }
+    }
+
+    function saveProfileChanges() {
+        let newName = document.getElementById('edit-name').value.trim();
+        let newCity = document.getElementById('edit-city').value.trim() || "Нишон дода нашудааст";
+        let newPass = document.getElementById('edit-pass').value.trim();
+        let fileInput = document.getElementById('edit-avatar-file');
+
+        if(!newName || !newPass) { showSmartAlert("Лутфан ном ва рамзро холӣ нагузоред!"); return; }
+        if(newPass.length < 4) { showSmartAlert("Рамзи нав бояд ҳадди ақал аз 4 аломат иборат бошад!"); return; }
+
+        userData.name = newName;
+        userData.city = newCity;
+        userData.password = newPass;
+
+        let saveFinal = () => {
+            localStorage.setItem('chat_user_data', JSON.stringify(userData));
+            database.ref('users/' + userData.phone).set(userData).then(() => {
+                updateProfileUI();
+                toggleProfileForm(false);
+                showSmartAlert("Маълумоти профил ва шаҳри шумо бомуваффақият нав шуданд!");
+            });
+        }
+
+        if(fileInput.files && fileInput.files[0]) {
+            compressImage(fileInput.files[0], function(compressedUrl) {
+                userData.img = compressedUrl;
+                saveFinal();
+            });
+        } else { saveFinal(); }
+    }
+
+    function switchScreen(screenId, element) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+        document.getElementById(screenId).classList.add('active-screen');
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        if (element) element.classList.add('active');
+        if(screenId === 'chat-screen') { renderActiveChats(); }
+    }
+
+    function toggleProfileForm(show) {
+        let box = document.getElementById('edit-profile-box');
+        if(show) {
+            document.getElementById('edit-name').value = userData.name;
+            document.getElementById('edit-phone').value = userData.phone;
+            document.getElementById('edit-city').value = userData.city || "";
+            document.getElementById('edit-pass').value = userData.password || "";
+            document.getElementById('edit-pass').type = "password";
+            box.querySelector('.toggle-password').innerText = "👁️";
+            box.style.display = 'block';
+        } else { box.style.display = 'none'; }
+    }
+
+    function toggleRoomForm(show) {
+        let formBox = document.getElementById('room-form-box');
+        let openBtn = document.getElementById('open-form-btn');
+        if (formBox) formBox.style.display = show ? 'block' : 'none';
+        if (openBtn) openBtn.style.display = show ? 'none' : 'block';
+    }
+
+    function loadRoomsFromServer() {
+        database.ref('rooms').on('value', (snapshot) => {
+            let rooms = snapshot.val();
+            roomsData = []; 
+            if(rooms) {
+                Object.keys(rooms).forEach(id => { roomsData.push(rooms[id]); });
+            }
+            renderRoomsUI();
+        });
+    }
+
+    function renderRoomsUI() {
+        let myRoomsHTML = ""; 
+        let allRoomsHTML = "";
+
+        roomsData.forEach(room => {
+            if(filterByCreatorPhone && room.creatorPhone !== filterByCreatorPhone) return;
+            let lockIcon = room.pass ? "🔒" : "🔓";
+
+            if (!room.isSecret || room.creatorPhone === userData.phone) {
+                let hiddenBadge = room.isSecret ? " <span style='color:#6366f1; font-size:11px;'>[🕵️‍♂️ Невидимка]</span>" : "";
+                let liveBadge = room.liveChannel ? " <span style='color:#ef4444; font-size:11px; font-weight:bold;'>🔴 ЭФИР</span>" : "";
+                allRoomsHTML += `
+                    <div class="item-card" onclick="tryEnterRoom('${room.id}')">
+                        <div class="card-main-info">
+                            <img src="${room.img || defaultAvatar}" class="room-avatar">
+                            <div class="card-info" style="flex:1; margin-left:10px;">
+                                <b style="font-size:15px; color:#1e293b;">🏢 ${room.name} ${hiddenBadge}${liveBadge}</b>
+                                <span style="font-size:12px; color:#6366f1; font-weight:500; margin-top:2px;">Аз: ${room.creatorName}</span>
+                            </div>
+                            <span class="lock-icon">${lockIcon}</span>
+                        </div>
+                    </div>`;
+            }
+
+            if(room.creatorPhone === userData.phone) {
+                let secretText = room.isSecret ? "👁️ Намоён кардан дар главни" : "🕵️‍♂️ Танзими Невидимка";
+                let adminWriteText = room.onlyAdminCanWrite ? "👥 Ба ҳама иҷозат додан" : "👤 Танҳо ман нависам";
+
+                let roomChatInfo = activeChats.find(c => c.roomId === room.id);
+                let roomUnreadCount = roomChatInfo ? roomChatInfo.unreadCount : 0;
+                let roomUnreadBadgeHTML = roomUnreadCount > 0 ? `<span class="room-unread-badge">${roomUnreadCount}</span>` : "";
+                let liveButtonHTML = room.liveChannel 
+                    ? `<button class="live-btn" style="background:#64748b;" onclick="stopAgoraRoomLive('${room.id}')">⏹️ Қатъи эфир</button>`
+                    : `<button class="live-btn" onclick="startAgoraRoomLive('${room.id}', '${room.name}')">🎥 Эфир</button>`;
+
+                myRoomsHTML += `
+                    <div class="item-card" id="my-room-${room.id}">
+                        <div class="card-main-info">
+                            <img src="${room.img || defaultAvatar}" class="room-avatar" onclick="toggleManageMenu('${room.id}')">
+                            <div class="card-info" style="flex:1; margin-left:10px;" onclick="toggleManageMenu('${room.id}')">
+                                <b style="font-size:15px; color:#1e293b;">🏢 ${room.name} ${room.isSecret ? "🕵️‍♂️" : ""}</b>
+                            </div>
+                            ${roomUnreadBadgeHTML}
+                            ${liveButtonHTML}
+                            <span class="lock-icon" style="margin-left: 10px;">${lockIcon}</span>
+                        </div>
+                        
+                        <button class="manage-btn" onclick="toggleManageMenu('${room.id}')">⚙️ Идоракунӣ</button>
+                        
+                        <div class="manage-menu" id="menu-${room.id}">
+                            <button class="menu-item" onclick="tryEnterRoom('${room.id}')">🚪 Ворид шудан</button>
+                            <button class="menu-item" onclick="editRoomInfo('${room.id}')">✏️ Татбиқ намудани тағйирот</button>
+                            <button class="menu-item" onclick="clearRoomChat('${room.id}')">🧹 Пок кардани чат</button>
+                            <button class="menu-item" onclick="toggleRoomSecret('${room.id}', ${!!room.isSecret})">${secretText}</button>
+                            <button class="menu-item" onclick="toggleAdminWriteOnly('${room.id}', ${!!room.onlyAdminCanWrite})">${adminWriteText}</button>
+                            <button class="menu-item" onclick="shareRoom('${room.id}')">🔗 Истиноди комната</button>
+                            <button class="menu-item danger" onclick="deleteRoom('${room.id}')">🗑️ Нест кардани комната</button>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        const myRoomsList = document.getElementById('my-rooms-list');
+        const allRoomsList = document.getElementById('all-rooms-list');
+        
+        if (myRoomsList) myRoomsList.innerHTML = myRoomsHTML || "<p style='color:gray; font-size:14px; padding: 10px;'>Комнатаҳои сохтаи шумо нест.</p>";
+        if (allRoomsList) allRoomsList.innerHTML = allRoomsHTML || "<p style='color:gray; font-size:14px;'>Ҳеҷ комнатае мавҷуд нест.</p>";
+    }
+
+    // ================= AGORA: ЭФИР ДАР КОМНАТА (соҳиб = host, тамошобинон = audience) =================
+
+    async function startAgoraRoomLive(roomId, roomName) {
+        showSmartConfirm("Оё мехоҳед эфири ҳақиқиро бо Agora оғоз кунед? Истинод ба чат фиристода мешавад.", async function(yes) {
+            if(!yes) return;
+
+            let callRoomName = "room_live_" + roomId;
+
+            try {
+                // Пеш аз пайвастшавӣ ба канали нав, аз ҳама каналҳои қаблӣ мебароем
+                await leaveAgoraChannel();
+
+                let dbPath = 'messages/' + roomId;
+                let msgRef = database.ref(dbPath).push();
+                let liveText = `📢 ОҒОЗИ ЭФИРИ НАВ! 🎥\nСоҳиби комната эфирро оғоз кард. Барои дидан чатро кушоед.`;
+
+                let msgData = {
+                    id: msgRef.key,
+                    phone: userData.phone,
+                    username: userData.name,
+                    userImg: userData.img,
+                    city: userData.city || "",
+                    text: liveText,
+                    msgType: 'text',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    seenBy: {}
+                };
+                msgData.seenBy[userData.phone] = true;
+                await msgRef.set(msgData);
+
+                // Сабти маълумоти эфир дар Firebase, то тамошобинон тавонанд пайдо кунанд
+                await database.ref('rooms/' + roomId).update({ liveChannel: callRoomName, liveHost: userData.phone });
+
+                openChat(roomName, defaultAvatar, roomId, 'room');
+                let videoView = document.getElementById('agora-video-view');
+                videoView.style.display = 'block';
+
+                await agoraClient.setClientRole("host");
+                await agoraClient.join(AGORA_APP_ID, callRoomName, AGORA_TEMP_TOKEN, null);
+                currentAgoraChannel = callRoomName;
+
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+
+                localTracks.videoTrack.play('agora-video-view');
+                await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                showSmartAlert("Эфири шумо фаъол шуд! Корбарон метавонанд садо ва видеои шуморо бубинанд.");
+            } catch (err) {
+                console.error(err);
+                showSmartAlert("Хатогӣ дар оғози эфир: " + err.message + "\n\nСанҷед, ки дар консоли Agora Certificate хомӯш аст ё токени дуруст истифода мешавад.");
+            }
+        });
+    }
+
+    async function stopAgoraRoomLive(roomId) {
+        showSmartConfirm("Оё мехоҳед эфирро қатъ кунед?", async function(yes) {
+            if(!yes) return;
+            await database.ref('rooms/' + roomId).update({ liveChannel: null, liveHost: null });
+            await leaveAgoraChannel();
+            showSmartAlert("Эфир қатъ карда шуд.");
+        });
+    }
+
+    // Вақте корбар чати комнатаро мекушояд, агар эфир фаъол бошад, ӯро ҳамчун тамошобин пайваст мекунад
+    async function joinRoomLiveAsViewerIfActive(roomId) {
+        let room = roomsData.find(r => r.id === roomId);
+        let videoView = document.getElementById('agora-video-view');
+
+        if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
+
+        activeRoomLiveListener = database.ref('rooms/' + roomId + '/liveChannel');
+        activeRoomLiveListener.on('value', async (snap) => {
+            let channelName = snap.val();
+
+            if (channelName && !isViewerInLiveRoom && room && room.creatorPhone !== userData.phone) {
+                try {
+                    await leaveAgoraChannel();
+                    await agoraClient.setClientRole("audience");
+                    await agoraClient.join(AGORA_APP_ID, channelName, AGORA_TEMP_TOKEN, null);
+                    currentAgoraChannel = channelName;
+                    isViewerInLiveRoom = true;
+                    videoView.style.display = 'block';
+                } catch (err) {
+                    console.error("Хатогии пайвастшавии тамошобин ба эфир:", err);
+                }
+            } else if (!channelName && isViewerInLiveRoom) {
+                await leaveAgoraChannel();
+                videoView.style.display = 'none';
+            }
+        });
+    }
+
+    function toggleManageMenu(roomId) {
+        let menu = document.getElementById(`menu-${roomId}`);
+        if(menu.style.display === "block") {
+            menu.style.display = "none";
+        } else {
+            document.querySelectorAll('.manage-menu').forEach(m => m.style.display = "none");
+            menu.style.display = "block";
+        }
+    }
+
+    function openContactsScreen(element) {
+        switchScreen('private-chats-screen', element);
+        document.getElementById('private-screen-title').innerText = "💬 Контактҳо";
+        document.getElementById('private-screen-actions-zone').style.display = 'flex';
+        document.getElementById('contacts-tabs-bar').style.display = 'flex';
+        switchContactTab(currentContactsTab || 'contacts');
+    }
+
+    function switchContactTab(tabId) {
+        currentContactsTab = tabId;
+        document.querySelectorAll('.contact-tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        if (tabId === 'contacts') {
+            document.getElementById('tab-contacts').classList.add('active');
+            renderContactsListReal();
+        } else {
+            document.getElementById('tab-online').classList.add('active');
+            loadOnlineUsersUI();
+        }
+    }
+
+    function addNewContactFromInput() {
+        showSmartPrompt("Рақами телефони корбарро ворид кунед (бо рамзи давлат, мас. +992...):", "", async function(phoneVal) {
+            if(!phoneVal) return;
+            let phone = phoneVal.trim();
+            if (phone === userData.phone) { showSmartAlert("Рақами худатонро илова карда наметавонед!"); return; }
+            
+            let snapshot = await database.ref('users/' + phone).once('value');
+            if (snapshot.exists()) {
+                let serverUser = snapshot.val();
+                
+                showSmartPrompt(`Номи контактро барои "${serverUser.name}" нависед:`, serverUser.name, async function(customName) {
+                    let finalName = (customName && customName.trim()) ? customName.trim() : serverUser.name;
+                    
+                    await database.ref(`users/${userData.phone}/contacts/${phone}`).set({
+                        name: finalName,
+                        addedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    showSmartAlert("Корбар ёфт шуд ва ба контактҳои шумо илова гардид!");
+                    if(currentContactsTab === 'contacts') renderContactsListReal();
+                });
+            } else {
+                showSmartAlert("Ин рақам ҳоло дар барнома сабти ном нашудааст!");
+            }
+        });
+    }
+
+    function addUserToContactsFromPM(phone, name) {
+        database.ref(`users/${userData.phone}/contacts/${phone}`).once('value').then(snap => {
+            if (snap.exists()) {
+                showSmartAlert(`Корбари "${name}" аллакай дар рӯйхати контактҳои шумо мавҷуд аст!`);
+            } else {
+                showSmartPrompt(`Номи контактро барои "${name}" нависед:`, name, async function(customName) {
+                    if (customName === null || customName === undefined) return;
+                    let finalName = (customName && customName.trim()) ? customName.trim() : name;
+
+                    await database.ref(`users/${userData.phone}/contacts/${phone}`).set({
+                        name: finalName,
+                        addedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    showSmartAlert("Корбар ба контактҳои шумо илова гардид!");
+                    if(currentContactsTab === 'contacts') renderContactsListReal();
+                });
+            }
+        });
+    }
+
+    function deleteContactFromMyList(phone, cName) {
+        showSmartConfirm(`Оё мехоҳед "${cName}"-ро аз рӯйхати контактҳоятон нест кунед?`, function(yes) {
+            if(yes) {
+                database.ref(`users/${userData.phone}/contacts/${phone}`).remove().then(() => {
+                    showSmartAlert("Контакт нест карда шуд.");
+                    if(currentContactsTab === 'contacts') renderContactsListReal();
+                });
+            }
+        });
+    }
+
+    function buildPrivateChatsListUI() {
+        switchScreen('private-chats-screen');
+        document.getElementById('private-screen-title').innerText = "💬 Чатҳои шахсӣ";
+        
+        document.getElementById('private-screen-actions-zone').style.display = 'none';
+        document.getElementById('contacts-tabs-bar').style.display = 'none';
+        
+        const container = document.getElementById('private-users-list-zone');
+        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Боркунии чатҳои фаъол...</p>";
+
+        database.ref('private_status').once('value', snapshot => {
+            container.innerHTML = "";
+
+            if (snapshot.exists()) {
+                let chatsData = [];
+                snapshot.forEach(child => {
+                    let chatId = child.key;
+                    if (chatId.includes(userData.phone)) {
+                        let info = child.val();
+                        if (info.exists && info.lastMsgText) {
+                            let parts = chatId.split('_');
+                            let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
+                            chatsData.push({ chatId: chatId, otherPhone: otherPhone, info: info });
+                        }
+                    }
+                });
+
+                if (chatsData.length === 0) {
+                    container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Чатҳои шахсӣ мавҷуд нестанд.</p>";
+                    return;
+                }
+
+                chatsData.sort((a, b) => (b.info.timestamp || 0) - (a.info.timestamp || 0));
+
+                chatsData.forEach(item => {
+                    let otherPhone = item.otherPhone;
+                    let info = item.info;
+
+                    database.ref('users/' + otherPhone).once('value', uSnap => {
+                        if (uSnap.exists()) {
+                            let iBlockedThem = info.blockedUsers ? !!info.blockedUsers[userData.phone] : false;
+                            if (iBlockedThem) return;
+
+                            let appUser = uSnap.val();
+                            let isOnline = false;
+                            if (appUser.lastActive) {
+                                let diff = Date.now() - appUser.lastActive;
+                                if (diff < 12000) isOnline = true;
+                            }
+
+                            let statusHTML = isOnline ? `
+                                <span class="online-status-badge">
+                                    <span class="online-dot-blinking"></span> в сети
+                                </span>` : `<span style="font-size:11px; color:#94a3b8;">не в сети</span>`;
+
+                            let unreadBadge = "";
+                            if (info.lastSender !== userData.phone && !info.read) {
+                                unreadBadge = `<span class="badge" style="margin-left:auto;">Нов</span>`;
+                            }
+
+                            let row = document.createElement('div');
+                            row.className = 'pm-user-row';
+                            row.onclick = () => initiatePrivateChat(appUser.phone, appUser.name);
+                            row.innerHTML = `
+                                <div class="pm-row-left">
+                                    <img src="${appUser.img || defaultAvatar}" class="room-avatar">
+                                    <div class="pm-meta-text">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <b>👤 ${appUser.name}</b>
+                                            ${statusHTML}
+                                        </div>
+                                        <p style="color:#4a5568; font-weight:500; font-size:13px; max-width:240px;">${info.lastMsgText}</p>
+                                    </div>
+                                </div>
+                                <div class="pm-row-right">
+                                    ${unreadBadge}
+                                    <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, '${item.chatId}')">⋮</button>
+                                    <div class="pm-context-dropdown" id="pm-drop-${item.chatId}">
+                                        <button onclick="addUserToContactsFromPM('${appUser.phone}', '${appUser.name}')">➕ Илова ба контакт</button>
+                                        <button onclick="clearPrivateChatMessagesOnly('${item.chatId}')">🧹 Тоза кардани чат</button>
+                                        <button class="pm-danger-item" onclick="removePrivateChatFromList('${item.chatId}')">🗑️ Нест кардан</button>
+                                    </div>
+                                </div>`;
+                            container.appendChild(row);
+                        }
+                    });
+                });
+            } else {
+                container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Чатҳои шахсӣ мавҷуд нестанд.</p>";
+            }
+        });
+    }
+
+     function renderContactsListReal() {
+        const container = document.getElementById('private-users-list-zone');
+        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Боркунии контактҳои шумо...</p>";
+
+        database.ref(`users/${userData.phone}/contacts`).once('value', snapshot => {
+            container.innerHTML = "";
+            
+            if(!snapshot.exists()) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:gray;">
+                        <p style="margin-bottom:15px;">Ягон контакт илова нашудааст.</p>
+                        <button class="btn" onclick="addNewContactFromInput()" style="width:auto; margin:0 auto;">➕ Илова кардани контакт</button>
+                    </div>`;
+                return;
+            }
+
+            let savedContacts = snapshot.val();
+            let phonesList = Object.keys(savedContacts);
+
+            phonesList.forEach(phone => {
+                if(phone === userData.phone) return;
+
+                database.ref('users/' + phone).once('value', uSnap => {
+                    if (uSnap.exists()) {
+                        let appUser = uSnap.val();
+                        let pairIdCheck = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
+
+                        database.ref('private_status/' + pairIdCheck).once('value', statusSnap => {
+                            let statusInfo = statusSnap.val();
+                            let iBlockedThem = statusInfo && statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
+                            if (iBlockedThem) return;
+
+                            let isOnline = false;
+                            if(appUser.lastActive) {
+                                let diff = Date.now() - appUser.lastActive;
+                                if(diff < 12000) isOnline = true; 
+                            }
+
+                            let statusHTML = isOnline ? `
+                                <span class="online-status-badge">
+                                    <span class="online-dot-blinking"></span> в сети
+                                </span>` : `<span style="font-size:11px; color:#94a3b8;">не в сети</span>`;
+
+                            let contactCustomName = savedContacts[phone].name || appUser.name;
+                            let pairId = userData.phone < appUser.phone ? `${userData.phone}_${appUser.phone}` : `${appUser.phone}_${userData.phone}`;
+
+                            let row = document.createElement('div');
+                            row.className = 'pm-user-row';
+                            row.onclick = () => initiatePrivateChat(appUser.phone, contactCustomName);
+                            row.innerHTML = `
+                                <div class="pm-row-left">
+                                    <img src="${appUser.img || defaultAvatar}" class="room-avatar">
+                                    <div class="pm-meta-text">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <b>👤 ${contactCustomName}</b>
+                                            ${statusHTML}
+                                        </div>
+                                        <span class="city-tag">🏠 Шаҳр: ${appUser.city || 'Нишон дода нашудааст'}</span>
+                                        <p style="color:#6366f1;">📞 Рақам: ${appUser.phone}</p>
+                                    </div>
+                                </div>
+                                <div class="pm-row-right">
+                                    <button class="pm-dots-btn" onclick="togglePmRowDotsMenu(event, '${pairId}')">⋮</button>
+                                    <div class="pm-context-dropdown" id="pm-drop-${pairId}">
+                                        <button onclick="initiatePrivateChat('${appUser.phone}', '${contactCustomName}')">💬 Чат</button>
+                                        <button onclick="toggleBlockUserPM('${pairId}', 'false')">🚫 Блок кардан</button>
+                                        <button class="pm-danger-item" onclick="deleteContactFromMyList('${appUser.phone}', '${contactCustomName}')">🗑️ Нест кардан</button>
+                                    </div>
+                                </div>`;
+                            container.appendChild(row);
+                        });
+                    }
+                });
+            });
+        });
+    }
+
+    function loadOnlineUsersUI() {
+        const container = document.getElementById('private-users-list-zone');
+        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Ҷустуҷӯи нафарони фаъол...</p>";
+
+        database.ref(`users/${userData.phone}/contacts`).once('value', contactSnapshot => {
+            if(!contactSnapshot.exists()) {
+                container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Дар рӯйхати контактҳои шумо ҳеҷ кас онлайн нест.</p>";
+                return;
+            }
+
+            let myContacts = contactSnapshot.val();
+
+            database.ref('private_status').once('value', statusSnap => {
+                let allStatus = statusSnap.val() || {};
+                let blockedPhones = new Set();
+                Object.keys(allStatus).forEach(key => {
+                    if (key.includes(userData.phone)) {
+                        let info = allStatus[key];
+                        if (info.blockedUsers && info.blockedUsers[userData.phone]) {
+                            let parts = key.split('_');
+                            let other = parts[0] === userData.phone ? parts[1] : parts[0];
+                            blockedPhones.add(other);
+                        }
+                    }
+                });
+
+                database.ref('users').once('value', snapshot => {
+                    container.innerHTML = "";
+                    let onlineCount = 0;
+
+                    if(snapshot.exists()) {
+                        snapshot.forEach(child => {
+                            let user = child.val();
+                            if(user.phone !== userData.phone && myContacts[user.phone] && !blockedPhones.has(user.phone)) {
+                                let isOnline = false;
+                                if(user.lastActive) {
+                                    let diff = Date.now() - user.lastActive;
+                                    if(diff < 12000) isOnline = true; 
+                                }
+
+                                if (isOnline) {
+                                    onlineCount++;
+                                    let contactName = myContacts[user.phone].name || user.name;
+                                    let row = document.createElement('div');
+                                    row.className = 'pm-user-row';
+                                    row.onclick = () => initiatePrivateChat(user.phone, contactName);
+                                    row.innerHTML = `
+                                        <div class="pm-row-left">
+                                            <img src="${user.img || defaultAvatar}" class="room-avatar">
+                                            <div class="pm-meta-text">
+                                                <div style="display:flex; align-items:center; gap:8px;">
+                                                    <b>👤 ${contactName}</b>
+                                                    <span class="online-status-badge">
+                                                        <span class="online-dot-blinking"></span> в сети
+                                                    </span>
+                                                </div>
+                                                <span class="city-tag">🏠 Шаҳр: ${user.city || 'Нишон дода нашудааст'}</span>
+                                                <p style="color:#10b981;">📞 Рақам: ${user.phone}</p>
+                                            </div>
+                                        </div>
+                                        <div class="pm-row-right">
+                                            <span style="font-size:12px; background:#d1fae5; color:#065f46; padding:4px 10px; border-radius:12px; font-weight:600;">Навиштан</span>
+                                        </div>`;
+                                    container.appendChild(row);
+                                }
+                            }
+                        });
+                    }
+
+                    if(onlineCount === 0) {
+                        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Дар айни замон аз рӯйхати контактҳоятон ягон кас онлайн нест.</p>";
+                    }
+                });
+            });
+        });
+    }
+
+    function showBlockedUsersBlacklist() {
+        switchScreen('private-chats-screen');
+        document.getElementById('private-screen-title').innerText = "🚫 Рӯйхати блокшудаҳо";
+        document.getElementById('contacts-tabs-bar').style.display = 'none';
+        const container = document.getElementById('private-users-list-zone');
+        container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Боркунии рӯйхати сиёҳ...</p>";
+
+        database.ref('private_status').once('value', snapshot => {
+            container.innerHTML = "";
+            let blockedCount = 0;
+
+            if(snapshot.exists()) {
+                snapshot.forEach(child => {
+                    let chatId = child.key;
+                    if(child.key.includes(userData.phone)) {
+                        let statusInfo = child.val();
+                        let isBlockedByMe = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
+
+                        if(isBlockedByMe) {
+                            blockedCount++;
+                            let parts = chatId.split('_');
+                            let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
+
+                            database.ref('users/' + otherPhone).once('value', uSnap => {
+                                if(uSnap.exists()) {
+                                    let otherUser = uSnap.val();
+                                    let row = document.createElement('div');
+                                    row.className = 'pm-user-row';
+                                    row.innerHTML = `
+                                        <div class="pm-row-left">
+                                            <img src="${otherUser.img || defaultAvatar}" class="room-avatar">
+                                            <div class="pm-meta-text">
+                                                <b>👤 ${otherUser.name} [🚫 БЛОК]</b>
+                                                <p>📞 Рақам: ${otherUser.phone} | Шаҳр: ${otherUser.city || 'Нишон дода нашудааст'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="pm-row-right">
+                                            <button class="btn btn-secondary btn-sm" onclick="toggleBlockUserPM('${chatId}', 'true')" style="margin:0; background:#fee2e2; color:#ef4444; border:1px solid #fca5a5;">Разблокировать</button>
+                                        </div>`;
+                                    container.appendChild(row);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            setTimeout(() => {
+                if(blockedCount === 0) {
+                    container.innerHTML = "<p style='text-align:center; color:gray; padding:20px;'>Рӯйхати блокҳо холӣ аст.</p>";
+                }
+            }, 600);
+        });
+    }
+
+    function editRoomInfo(roomId) {
+        let room = roomsData.find(r => r.id === roomId);
+        if(!room) return;
+        
+        showSmartPrompt("Номи нави комнатаро ворид кунед:", room.name, function(newName) {
+            if(newName === null) return;
+            newName = newName.trim();
+            if(!newName) { showSmartAlert("Ном наметавонад холӣ бошад!"); return; }
+
+            showSmartPrompt("Рамзи нави комнатаро ворид кунед:", room.pass || "", function(newPass) {
+                if(newPass === null) return;
+
+                database.ref('rooms/' + roomId).update({
+                    name: newName,
+                    pass: newPass.trim()
+                }).then(() => { showSmartAlert("Маълумоти комната таҳрир шуд!"); });
+            });
+        });
+    }
+
+    function clearRoomChat(roomId) {
+        showSmartConfirm("Оё мехоҳед ҳамаи паёмҳои ин чат ба таври ҳамешагӣ пок шаванд?", function(yes) {
+            if(yes) {
+                database.ref('messages/' + roomId).remove().then(() => { showSmartAlert("Чат пок карда шуд!"); });
+            }
+        });
+    }
+
+    function toggleRoomSecret(roomId, currentStatus) {
+        database.ref('rooms/' + roomId).update({ isSecret: !currentStatus }).then(() => {
+            showSmartAlert(!currentStatus ? "Комната ҳолати Невидимка гирифт!" : "Комната барои ҳама намоён шуд!");
+        });
+    }
+
+    function toggleAdminWriteOnly(roomId, currentStatus) {
+        database.ref('rooms/' + roomId).update({ onlyAdminCanWrite: !currentStatus }).then(() => {
+            showSmartAlert(!currentStatus ? "Ҳолати 'Танҳо admin нависад' фаъол шуд!" : "Ҳолати навиштан кушода шуд!");
+        });
+    }
+
+    function searchFunction() {
+        let input = document.getElementById('search-input').value.trim();
+        let userResultBox = document.getElementById('search-user-result');
+        
+        if(!input) {
+            userResultBox.innerHTML = "";
+            renderRoomsUI();
+            return;
+        }
+
+        if(/^\+?\d+$/.test(input)) {
+            database.ref('users/' + input).once('value', (snapshot) => {
+                let searchedUser = snapshot.val();
+                if(snapshot.exists()) {
+                    let userCityText = searchedUser.city ? ` | 🏠 Шаҳр: ${searchedUser.city}` : "";
+                    userResultBox.innerHTML = `
+                        <div class="searched-user-box" onclick="initiatePrivateChat('${searchedUser.phone}', '${searchedUser.name}')">
+                            <img src="${searchedUser.img || defaultAvatar}" class="room-avatar">
+                            <div style="flex:1;">
+                                <b style="color:#1e1b4b;">👤 ${searchedUser.name}</b>
+                                <span style="display:block; font-size:12px; color:#4f46e5;">Рақам: ${searchedUser.phone} ${userCityText}</span>
+                            </div>
+                        </div>`;
+                } else {
+                    userResultBox.innerHTML = "<p style='color:gray; font-size:13px; margin-bottom:10px;'>Бо ин рақам ягон профил ёфт нашуд.</p>";
+                }
+            });
+        } else {
+            userResultBox.innerHTML = "";
+            let cards = document.getElementById('all-rooms-list').getElementsByClassName('item-card');
+            
+            roomsData.forEach((room, index) => {
+                let card = cards[index];
+                if(!card) return;
+                
+                if(room.isSecret && room.creatorPhone !== userData.phone) {
+                    card.style.display = "none";
+                } else {
+                    card.style.display = card.innerText.toLowerCase().includes(input.toLowerCase()) ? "flex" : "none";
+                }
+            });
+        }
+    }
+
+    function resetRoomFilter() {
+        filterByCreatorPhone = "";
+        document.getElementById('rooms-list-title').innerText = "🏢 Ҳамаи Комнатаҳо";
+        document.getElementById('reset-filter-btn').style.display = "none";
+        renderRoomsUI();
+    }
+
+    function tryEnterRoom(roomId) {
+        let room = roomsData.find(r => r.id === roomId);
+        if(room) {
+            if(room.pass) {
+                showSmartPrompt(`Ин комната қулф аст 🔒. Рамзро ворид кунед:`, "", function(userPass) {
+                    if(userPass === room.pass) { openChat(room.name, room.img, room.id, 'room'); } 
+                    else if(userPass !== null) { showSmartAlert("Рамз нодуруст аст!"); }
+                });
+            } else { openChat(room.name, room.img, room.id, 'room'); }
+        }
+    }
+
+    function formatTime(timestamp) {
+        if(!timestamp) return "00:00";
+        let date = new Date(timestamp);
+        let hours = String(date.getHours()).padStart(2, '0');
+        let minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    function formatDateDivider(timestamp) {
+        if(!timestamp) return "Имрӯз";
+        let date = new Date(timestamp);
+        let today = new Date();
+        if (date.toDateString() === today.toDateString()) return "Имрӯз";
+        let months = ["Январ", "Феврал", "Март", "Апрел", "Май", "Июн", "Июл", "Август", "Сентябр", "Октябр", "Ноябр", "Декябр"];
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+
+    function buildTicksHTML(msg) {
+        let seenBy = msg.seenBy || {};
+        let seenCount = Object.keys(seenBy).length;
+        let othersRead = Object.keys(seenBy).some(phone => phone !== msg.phone);
+
+        if (othersRead) {
+            return `<span class="msg-ticks ticks-read tick-double"><span class="tick"></span><span class="tick"></span></span>`;
+        } else if (seenCount >= 1) {
+            return `<span class="msg-ticks ticks-delivered tick-double"><span class="tick"></span><span class="tick"></span></span>`;
+        } else {
+            return `<span class="msg-ticks ticks-sent"><span class="tick"></span></span>`;
+        }
+    }
+
+    function listenToUnreadMessages() {
+        database.ref('messages').on('value', (snapshot) => {
+            let allMessages = snapshot.val();
+            activeChats = [];
+            let totalUnreadCount = 0;
+
+            if (allMessages) {
+                Object.keys(allMessages).forEach(roomId => {
+                    let room = roomsData.find(r => r.id === roomId);
+                    if (room && room.creatorPhone === userData.phone) {
+                        let messagesArray = Object.values(allMessages[roomId]);
+                        let unreadForThisRoom = 0;
+
+                        messagesArray.forEach(m => {
+                            if (m.phone !== userData.phone && (!m.seenBy || !m.seenBy[userData.phone])) {
+                                unreadForThisRoom++;
+                            }
+                        });
+
+                        if (currentChatRoomId === roomId && currentChatType === 'room') {
+                            unreadForThisRoom = 0;
+                        }
+
+                        totalUnreadCount += unreadForThisRoom;
+                        messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                        let lastMsg = messagesArray[messagesArray.length - 1];
+
+                        if (lastMsg) {
+                            let isMyOwnMessage = (lastMsg.phone === userData.phone);
+                            let isUserInsideThisChat = (roomId === currentChatRoomId && currentChatType === 'room');
+                            let isRecentMessage = (Date.now() - (lastMsg.timestamp || 0) < 2500);
+
+                            if (!isMyOwnMessage && !isUserInsideThisChat && isRecentMessage) {
+                                msgSound.currentTime = 0;
+                                msgSound.play().catch(err => console.log(err));
+                            }
+                        }
+
+                        activeChats.push({
+                            roomId: roomId,
+                            roomName: room.name,
+                            roomImg: room.img,
+                            lastMessageText: lastMsg ? (lastMsg.msgType === 'voice' ? '🎤 Овозӣ' : lastMsg.msgType === 'file' ? '📎 Файл/Расм' : lastMsg.text) : "Паёме нест",
+                            lastMessageUser: lastMsg ? lastMsg.username : "",
+                            timestamp: lastMsg ? (lastMsg.timestamp || 0) : 0,
+                            unreadCount: unreadForThisRoom
+                        });
+                    }
+                });
+            }
+
+            let navBadge = document.getElementById('rooms-unread-badge');
+            if (navBadge) {
+                if (totalUnreadCount > 0) {
+                    navBadge.innerText = totalUnreadCount;
+                    navBadge.style.display = "block";
+                } else {
+                    navBadge.style.display = "none";
+                }
+            }
+
+            activeChats.sort((a, b) => b.timestamp - a.timestamp);
+            renderActiveChats();
+            renderRoomsUI();
+        });
+    }
+
+    function renderActiveChats() {
+        let activeListHTML = "";
+        let visibleChatsCount = 0;
+
+        activeChats.forEach(chat => {
+            visibleChatsCount++;
+            let badgeHTML = chat.unreadCount > 0 ? `<span class="badge" style="margin-left:auto;">${chat.unreadCount}</span>` : "";
+
+            activeListHTML += `
+                <div class="item-card" onclick="tryEnterRoom('${chat.roomId}')" style="padding: 10px 16px;">
+                    <div class="card-main-info">
+                        <img src="${chat.roomImg || defaultAvatar}" class="room-avatar" style="width: 40px; height: 40px;">
+                        <div class="card-info" style="flex:1; margin-left:12px; overflow:hidden;">
+                            <b style="font-size:15px; color:#1e293b;">🏢 ${chat.roomName}</b> 
+                            <span style="font-size:13px; color:#64748b; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${chat.lastMessageUser ? chat.lastMessageUser + ':' : ''} ${chat.lastMessageText}
+                            </span>
+                        </div>
+                        ${badgeHTML}
+                    </div>
+                </div>`;
+        });
+
+        const activeChatsList = document.getElementById('active-chats-list');
+        if (activeChatsList) {
+            activeChatsList.innerHTML = (visibleChatsCount > 0) ? activeListHTML : "<p style='color:gray; font-size:14px; text-align:center; margin-top:20px;'>Чатҳои фаъол мавҷуд нестанд.</p>";
+        }
+    }
+
+    let lastPlayedSoundTimestamp = 0;
+
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        return text.replace(urlRegex, function(url) {
+            return `<a href="${url}" target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: bold; word-break: break-all;">${url}</a>`;
+        });
+    }
+
+    function monitorAccountSecurity() {
+        if (!userData || !userData.phone) return;
+        database.ref('users/' + userData.phone).on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                localStorage.clear(); 
+                location.reload(); 
+            }
+        });
+    }
+
+    function listenPrivateMessagesLiveGlobal() {
+        database.ref('private_status').on('value', snapshot => {
+            let totalUnreadPM = 0;
+            let statusData = snapshot.val();
+            let currentTime = Date.now();
+
+            if(statusData) {
+                Object.keys(statusData).forEach(chatId => {
+                    if(chatId.includes(userData.phone)) {
+                        let info = statusData[chatId];
+                        if(info.lastSender !== userData.phone && !info.read) {
+                            totalUnreadPM++;
+                            let msgTime = info.timestamp || 0;
+                            let isRecentPM = (currentTime - msgTime < 5000); 
+                            let isUserInsideThisPM = (chatId === currentChatRoomId && currentChatType === 'pm');
+
+                            if (isRecentPM && !isUserInsideThisPM && msgTime > lastPlayedSoundTimestamp) {
+                                privateMsgSound.currentTime = 0;
+                                privateMsgSound.play().catch(err => console.log(err));
+                                lastPlayedSoundTimestamp = msgTime;
+                            }
+                        }
+                    }
+                });
+            }
+
+            let profilePmBadge = document.getElementById('profile-pm-badge');
+            if(profilePmBadge) {
+                if(totalUnreadPM > 0) {
+                    profilePmBadge.innerText = totalUnreadPM;
+                    profilePmBadge.style.display = 'block';
+                } else {
+                    profilePmBadge.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    function initiatePrivateChat(targetPhone, targetName) {
+        if(targetPhone === userData.phone) {
+            showSmartAlert("Шумо наметавонед бо худатон чат созед!");
+            return;
+        }
+        let pairId = userData.phone < targetPhone ? `${userData.phone}_${targetPhone}` : `${targetPhone}_${userData.phone}`;
+        
+        database.ref('private_status/' + pairId).update({
+            exists: true
+        }).then(() => {
+            document.getElementById('search-user-result').innerHTML = "";
+            document.getElementById('search-input').value = "";
+            openChat(targetName, defaultAvatar, pairId, 'pm');
+        });
+    }
+
+    function clearPrivateChatMessagesOnly(chatId) {
+        showSmartConfirm("Оё мехоҳед ҳамаи паёмҳоро аз ин чат пок кунед?", function(yes) {
+            if(yes) {
+                database.ref('private_messages/' + chatId).remove().then(() => {
+                    database.ref('private_status/' + chatId).update({ lastMsgText: "Чат тоза карда шуд" });
+                    buildPrivateChatsListUI();
+                });
+            }
+        });
+    }
+
+    function removePrivateChatFromList(chatId) {
+        showSmartConfirm("Оё мехоҳед ин чатро комилан нест кунед?", function(yes) {
+            if(yes) {
+                database.ref('private_messages/' + chatId).remove();
+                database.ref('private_status/' + chatId).remove().then(() => {
+                    buildPrivateChatsListUI();
+                });
+            }
+        });
+    }
+
+    function toggleBlockUserPM(chatId, isCurrentlyBlocked) {
+        let blockStatus = String(isCurrentlyBlocked) === "true";
+        let confirmMsg = blockStatus ? "Оё мехоҳед ин корбарро аз блок бароред?" : "Оё мехоҳед ин корбарро блок кунед?";
+        
+        showSmartConfirm(confirmMsg, function(yes) {
+            if(yes) {
+                let updates = {};
+                updates[`private_status/${chatId}/blockedUsers/${userData.phone}`] = !blockStatus ? true : null;
+                database.ref().update(updates).then(() => {
+                    buildPrivateChatsListUI();
+                    if(currentChatRoomId === chatId) {
+                        openChat(document.getElementById('chat-title').innerText, defaultAvatar, chatId, 'pm');
+                    }
+                });
+            }
+        });
+    }
+
+    function toggleVoiceRecording() {
+        const btn = document.getElementById('voice-record-btn');
+        if (!isRecording) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = () => {
+                    let audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    let reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = () => {
+                        sendSpecialChatMessage(reader.result, 'voice');
+                    }
+                };
+                mediaRecorder.start();
+                isRecording = true;
+                recordingSeconds = 0;
+                btn.innerText = "🛑 0:00";
+                btn.style.color = "red";
+                recordingTimerInterval = setInterval(() => {
+                    recordingSeconds++;
+                    let m = Math.floor(recordingSeconds / 60);
+                    let s = recordingSeconds % 60;
+                    btn.innerText = `🛑 ${m}:${String(s).padStart(2,'0')}`;
+                }, 1000);
+            }).catch(err => showSmartAlert("Иҷозати микрофон дода нашуд!"));
+        } else {
+            clearInterval(recordingTimerInterval);
+            mediaRecorder.stop();
+            isRecording = false;
+            btn.innerText = "🎤";
+            btn.style.color = "inherit";
+        }
+    }
+
+    function handleChatFileSelect(input) {
+        if(input.files && input.files[0]) {
+            let file = input.files[0];
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                sendSpecialChatMessage(e.target.result, 'file', file.name);
+            }
+        }
+    }
+
+    function sendSpecialChatMessage(fileData, type, fileName = '') {
+        if(!currentChatRoomId) return;
+        let dbPath = currentChatType === 'room' ? 'messages/' + currentChatRoomId : 'private_messages/' + currentChatRoomId;
+        let msgRef = database.ref(dbPath).push();
+        let textPlaceholder = type === 'voice' ? '🎤 Паёми овозӣ' : `📎 Файл: ${fileName}`;
+
+        let msgData = {
+            id: msgRef.key,
+            phone: userData.phone,
+            username: userData.name,
+            userImg: userData.img,
+            city: userData.city || "",
+            text: textPlaceholder,
+            fileData: fileData,
+            msgType: type,
+            fileName: fileName,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            seenBy: {}
+        };
+        msgData.seenBy[userData.phone] = true;
+
+        msgRef.set(msgData).then(() => {
+            if(currentChatType === 'pm') {
+                database.ref('private_status/' + currentChatRoomId).update({
+                    exists: true,
+                    lastMsgText: textPlaceholder,
+                    lastSender: userData.phone,
+                    read: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+        });
+    }
+
+    function playAudioMsg(btn, audioSrc) {
+        let audio = new Audio(audioSrc);
+        let timeline = btn.nextElementSibling.querySelector('.audio-progress');
+        btn.innerText = "⏸️";
+        audio.play();
+        audio.ontimeupdate = () => {
+            let pct = (audio.currentTime / audio.duration) * 100;
+            timeline.style.width = pct + "%";
+        };
+        audio.onended = () => {
+            btn.innerText = "▶️";
+            timeline.style.width = "0%";
+        };
+    }
+
+    function setupAgoraListeners() {
+        agoraClient.on("user-published", async (user, mediaType) => {
+            try {
+                await agoraClient.subscribe(user, mediaType);
+                if (mediaType === "video") {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    user.videoTrack.play('agora-video-view');
+                }
+                if (mediaType === "audio") {
+                    user.audioTrack.play();
+                }
+            } catch (e) {
+                console.error("Agora subscription error:", e);
+            }
+        });
+
+        agoraClient.on("user-unpublished", (user, mediaType) => {
+            if (mediaType === "video") {
+                document.getElementById('agora-video-view').style.display = 'none';
+            }
+        });
+    }
+
+    async function startVoiceCall(chatId) {
+        await leaveAgoraChannel();
+
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
+        let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'audio',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'audio' };
+            showCallScreen('Исходящий аудиозвонок...', userData.name, userData.img, '📞 Танҳо садо');
+            dialTone.play().catch(e => console.log(e));
+            
+            database.ref('calls/' + targetPhone).on('value', async snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
+                        currentAgoraChannel = c.roomName;
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        await agoraClient.publish([localTracks.audioTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогии пайвастшавӣ ба Agora: " + err.message);
+                    }
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар зангро рад кард.");
+                }
+            });
+        });
+    }
+
+    async function startVideoCall(chatId) {
+        await leaveAgoraChannel();
+
+        let callRoomName = chatId + "_call_" + Math.floor(Math.random() * 10000);
+        let targetPhone = chatId.replace(userData.phone, "").replace("_", "");
+        
+        database.ref('calls/' + targetPhone).set({
+            callerPhone: userData.phone,
+            callerName: userData.name,
+            callerImg: userData.img,
+            callType: 'video',
+            roomName: callRoomName,
+            status: 'ringing',
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            activeCallSession = { targetPhone: targetPhone, role: 'caller', roomName: callRoomName, type: 'video' };
+            showCallScreen('Исходящий видеозвонок...', userData.name, userData.img, '📹 Овоз ва Видео');
+            dialTone.play().catch(e => console.log(e));
+            
+            database.ref('calls/' + targetPhone).on('value', async snap => {
+                let c = snap.val();
+                if(c && c.status === 'accepted') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    
+                    try {
+                        await agoraClient.setClientRole("host");
+                        await agoraClient.join(AGORA_APP_ID, c.roomName, AGORA_TEMP_TOKEN, null);
+                        currentAgoraChannel = c.roomName;
+                        
+                        localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                        localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                        
+                        localTracks.videoTrack.play('agora-video-view');
+                        await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                    } catch (err) {
+                        showSmartAlert("Хатогӣ дар пайвасти видео: " + err.message);
+                    }
+                } else if (!c || c.status === 'rejected') {
+                    dialTone.pause();
+                    hideCallScreen();
+                    database.ref('calls/' + targetPhone).off();
+                    showSmartAlert("Корбар видеозангро рад кард.");
+                }
+            });
+        });
+    }
+
+    function listenForIncomingCalls() {
+        if (!userData || !userData.phone) return;
+        if (callListenerRef) callListenerRef.off();
+        
+        callListenerRef = database.ref('calls/' + userData.phone);
+        callListenerRef.on('value', snap => {
+            let call = snap.val();
+            if (call && call.status === 'ringing') {
+                activeCallSession = { callerPhone: call.callerPhone, roomName: call.roomName, type: call.callType };
+                showCallScreen(
+                    'Входящий звонок...', 
+                    call.callerName, 
+                    call.callerImg || defaultAvatar, 
+                    call.callType === 'audio' ? '📞 Аудиозанг' : '📹 Видеовизов'
+                );
+                dialTone.play().catch(e => console.log(e));
+            } else if (!call && document.getElementById('incoming-call-panel').style.display === 'flex') {
+                dialTone.pause();
+                hideCallScreen();
+            }
+        });
+    }
+
+    function showCallScreen(statusText, name, img, typeText) {
+        document.getElementById('call-screen-status').innerText = statusText;
+        document.getElementById('call-screen-name').innerText = name;
+        document.getElementById('call-screen-avatar').src = img || defaultAvatar;
+        document.getElementById('call-screen-type').innerText = typeText;
+        document.getElementById('incoming-call-panel').style.display = 'flex';
+    }
+
+    function hideCallScreen() {
+        document.getElementById('incoming-call-panel').style.display = 'none';
+    }
+
+// Танзимоти зангҳои Agora
+    async function acceptActiveCall() {
+        dialTone.pause();
+        if (activeCallSession && activeCallSession.roomName) {
+            try {
+                await database.ref('calls/' + userData.phone).update({ status: 'accepted' });
+                hideCallScreen();
+
+                await leaveAgoraChannel();
+                
+                await agoraClient.setClientRole("host");
+                await agoraClient.join(AGORA_APP_ID, activeCallSession.roomName, AGORA_TEMP_TOKEN, null);
+                currentAgoraChannel = activeCallSession.roomName;
+                
+                localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+                
+                if (activeCallSession.type === 'video') {
+                    document.getElementById('agora-video-view').style.display = 'block';
+                    localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
+                    localTracks.videoTrack.play('agora-video-view');
+                    await agoraClient.publish([localTracks.audioTrack, localTracks.videoTrack]);
+                } else {
+                    await agoraClient.publish([localTracks.audioTrack]);
+                }
+            } catch (err) {
+                showSmartAlert("Хатогӣ ҳангоми пайвастшавӣ: " + err.message);
+            }
+        }
+    }
+
+    // Функсияи рад кардани занги воридшаванда / хориҷшаванда
+    async function rejectActiveCall() {
+        dialTone.pause();
+        if (activeCallSession) {
+            if (activeCallSession.role === 'caller') {
+                database.ref('calls/' + activeCallSession.targetPhone).remove();
+            } else {
+                database.ref('calls/' + userData.phone).update({ status: 'rejected' });
+                setTimeout(() => { database.ref('calls/' + userData.phone).remove(); }, 1000);
+            }
+        }
+        await leaveAgoraChannel();
+        activeCallSession = null;
+        hideCallScreen();
+    }
+
+// Функсия барои қатъ кардани ҳамаи пайвастҳо
+    async function leaveAgoraChannel() {
+        if (localTracks.audioTrack) { localTracks.audioTrack.stop(); localTracks.audioTrack.close(); localTracks.audioTrack = null; }
+        if (localTracks.videoTrack) { localTracks.videoTrack.stop(); localTracks.videoTrack.close(); localTracks.videoTrack = null; }
+        document.getElementById('agora-video-view').style.display = 'none';
+        isViewerInLiveRoom = false;
+        currentAgoraChannel = null;
+        try { await agoraClient.leave(); } catch(e) { console.log("Agora leave error:", e); }
+    }
+
+    function openChat(name, img, roomId, type = 'room') {
+        const contactsHeader = document.querySelector('.contacts-sticky-header');
+        if (contactsHeader) { contactsHeader.style.display = 'none'; }
+        
+        currentChatRoomId = roomId;
+        currentChatType = type;
+        document.getElementById('chat-title').innerText = name;
+        document.getElementById('chat-window').style.display = 'flex';
+        
+        let messagesList = document.getElementById('chat-messages-list');
+        messagesList.innerHTML = ""; 
+
+        let headerActions = document.getElementById('chat-header-settings-zone');
+        let statusSubtitle = document.getElementById('chat-user-status-subtitle');
+        statusSubtitle.innerText = ""; 
+
+        if (activeChatHeaderListener) { activeChatHeaderListener.off(); activeChatHeaderListener = null; }
+        if (activeTypingListener) { activeTypingListener.off(); activeTypingListener = null; }
+        if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
+
+        let parts = roomId.split('_');
+        let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
+
+        if(type === 'pm') {
+            headerActions.innerHTML = `
+                <button class="call-btn" onclick="startVoiceCall('${roomId}')" title="Занг задан">📞</button>
+                <button class="call-btn" onclick="startVideoCall('${roomId}')" title="Видеовизов">📹</button>
+                <button class="chat-header-btn" onclick="toggleChatHeaderSettingsDropdown(event)">⚙️</button>
+                <div class="chat-header-dropdown" id="chat-header-dropdown-menu">
+                    <button id="chat-dropdown-block-btn" onclick="handleBlockFromChatHeader('${roomId}')">Блок кардан</button>
+                </div>`;
+
+            activeChatHeaderListener = database.ref('users/' + otherPhone);
+            activeChatHeaderListener.on('value', snap => {
+                if (snap.exists()) {
+                    let otherUser = snap.val();
+                    let isOnline = false;
+                    if(otherUser.lastActive) {
+                        let diff = Date.now() - otherUser.lastActive;
+                        if(diff < 12000) isOnline = true;
+                    }
+                    if (isOnline) {
+                        statusSubtitle.innerHTML = `<span style="color:#10b981; font-weight:bold;">в сети 🟢</span>`;
+                    } else {
+                        statusSubtitle.innerText = "не в сети";
+                    }
+                }
+            });
+        } else {
+            headerActions.innerHTML = "";
+            statusSubtitle.innerText = "Гурӯҳ (Комната)";
+            // Агар дар ин комната эфир фаъол бошад, тамошобинро пайваст мекунем
+            joinRoomLiveAsViewerIfActive(roomId);
+        }
+
+        let dbPath = currentChatType === 'room' ? 'messages/' + roomId : 'private_messages/' + roomId;
+        database.ref(dbPath).on('value', (snapshot) => {
+            if(currentChatRoomId !== roomId) return; 
+
+            let messages = snapshot.val();
+            let messagesHTML = "";
+            let lastDateStr = "";
+
+            if(messages) {
+                let messagesArray = Object.values(messages);
+                messagesArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+                messagesArray.forEach(m => {
+                    let msgDateStr = formatDateDivider(m.timestamp);
+                    if(msgDateStr !== lastDateStr) {
+                        messagesHTML += `<div class="date-divider"><span>${msgDateStr}</span></div>`;
+                        lastDateStr = msgDateStr;
+                    }
+
+                    let isMe = m.phone === userData.phone;
+                    let wrapperClass = isMe ? "me" : "other";
+
+                    if(currentChatType === 'room' && !isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
+                        database.ref(`messages/${roomId}/${m.id}/seenBy/${userData.phone}`).set(true);
+                    } else if (currentChatType === 'pm' && !isMe && (!m.seenBy || !m.seenBy[userData.phone])) {
+                        database.ref(`private_messages/${roomId}/${m.id}/seenBy/${userData.phone}`).set(true);
+                    }
+
+                    let ticksHTML = isMe ? buildTicksHTML(m) : "";
+                    let cityLabel = m.city ? ` (${m.city})` : "";
+                    let bubbleContentHTML = `<div class="msg-text">${linkify(m.text)}</div>`; 
+
+                    if (m.msgType === 'voice') {
+                        bubbleContentHTML = `
+                            <div class="audio-player">
+                                <button class="audio-play-btn" onclick="playAudioMsg(this, '${m.fileData}')">▶️</button>
+                                <div class="audio-timeline"><div class="audio-progress"></div></div>
+                            </div>`;
+                    } else if (m.msgType === 'file') {
+                        if (m.fileData && m.fileData.startsWith('data:image/')) {
+                            bubbleContentHTML = `<img src="${m.fileData}" style="max-width:120px; max-height:120px; border-radius:8px; cursor:pointer;" onclick="openImageModal('${m.fileData}')">`;
+                        } else {
+                            bubbleContentHTML = `<a href="${m.fileData}" download="${m.fileName}" style="color:inherit; text-decoration:underline;">📁 ${m.fileName || 'Файл'}</a>`;
+                        }
+                    }
+
+                    messagesHTML += `
+                        <div class="msg-wrapper ${wrapperClass}">
+                            <img src="${m.userImg || defaultAvatar}" class="msg-avatar">
+                            <div class="msg-body">
+                                <span class="msg-username">${m.username}${cityLabel}</span>
+                                <div class="msg-bubble">
+                                    ${bubbleContentHTML}
+                                    <div class="msg-footer">
+                                        <span>${formatTime(m.timestamp)}</span>
+                                        ${ticksHTML}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            }
+            
+            messagesList.innerHTML = messagesHTML;
+            messagesList.scrollTop = messagesList.scrollHeight; 
+        });
+    }
+
+    function handleBlockFromChatHeader(roomId) {
+        let dropdown = document.getElementById('chat-header-dropdown-menu');
+        if (dropdown) dropdown.style.display = 'none';
+
+        database.ref('private_status/' + roomId).once('value', snapshot => {
+            let statusInfo = snapshot.val() || {};
+            let isBlockedByMe = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
+            toggleBlockUserPM(roomId, isBlockedByMe);
+        });
+    }
+
+    function sendMessage() {
+        let input = document.getElementById('message-input');
+        if(!input) return; 
+        let text = input.value.trim();
+        if(!text || !currentChatRoomId) return;
+
+        if (currentChatType === 'pm') {
+            database.ref('private_status/' + currentChatRoomId).once('value', snapshot => {
+                let statusInfo = snapshot.val() || {};
+                let parts = currentChatRoomId.split('_');
+                let otherPhone = parts[0] === userData.phone ? parts[1] : parts[0];
+                let isBlockedByMe = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[userData.phone] : false;
+                let isBlockedByOther = statusInfo.blockedUsers ? !!statusInfo.blockedUsers[otherPhone] : false;
+
+                if (isBlockedByMe || isBlockedByOther) {
+                    showSmartAlert("Ирсоли паём ғайриимкон аст!");
+                    return;
+                }
+                executeMessageSend(text, input);
+            });
+        } else {
+            executeMessageSend(text, input);
+        }
+    }
+
+    function executeMessageSend(text, input) {
+        let dbPath = currentChatType === 'room' ? 'messages/' + currentChatRoomId : 'private_messages/' + currentChatRoomId;
+        let msgRef = database.ref(dbPath).push();
+        
+        let msgData = {
+            id: msgRef.key,
+            phone: userData.phone,
+            username: userData.name,
+            userImg: userData.img,
+            city: userData.city || "",
+            text: text,
+            msgType: 'text',
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            seenBy: {}
+        };
+        msgData.seenBy[userData.phone] = true;
+
+        msgRef.set(msgData).then(() => {
+            database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
+            
+            if(currentChatType === 'pm') {
+                database.ref('private_status/' + currentChatRoomId).update({
+                    exists: true,
+                    lastMsgText: text,
+                    lastSender: userData.phone,
+                    read: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+            if(input) {
+                input.value = "";
+                if(input.style) input.style.height = "40px";
+            }
+        });
+    }
+
+    function createRoom() {
+        let name = document.getElementById('room-name').value.trim();
+        let pass = document.getElementById('room-pass').value.trim();
+        let fileInput = document.getElementById('room-icon');
+
+        if(!name) { showSmartAlert("Лутфан номи комнатаро нависед!"); return; }
+
+        let roomRef = database.ref('rooms').push();
+        let roomData = {
+            id: roomRef.key,
+            name: name,
+            pass: pass || "",
+            creatorPhone: userData.phone,
+            creatorName: userData.name,
+            img: defaultAvatar,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isSecret: false,
+            onlyAdminCanWrite: false
+        };
+
+        let saveRoom = () => {
+            roomRef.set(roomData).then(() => {
+                toggleRoomForm(false);
+                document.getElementById('room-name').value = "";
+                document.getElementById('room-pass').value = "";
+                document.getElementById('room-icon').value = "";
+                showSmartAlert("Комната сохта шуд!");
+            });
+        }
+
+        if(fileInput && fileInput.files && fileInput.files[0]) {
+            compressImage(fileInput.files[0], function(compressedUrl) {
+                roomData.img = compressedUrl;
+                saveRoom();
+            });
+        } else { saveRoom(); }
+    }
+
+    function deleteRoom(roomId) {
+        showSmartConfirm("Оё мехоҳед ин комнатаро нест кунед?", function(yes) {
+            if(yes) {
+                database.ref('rooms/' + roomId).remove();
+                database.ref('messages/' + roomId).remove();
+            }
+        });
+    }
+
+    function shareRoom(roomId) {
+        let roomLink = window.location.origin + window.location.pathname + "?room=" + roomId;
+        navigator.clipboard.writeText(roomLink).then(() => {
+            showSmartAlert("Истиноди комната нусхабардорӣ шуд!\n\n" + roomLink);
+        });
+    }
+
+// Ислоҳи функсияи баромадан аз чат
+    async function exitAndClearActiveChat() {
+        await leaveAgoraChannel(); // Ислоҳи муҳим: қатъи Agora ҳангоми баромадан
+        
+        const contactsHeader = document.querySelector('.contacts-sticky-header');
+        if (contactsHeader) { contactsHeader.style.display = 'block'; }
+        
+        if (currentChatRoomId) {
+            database.ref(`typing/${currentChatRoomId}/${userData.phone}`).remove();
+            let dbPath = currentChatType === 'room' ? 'messages/' + currentChatRoomId : 'private_messages/' + currentChatRoomId;
+            database.ref(dbPath).off();
+        }
+        if (activeRoomLiveListener) { activeRoomLiveListener.off(); activeRoomLiveListener = null; }
+        
+        document.getElementById('chat-window').style.display = 'none';
+        currentChatRoomId = "";
+
+        if (currentChatType === 'pm') {
+            renderContactsListReal();
+        } else {
+            renderActiveChats();
+        }
+
+        const profileBtn = document.querySelector('.nav-item[onclick*="profile-screen"]');
+        switchScreen('profile-screen', profileBtn);
+    }
+
+    function openImageModal(imgSrc) {
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-img');
+        const downloadBtn = document.getElementById('download-btn');
+        
+        if (modal && modalImg) {
+            modal.style.display = 'flex';
+            modalImg.src = imgSrc;
+            if (downloadBtn) downloadBtn.href = imgSrc;
+        }
+    }
+
+    document.getElementById('image-modal').addEventListener('click', function(e) {
+        if (e.target.id === 'modal-img' || e.target.id === 'download-btn') return;
+        this.style.display = 'none';
+    });
+</script>
+
+<script>
+    /* ===== Мошини садо (Web Audio API — бе файли беруна, сифати баланд) ===== */
+    (function(){
+        let actx = null;
+        function ctx(){ if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if(actx.state === 'suspended') actx.resume(); return actx; }
+
+        function tone(freq, dur, type, gainStart, glide){
+            const c = ctx();
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, c.currentTime);
+            if (glide) osc.frequency.exponentialRampToValueAtTime(glide, c.currentTime + dur);
+            gain.gain.setValueAtTime(gainStart || 0.18, c.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+            osc.connect(gain).connect(c.destination);
+            osc.start();
+            osc.stop(c.currentTime + dur);
+        }
+
+        const sounds = {
+            nav:      () => { tone(520, 0.09, 'sine', 0.15, 700); },
+            primary:  () => { tone(660, 0.08, 'triangle', 0.18, 880); setTimeout(()=>tone(880,0.09,'triangle',0.12),40); },
+            send:     () => { tone(700, 0.07, 'sine', 0.16, 1050); setTimeout(()=>tone(1050,0.08,'sine',0.1),50); },
+            back:     () => { tone(420, 0.09, 'sine', 0.14, 300); },
+            danger:   () => { tone(300, 0.14, 'sawtooth', 0.12, 160); },
+            success:  () => { tone(600, 0.07, 'sine', 0.15, 950); setTimeout(()=>tone(950,0.09,'sine',0.12),60); },
+            call:     () => { tone(500, 0.1, 'sine', 0.16, 750); setTimeout(()=>tone(750,0.1,'sine',0.13),60); },
+            menu:     () => { tone(480, 0.06, 'sine', 0.12, 560); },
+            toggle:   () => { tone(440, 0.05, 'square', 0.08, 520); },
+            audio:    () => { tone(560, 0.08, 'sine', 0.14, 640); },
+            'default':() => { tone(500, 0.06, 'sine', 0.12, 600); }
+        };
+
+        function pickSound(el){
+            if (el.classList.contains('nav-item')) return sounds.nav;
+            if (el.classList.contains('back-btn')) return sounds.back;
+            if (el.classList.contains('danger') || el.classList.contains('pm-danger-item')) return sounds.danger;
+            if (el.classList.contains('call-accept')) return sounds.success;
+            if (el.classList.contains('call-decline')) return sounds.danger;
+            if (el.classList.contains('call-btn') || el.classList.contains('call-action-circle')) return sounds.call;
+            if (el.classList.contains('menu-item') || el.classList.contains('pm-dots-btn') || el.classList.contains('toast-btn')) return sounds.menu;
+            if (el.classList.contains('audio-play-btn')) return sounds.audio;
+            if (el.classList.contains('toggle-password')) return sounds.toggle;
+            if (el.getAttribute('onclick') && el.getAttribute('onclick').includes('sendMessage')) return sounds.send;
+            if (el.classList.contains('btn')) return sounds.primary;
+            return sounds['default'];
+        }
+
+        function spawnRipple(el, evt){
+            try {
+                const rect = el.getBoundingClientRect();
+                const r = document.createElement('span');
+                const size = Math.max(rect.width, rect.height);
+                const x = (evt.clientX ?? (rect.left + rect.width/2)) - rect.left - size/2;
+                const y = (evt.clientY ?? (rect.top + rect.height/2)) - rect.top - size/2;
+                r.className = 'ripple-el';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = x + 'px';
+                r.style.top = y + 'px';
+                el.appendChild(r);
+                setTimeout(()=> r.remove(), 500);
+            } catch(e) {}
+        }
+
+        document.addEventListener('click', function(e){
+            const el = e.target.closest('button, .nav-item, .download-btn-bottom');
+            if (!el) return;
+            try { pickSound(el)(); } catch(err) {}
+            spawnRipple(el, e);
+        }, true);
+    })();
+</script>
+
+</body>
+</html>
