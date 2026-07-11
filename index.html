@@ -804,6 +804,30 @@
         .call-decline { background: #ef4444; }
 
 #agora-video-view { width: 100%; height: 250px; background: #000; display: none; border-radius: 12px; margin-top: 5px; }
+    <style>
+        /* ===== Зинда ва зебо кардани тугмахо (анимация) ===== */
+        button, .nav-item, .btn, .chat-header-btn, .back-btn, .pm-dots-btn,
+        .menu-item, .toast-btn, .call-action-circle, .call-btn, .live-btn,
+        .manage-btn, .contact-tab-btn, .profile-ctrl-btn, .add-profile-btn,
+        .pms-profile-btn, .audio-play-btn, .toggle-password {
+            transition: transform 0.12s cubic-bezier(.34,1.56,.64,1), box-shadow 0.18s ease, filter 0.18s ease, background 0.18s ease;
+            will-change: transform;
+        }
+        button:active, .nav-item:active, .btn:active, .chat-header-btn:active,
+        .back-btn:active, .pm-dots-btn:active, .menu-item:active, .toast-btn:active,
+        .call-action-circle:active, .call-btn:active, .live-btn:active,
+        .manage-btn:active, .contact-tab-btn:active, .profile-ctrl-btn:active,
+        .add-profile-btn:active, .pms-profile-btn:active, .audio-play-btn:active,
+        .toggle-password:active {
+            transform: scale(0.9);
+        }
+        .btn:hover, .live-btn:hover, .manage-btn:hover { filter: brightness(1.06); box-shadow: 0 4px 14px rgba(102,126,234,0.28); }
+        .nav-item:hover { filter: brightness(1.1); }
+        .call-accept { animation: pulseAccept 1.4s infinite; }
+        @keyframes pulseAccept { 0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.55);} 50% { box-shadow: 0 0 0 10px rgba(34,197,94,0);} }
+        .ripple-el { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.55); transform: scale(0); animation: rippleAnim 0.5s ease-out; pointer-events: none; z-index: 5; }
+        @keyframes rippleAnim { to { transform: scale(2.6); opacity: 0; } }
+        button, .nav-item { position: relative; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -2984,6 +3008,80 @@ const AGORA_TEMP_TOKEN = "007eJxTYHgxa69csImTYG/u35DaowvTTqkeyXebb/Xh3vafa8NSjKM
         if (e.target.id === 'modal-img' || e.target.id === 'download-btn') return;
         this.style.display = 'none';
     });
+</script>
+
+<script>
+    /* ===== Мошини садо (Web Audio API — бе файли беруна, сифати баланд) ===== */
+    (function(){
+        let actx = null;
+        function ctx(){ if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if(actx.state === 'suspended') actx.resume(); return actx; }
+
+        function tone(freq, dur, type, gainStart, glide){
+            const c = ctx();
+            const osc = c.createOscillator();
+            const gain = c.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(freq, c.currentTime);
+            if (glide) osc.frequency.exponentialRampToValueAtTime(glide, c.currentTime + dur);
+            gain.gain.setValueAtTime(gainStart || 0.18, c.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + dur);
+            osc.connect(gain).connect(c.destination);
+            osc.start();
+            osc.stop(c.currentTime + dur);
+        }
+
+        const sounds = {
+            nav:      () => { tone(520, 0.09, 'sine', 0.15, 700); },
+            primary:  () => { tone(660, 0.08, 'triangle', 0.18, 880); setTimeout(()=>tone(880,0.09,'triangle',0.12),40); },
+            send:     () => { tone(700, 0.07, 'sine', 0.16, 1050); setTimeout(()=>tone(1050,0.08,'sine',0.1),50); },
+            back:     () => { tone(420, 0.09, 'sine', 0.14, 300); },
+            danger:   () => { tone(300, 0.14, 'sawtooth', 0.12, 160); },
+            success:  () => { tone(600, 0.07, 'sine', 0.15, 950); setTimeout(()=>tone(950,0.09,'sine',0.12),60); },
+            call:     () => { tone(500, 0.1, 'sine', 0.16, 750); setTimeout(()=>tone(750,0.1,'sine',0.13),60); },
+            menu:     () => { tone(480, 0.06, 'sine', 0.12, 560); },
+            toggle:   () => { tone(440, 0.05, 'square', 0.08, 520); },
+            audio:    () => { tone(560, 0.08, 'sine', 0.14, 640); },
+            'default':() => { tone(500, 0.06, 'sine', 0.12, 600); }
+        };
+
+        function pickSound(el){
+            if (el.classList.contains('nav-item')) return sounds.nav;
+            if (el.classList.contains('back-btn')) return sounds.back;
+            if (el.classList.contains('danger') || el.classList.contains('pm-danger-item')) return sounds.danger;
+            if (el.classList.contains('call-accept')) return sounds.success;
+            if (el.classList.contains('call-decline')) return sounds.danger;
+            if (el.classList.contains('call-btn') || el.classList.contains('call-action-circle')) return sounds.call;
+            if (el.classList.contains('menu-item') || el.classList.contains('pm-dots-btn') || el.classList.contains('toast-btn')) return sounds.menu;
+            if (el.classList.contains('audio-play-btn')) return sounds.audio;
+            if (el.classList.contains('toggle-password')) return sounds.toggle;
+            if (el.getAttribute('onclick') && el.getAttribute('onclick').includes('sendMessage')) return sounds.send;
+            if (el.classList.contains('btn')) return sounds.primary;
+            return sounds['default'];
+        }
+
+        function spawnRipple(el, evt){
+            try {
+                const rect = el.getBoundingClientRect();
+                const r = document.createElement('span');
+                const size = Math.max(rect.width, rect.height);
+                const x = (evt.clientX ?? (rect.left + rect.width/2)) - rect.left - size/2;
+                const y = (evt.clientY ?? (rect.top + rect.height/2)) - rect.top - size/2;
+                r.className = 'ripple-el';
+                r.style.width = r.style.height = size + 'px';
+                r.style.left = x + 'px';
+                r.style.top = y + 'px';
+                el.appendChild(r);
+                setTimeout(()=> r.remove(), 500);
+            } catch(e) {}
+        }
+
+        document.addEventListener('click', function(e){
+            const el = e.target.closest('button, .nav-item, .download-btn-bottom');
+            if (!el) return;
+            try { pickSound(el)(); } catch(err) {}
+            spawnRipple(el, e);
+        }, true);
+    })();
 </script>
 
 </body>
